@@ -53,7 +53,7 @@ void vtkInterpolateNOP<F>::RowInterpolationFunc(
 //----------------------------------------------------------------------------
 vtkAbstractImageInterpolator::vtkAbstractImageInterpolator()
 {
-  this->Scalars = NULL;
+  this->Scalars = nullptr;
   this->BorderMode = VTK_IMAGE_BORDER_CLAMP;
 
   for (int i = 0; i < 6; i++)
@@ -76,8 +76,10 @@ vtkAbstractImageInterpolator::vtkAbstractImageInterpolator()
   this->ComponentCount = -1;
 
   this->InterpolationInfo = new vtkInterpolationInfo();
-  this->InterpolationInfo->Pointer = NULL;
+  this->InterpolationInfo->Pointer = nullptr;
   this->InterpolationInfo->NumberOfComponents = 1;
+  this->InterpolationInfo->InterpolationMode = 0;
+  this->InterpolationInfo->ExtraInfo = nullptr;
 
   this->InterpolationFuncDouble =
     &(vtkInterpolateNOP<double>::InterpolationFunc);
@@ -113,7 +115,7 @@ void vtkAbstractImageInterpolator::DeepCopy(vtkAbstractImageInterpolator *obj)
   if (this->Scalars)
   {
     this->Scalars->Delete();
-    this->Scalars = NULL;
+    this->Scalars = nullptr;
   }
   if (obj->Scalars)
   {
@@ -240,13 +242,13 @@ void vtkAbstractImageInterpolator::Initialize(vtkDataObject *o)
 
   // check for valid data
   vtkImageData *data = vtkImageData::SafeDownCast(o);
-  vtkDataArray *scalars = NULL;
+  vtkDataArray *scalars = nullptr;
   if (data)
   {
     scalars = data->GetPointData()->GetScalars();
   }
 
-  if (data == NULL || scalars == NULL)
+  if (data == nullptr || scalars == nullptr)
   {
     vtkErrorMacro("Initialize(): no image data to interpolate!");
     return;
@@ -271,7 +273,7 @@ void vtkAbstractImageInterpolator::ReleaseData()
   if (this->Scalars)
   {
     this->Scalars->Delete();
-    this->Scalars = NULL;
+    this->Scalars = nullptr;
   }
 }
 
@@ -283,7 +285,7 @@ void vtkAbstractImageInterpolator::Update()
   // check for scalars
   if (!scalars)
   {
-    this->InterpolationInfo->Pointer = NULL;
+    this->InterpolationInfo->Pointer = nullptr;
     this->InterpolationInfo->NumberOfComponents = 1;
 
     this->InterpolationFuncDouble =
@@ -315,7 +317,7 @@ void vtkAbstractImageInterpolator::Update()
   double tol = this->Tolerance;
   // always restrict the bounds to the limits of int
   int supportSize[3];
-  this->ComputeSupportSize(NULL, supportSize);
+  this->ComputeSupportSize(nullptr, supportSize);
   // use the max of the three support size values
   int kernelSize = supportSize[0];
   kernelSize = ((supportSize[1] < kernelSize) ? kernelSize : supportSize[1]);
@@ -358,9 +360,7 @@ void vtkAbstractImageInterpolator::Update()
   // set all other elements of the InterpolationInfo
   info->ScalarType = scalars->GetDataType();
   info->NumberOfComponents = this->ComputeNumberOfComponents(ncomp);
-  info->InterpolationMode = 0;
   info->BorderMode = this->BorderMode;
-  info->ExtraInfo = NULL;
 
   // subclass-specific update
   this->InternalUpdate();
@@ -498,7 +498,7 @@ void vtkAbstractImageInterpolator::FreePrecomputedWeights(
 
   delete weights;
 
-  weights = NULL;
+  weights = nullptr;
 }
 
 //----------------------------------------------------------------------------

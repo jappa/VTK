@@ -79,7 +79,7 @@ int vtkAggregateDataSetFilter::FillInputPortInformation(int, vtkInformation* inf
 int vtkAggregateDataSetFilter::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  vtkDataSet* input = 0;
+  vtkDataSet* input = nullptr;
   vtkDataSet* output = vtkDataSet::GetData(outputVector, 0);
 
   if (inputVector[0]->GetNumberOfInformationObjects() > 0)
@@ -102,7 +102,7 @@ int vtkAggregateDataSetFilter::RequestData(
 
   // create a subcontroller to simplify communication between the processes
   // that are aggregating data
-  vtkSmartPointer<vtkMultiProcessController> subController = NULL;
+  vtkSmartPointer<vtkMultiProcessController> subController = nullptr;
   if (this->NumberOfTargetProcesses == 1)
   {
     subController = controller;
@@ -152,7 +152,7 @@ int vtkAggregateDataSetFilter::RequestData(
     {
       vtkNew<vtkAppendPolyData> appendFilter;
       for (std::vector<vtkSmartPointer<vtkDataObject> >::iterator it=recvBuffer.begin();
-           it!=recvBuffer.end();it++)
+           it!=recvBuffer.end();++it)
       {
         appendFilter->AddInputData(vtkPolyData::SafeDownCast(*it));
       }
@@ -164,7 +164,7 @@ int vtkAggregateDataSetFilter::RequestData(
       vtkNew<vtkAppendFilter> appendFilter;
       appendFilter->MergePointsOn();
       for (std::vector<vtkSmartPointer<vtkDataObject> >::iterator it=recvBuffer.begin();
-           it!=recvBuffer.end();it++)
+           it!=recvBuffer.end();++it)
       {
         appendFilter->AddInputData(*it);
       }

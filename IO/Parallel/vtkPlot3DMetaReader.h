@@ -81,21 +81,18 @@
 #include "vtkIOParallelModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
+#include "vtk_jsoncpp_fwd.h" // For forward declarations
+
 struct vtkPlot3DMetaReaderInternals;
 
 class vtkMultiBlockPLOT3DReader;
-
-namespace Json
-{
-  class Value;
-}
 
 class VTKIOPARALLEL_EXPORT vtkPlot3DMetaReader : public vtkMultiBlockDataSetAlgorithm
 {
 public:
   static vtkPlot3DMetaReader* New();
   vtkTypeMacro(vtkPlot3DMetaReader, vtkMultiBlockDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -108,14 +105,14 @@ public:
 
 protected:
   vtkPlot3DMetaReader();
-  ~vtkPlot3DMetaReader();
+  ~vtkPlot3DMetaReader() override;
 
-  virtual int RequestInformation(vtkInformation* request,
+  int RequestInformation(vtkInformation* request,
                                  vtkInformationVector** inputVector,
-                                 vtkInformationVector* outputVector);
-  virtual int RequestData(vtkInformation*,
+                                 vtkInformationVector* outputVector) override;
+  int RequestData(vtkInformation*,
                           vtkInformationVector**,
-                          vtkInformationVector*);
+                          vtkInformationVector*) override;
 
 
   char* FileName;
@@ -135,8 +132,8 @@ protected:
   void SetFunctionNames(Json::Value* val);
 
 private:
-  vtkPlot3DMetaReader(const vtkPlot3DMetaReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPlot3DMetaReader&) VTK_DELETE_FUNCTION;
+  vtkPlot3DMetaReader(const vtkPlot3DMetaReader&) = delete;
+  void operator=(const vtkPlot3DMetaReader&) = delete;
 
   vtkMultiBlockPLOT3DReader* Reader;
   vtkPlot3DMetaReaderInternals* Internal;

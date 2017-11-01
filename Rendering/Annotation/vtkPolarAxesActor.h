@@ -55,7 +55,7 @@ class VTKRENDERINGANNOTATION_EXPORT vtkPolarAxesActor : public vtkActor
 {
 public:
   vtkTypeMacro(vtkPolarAxesActor, vtkActor);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Instantiate object with label format "6.3g" and the number of labels
@@ -67,9 +67,9 @@ public:
   /**
    * Draw the polar axes
    */
-  virtual int RenderOpaqueGeometry(vtkViewport*);
-  virtual int RenderOverlay(vtkViewport*);
-  virtual int RenderTranslucentPolygonalGeometry(vtkViewport*) { return 0; };
+  int RenderOpaqueGeometry(vtkViewport*) override;
+  int RenderOverlay(vtkViewport*) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport*) override { return 0; };
   //@}
 
   //@{
@@ -253,7 +253,7 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow*);
+  void ReleaseGraphicsResources(vtkWindow*) override;
 
   //@{
   /**
@@ -331,7 +331,7 @@ public:
 
   //@{
   /**
-   * Get/Set the alignement of the radial axes title related to the axis.
+   * Get/Set the alignment of the radial axes title related to the axis.
    * Possible Alignment: VTK_TITLE_BOTTOM, VTK_TITLE_EXTERN
    */
   vtkSetClampMacro(RadialAxisTitleLocation, int, VTK_TITLE_BOTTOM, VTK_TITLE_EXTERN);
@@ -340,7 +340,7 @@ public:
 
   //@{
   /**
-   * Get/Set the alignement of the polar axes title related to the axis.
+   * Get/Set the alignment of the polar axes title related to the axis.
    * Possible Alignment: VTKTITLE_BOTTOM, VTK_TITLE_EXTERN
    */
   vtkSetClampMacro(PolarAxisTitleLocation, int, VTK_TITLE_BOTTOM, VTK_TITLE_EXTERN);
@@ -678,7 +678,7 @@ public:
    * sure that the min's are less than the max's.
    */
   vtkSetVector6Macro(Bounds, double);
-  double* GetBounds();
+  double* GetBounds() override;
   void GetBounds(
     double& xmin, double& xmax, double& ymin, double& ymax, double& zmin, double& zmax);
   void GetBounds(double bounds[6]);
@@ -694,7 +694,7 @@ public:
 
 protected:
   vtkPolarAxesActor();
-  ~vtkPolarAxesActor();
+  ~vtkPolarAxesActor() override;
 
   /**
    * Check consistency of vtkPolarAxesActor members.
@@ -780,7 +780,7 @@ protected:
   std::string FindExponentAndAdjustValues(std::list<double>& valuesList);
 
   /**
-   * Yield a string array whith the float part of each values. 0.01e-2 -> 0.0001
+   * Yield a string array with the float part of each values. 0.01e-2 -> 0.0001
    */
   void GetSignificantPartFromValues(vtkStringArray* valuesStr, std::list<double>& valuesList);
 
@@ -905,11 +905,6 @@ protected:
    */
   double SmallestVisiblePolarAngle;
 
-  /**
-   * Explicit actor bounds
-   */
-  double Bounds[6];
-
   // Structures for principal polar arc
   vtkPolyData* PolarArcs;
   vtkPolyDataMapper* PolarArcsMapper;
@@ -978,7 +973,7 @@ protected:
   int EnableViewAngleLOD;
 
   /**
-   * This determines at what view angle to geometry will make the geometry not visibile.
+   * This determines at what view angle to geometry will make the geometry not visible.
    * Default is 0.3.
    */
   double ViewAngleLODThreshold;
@@ -1061,12 +1056,12 @@ protected:
   //@}
 
   /**
-   * Define the alignement of the title related to the radial axis. (BOTTOM or EXTERN)
+   * Define the alignment of the title related to the radial axis. (BOTTOM or EXTERN)
    */
   int RadialAxisTitleLocation;
 
   /**
-   * Define the alignement of the title related to the polar axis. (BOTTOM or EXTERN)
+   * Define the alignment of the title related to the polar axis. (BOTTOM or EXTERN)
    */
   int PolarAxisTitleLocation;
 
@@ -1082,12 +1077,12 @@ protected:
   int PolarArcsVisibility;
 
   /**
-   * Visibility of the inner axes (overriden to 0 if RadialAxesVisibility is set to 0)
+   * Visibility of the inner axes (overridden to 0 if RadialAxesVisibility is set to 0)
    */
   int DrawRadialGridlines;
 
   /**
-   * Visibility of the inner arcs (overriden to 0 if PolarArcsVisibility is set to 0)
+   * Visibility of the inner arcs (overridden to 0 if PolarArcsVisibility is set to 0)
    */
   int DrawPolarArcsGridlines;
 
@@ -1165,8 +1160,8 @@ protected:
   double ScreenSize;
 
 private:
-  vtkPolarAxesActor(const vtkPolarAxesActor&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPolarAxesActor&) VTK_DELETE_FUNCTION;
+  vtkPolarAxesActor(const vtkPolarAxesActor&) = delete;
+  void operator=(const vtkPolarAxesActor&) = delete;
 };
 
 #endif

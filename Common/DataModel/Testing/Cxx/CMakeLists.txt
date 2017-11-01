@@ -1,5 +1,6 @@
 vtk_add_test_cxx(${vtk-module}CxxTests tests
   NO_DATA NO_VALID NO_OUTPUT
+  LagrangeHexahedron.cxx
   TestColor.cxx
   TestVector.cxx
   TestVectorOperators.cxx
@@ -26,6 +27,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestPointLocators.cxx
   TestPolyDataRemoveCell.cxx
   TestPolygon.cxx
+  TestPolygonBoundedTriangulate.cxx
   TestPolyhedron0.cxx
   TestPolyhedron1.cxx
   TestPolyhedron3.cxx
@@ -46,8 +48,10 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   otherColorTransferFunction.cxx
   otherEmptyCell.cxx
   otherFieldData.cxx
+  otherImageData.cxx
   otherRectilinearGrid.cxx
   otherStructuredGrid.cxx
+  otherUniformGrid.cxx
   quadCellConsistency.cxx
   quadraticEvaluation.cxx
   TestBoundingBox.cxx
@@ -61,13 +65,17 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   UnitTestImplicitVolume.cxx
   UnitTestLine.cxx
   UnitTestPlanesIntersection.cxx
+  UnitTestTriangleIntersection.cxx
   )
 vtk_add_test_cxx(${vtk-module}CxxTests data_tests
+  TestLagrangeTriangle.cxx
+  TestLagrangeTetra.cxx
   quadraticIntersection.cxx
   TestCellIterators.cxx,NO_VALID,NO_OUTPUT
   TestCellLocator.cxx,NO_DATA
   TestMeanValueCoordinatesInterpolation1.cxx
   TestMeanValueCoordinatesInterpolation2.cxx
+  TestPolyhedron4.cxx,NO_VALID,NO_OUTPUT
   TestSmoothErrorMetric.cxx
   TestQuadraticPolygonFilters.cxx
   )
@@ -77,6 +85,13 @@ list(APPEND data_tests TestPolyhedron2.cxx)
 vtk_add_test_cxx(${vtk-module}CxxTests output_tests
   TestKdTreeRepresentation.cxx,NO_DATA
   )
+#vtk_add_test_cxx(${vtk-module}CxxTests custom_tests
+#  LagrangeInterpolation.cxx,NO_DATA
+#  CUSTOM_BASELINES
+#  DATA{../Data/Baseline/LagrangeInterpolation_333hex.png,:}
+#  DATA{../Data/Baseline/LagrangeInterpolation_531hex.png,:}
+#  DATA{../Data/Baseline/LagrangeInterpolation_333wedge.png,:}
+#  )
 ExternalData_add_test(VTKData
   NAME TestPolyhedron2
   COMMAND ${vtk-module}CxxTests TestPolyhedron2
@@ -86,5 +101,6 @@ set(all_tests
   ${tests}
   ${data_tests}
   ${output_tests}
+  ${custom_tests}
   )
 vtk_test_cxx_executable(${vtk-module}CxxTests all_tests)

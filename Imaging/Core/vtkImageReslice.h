@@ -74,7 +74,7 @@ public:
   static vtkImageReslice *New();
   vtkTypeMacro(vtkImageReslice, vtkThreadedImageAlgorithm);
 
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -425,12 +425,12 @@ public:
    * When determining the modified time of the filter,
    * this check the modified time of the transform and matrix.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   /**
    * Report object referenced by instances of this class.
    */
-  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
+  void ReportReferences(vtkGarbageCollector*) override;
 
   //@{
   /**
@@ -486,7 +486,7 @@ public:
 
 protected:
   vtkImageReslice();
-  ~vtkImageReslice();
+  ~vtkImageReslice() override;
 
   vtkMatrix4x4 *ResliceAxes;
   double ResliceAxesDirectionCosines[9];
@@ -555,21 +555,21 @@ protected:
                          count, idX, idY, idZ, threadId); }
 
   void GetAutoCroppedOutputBounds(vtkInformation *inInfo, double bounds[6]);
-  virtual void AllocateOutputData(vtkImageData *output, vtkInformation *outInfo, int *uExtent) VTK_OVERRIDE;
-  virtual vtkImageData *AllocateOutputData(vtkDataObject *, vtkInformation *) VTK_OVERRIDE;
-  virtual int RequestInformation(vtkInformation *, vtkInformationVector **,
-                                 vtkInformationVector *) VTK_OVERRIDE;
-  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-                                  vtkInformationVector *) VTK_OVERRIDE;
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) VTK_OVERRIDE;
-  virtual void ThreadedRequestData(vtkInformation *request,
+  void AllocateOutputData(vtkImageData *output, vtkInformation *outInfo, int *uExtent) override;
+  vtkImageData *AllocateOutputData(vtkDataObject *, vtkInformation *) override;
+  int RequestInformation(vtkInformation *, vtkInformationVector **,
+                                 vtkInformationVector *) override;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
+                                  vtkInformationVector *) override;
+  int RequestData(vtkInformation *, vtkInformationVector **,
+                          vtkInformationVector *) override;
+  void ThreadedRequestData(vtkInformation *request,
                                    vtkInformationVector **inputVector,
                                    vtkInformationVector *outputVector,
                                    vtkImageData ***inData,
-                                   vtkImageData **outData, int ext[6], int id) VTK_OVERRIDE;
-  virtual int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
-  virtual int FillOutputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+                                   vtkImageData **outData, int ext[6], int id) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int FillOutputPortInformation(int port, vtkInformation *info) override;
 
   vtkMatrix4x4 *GetIndexMatrix(vtkInformation *inInfo,
                                vtkInformation *outInfo);
@@ -577,8 +577,8 @@ protected:
     return this->OptimizedTransform; };
 
 private:
-  vtkImageReslice(const vtkImageReslice&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageReslice&) VTK_DELETE_FUNCTION;
+  vtkImageReslice(const vtkImageReslice&) = delete;
+  void operator=(const vtkImageReslice&) = delete;
 };
 
 #endif

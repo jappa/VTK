@@ -39,7 +39,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLRenderPass: public vtkRenderPass
 {
 public:
   vtkTypeMacro(vtkOpenGLRenderPass, vtkRenderPass)
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
    * Use vtkShaderProgram::Substitute to replace //VTK::XXX:YYY declarations in
@@ -69,7 +69,7 @@ public:
    */
   virtual bool SetShaderParameters(vtkShaderProgram *program,
                                    vtkAbstractMapper *mapper, vtkProp *prop,
-                                   vtkOpenGLVertexArrayObject *VAO = NULL);
+                                   vtkOpenGLVertexArrayObject *VAO = nullptr);
 
   /**
    * For multi-stage render passes that need to change shader code during a
@@ -85,9 +85,15 @@ public:
    */
   static vtkInformationObjectBaseVectorKey *RenderPasses();
 
+  /**
+   * Number of active draw buffers.
+   */
+  vtkSetMacro(ActiveDrawBuffers, unsigned int);
+  vtkGetMacro(ActiveDrawBuffers, unsigned int);
+
 protected:
   vtkOpenGLRenderPass();
-  ~vtkOpenGLRenderPass();
+  ~vtkOpenGLRenderPass() override;
 
   /**
    * Call before rendering to update the actors' information keys.
@@ -99,9 +105,11 @@ protected:
    */
   void PostRender(const vtkRenderState *s);
 
+  unsigned int ActiveDrawBuffers = 0;
+
 private:
-  vtkOpenGLRenderPass(const vtkOpenGLRenderPass&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLRenderPass&) VTK_DELETE_FUNCTION;
+  vtkOpenGLRenderPass(const vtkOpenGLRenderPass&) = delete;
+  void operator=(const vtkOpenGLRenderPass&) = delete;
 };
 
 #endif // vtkOpenGLRenderPass_h

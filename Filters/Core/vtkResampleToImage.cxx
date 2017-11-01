@@ -237,11 +237,12 @@ void vtkResampleToImage::PerformResampling(vtkDataObject *input,
   structure->SetSpacing(spacing);
   structure->SetExtent(probingExtent);
 
-  this->Prober->SetInputData(structure.GetPointer());
+  this->Prober->SetInputData(structure);
   this->Prober->SetSourceData(input);
   this->Prober->Update();
 
   output->ShallowCopy(this->Prober->GetOutput());
+  output->GetFieldData()->PassData(input->GetFieldData());
 }
 
 //----------------------------------------------------------------------------
@@ -379,7 +380,7 @@ int vtkResampleToImage::RequestData(vtkInformation *vtkNotUsed(request),
     std::copy(this->SamplingBounds, this->SamplingBounds + 6, samplingBounds);
   }
 
-  this->PerformResampling(input, samplingBounds, false, NULL, output);
+  this->PerformResampling(input, samplingBounds, false, nullptr, output);
   this->SetBlankPointsAndCells(output);
 
   return 1;
