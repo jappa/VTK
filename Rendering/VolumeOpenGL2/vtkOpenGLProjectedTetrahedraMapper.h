@@ -56,11 +56,11 @@ public:
   vtkTypeMacro(vtkOpenGLProjectedTetrahedraMapper,
                        vtkProjectedTetrahedraMapper);
   static vtkOpenGLProjectedTetrahedraMapper *New();
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
-  virtual void ReleaseGraphicsResources(vtkWindow *window);
+  void ReleaseGraphicsResources(vtkWindow *window) override;
 
-  virtual void Render(vtkRenderer *renderer, vtkVolume *volume);
+  void Render(vtkRenderer *renderer, vtkVolume *volume) override;
 
   //@{
   /**
@@ -76,11 +76,11 @@ public:
    * Return true if the rendering context provides
    * the nececessary functionality to use this class.
    */
-  virtual bool IsSupported(vtkRenderWindow *context);
+  bool IsSupported(vtkRenderWindow *context) override;
 
 protected:
   vtkOpenGLProjectedTetrahedraMapper();
-  ~vtkOpenGLProjectedTetrahedraMapper();
+  ~vtkOpenGLProjectedTetrahedraMapper() override;
 
   void Initialize(vtkRenderer *ren);
   bool Initialized;
@@ -123,9 +123,15 @@ protected:
                           int use_linear_depth_correction,
                           float linear_depth_correction);
 
+  /**
+   * Update progress ensuring that OpenGL state is saved and restored before
+   * invoking progress.
+   */
+  void GLSafeUpdateProgress(double value, vtkOpenGLRenderWindow* context);
+
 private:
-  vtkOpenGLProjectedTetrahedraMapper(const vtkOpenGLProjectedTetrahedraMapper &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLProjectedTetrahedraMapper &) VTK_DELETE_FUNCTION;
+  vtkOpenGLProjectedTetrahedraMapper(const vtkOpenGLProjectedTetrahedraMapper &) = delete;
+  void operator=(const vtkOpenGLProjectedTetrahedraMapper &) = delete;
 
   class vtkInternals;
   vtkInternals *Internals;

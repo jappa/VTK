@@ -72,7 +72,7 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperOctreeCutter : public vtkPolyDataAlgori
 {
 public:
   vtkTypeMacro(vtkHyperOctreeCutter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct with user-specified implicit function; initial value of 0.0; and
@@ -140,7 +140,7 @@ public:
    * Override GetMTime because we delegate to vtkContourValues and refer to
    * vtkImplicitFunction.
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() override;
 
   //@{
   /**
@@ -218,12 +218,12 @@ public:
   void CreateDefaultLocator();
 
 protected:
-  vtkHyperOctreeCutter(vtkImplicitFunction *cf=NULL);
-  ~vtkHyperOctreeCutter();
+  vtkHyperOctreeCutter(vtkImplicitFunction *cf=nullptr);
+  ~vtkHyperOctreeCutter() override;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   /**
    * Cut the sub-hierarchy pointed by cursor.
@@ -277,8 +277,8 @@ protected:
   vtkHyperOctreeClipCutPointsGrabber *Grabber;
 
 private:
-  vtkHyperOctreeCutter(const vtkHyperOctreeCutter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHyperOctreeCutter&) VTK_DELETE_FUNCTION;
+  vtkHyperOctreeCutter(const vtkHyperOctreeCutter&) = delete;
+  void operator=(const vtkHyperOctreeCutter&) = delete;
 };
 
 #endif

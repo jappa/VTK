@@ -39,7 +39,7 @@
 
 #include "vtkFiltersParallelFlowPathsModule.h" // For export macro
 #include "vtkLagrangianParticleTracker.h"
-#include "vtkSmartPointer.h"
+#include "vtkSmartPointer.h" // for ivars
 
 class MasterFlagManager;
 class ParticleStreamManager;
@@ -53,7 +53,7 @@ public vtkLagrangianParticleTracker
 {
 public:
   vtkTypeMacro(vtkPLagrangianParticleTracker, vtkLagrangianParticleTracker);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  virtual void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkPLagrangianParticleTracker* New();
 
 protected:
@@ -61,11 +61,11 @@ protected:
   ~vtkPLagrangianParticleTracker();
 
   virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *);
+    vtkInformationVector *) override;
 
   void GenerateParticles(const vtkBoundingBox* bounds, vtkDataSet* seeds,
     vtkDataArray* initialVelocities, vtkDataArray* initialIntegrationTimes,
-    vtkPointData* seedData, int nVar, std::queue<vtkLagrangianParticle*>& particles);
+    vtkPointData* seedData, int nVar, std::queue<vtkLagrangianParticle*>& particles) override;
 
   /**
    * Flags description :
@@ -81,25 +81,25 @@ protected:
    * Master flag empty : all ranks, including master, have no more particles to integrate
    * Master flag finished : all workers ranks have sent the worker flag finished
    */
-  virtual void GetParticleFeed(std::queue<vtkLagrangianParticle*>& particleQueue);
+  virtual void GetParticleFeed(std::queue<vtkLagrangianParticle*>& particleQueue) override;
   virtual int Integrate(vtkLagrangianParticle*, std::queue<vtkLagrangianParticle*>& particleQueue,
     vtkPolyData* particlePathsOutput, vtkIdList* particlePathPointId,
-    vtkDataObject* interactionOutput);
+    vtkDataObject* interactionOutput) override;
 
   void SendParticle(vtkLagrangianParticle* particle);
   void ReceiveParticles(std::queue<vtkLagrangianParticle*>& particleQueue);
 
   bool FinalizeOutputs(vtkPolyData* particlePathsOutput,
-    vtkDataObject* interractionOutput);
+    vtkDataObject* interractionOutput) override;
 
-  bool CheckParticlePathsRenderingThreshold(vtkPolyData* particlePathsOutput);
+  bool CheckParticlePathsRenderingThreshold(vtkPolyData* particlePathsOutput) override;
 
-  void InitializeSurface(vtkDataObject*& surfaces);
+  bool UpdateSurfaceCacheIfNeeded(vtkDataObject*& surfaces) override;
 
   /**
    * Get an unique id for a particle
    */
-  virtual vtkIdType GetNewParticleId();
+  virtual vtkIdType GetNewParticleId() override;
 
   //@{
   /**
@@ -116,7 +116,7 @@ protected:
   RankFlagManager* RFlagManager;
 
 private:
-  vtkPLagrangianParticleTracker(const vtkPLagrangianParticleTracker&);  // Not implemented.
-  void operator=(const vtkPLagrangianParticleTracker&);  // Not implemented.
+  vtkPLagrangianParticleTracker(const vtkPLagrangianParticleTracker&) = delete;  // Not implemented.
+  void operator=(const vtkPLagrangianParticleTracker&) = delete;  // Not implemented.
 };
 #endif

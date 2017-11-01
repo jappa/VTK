@@ -73,20 +73,20 @@ class VTKRENDERINGOPENGL2_EXPORT vtkEDLShading : public vtkDepthImageProcessingP
 public:
   static vtkEDLShading *New();
   vtkTypeMacro(vtkEDLShading,vtkDepthImageProcessingPass);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Perform rendering according to a render state \p s.
    * \pre s_exists: s!=0
    */
-  virtual void Render(const vtkRenderState *s);
+  void Render(const vtkRenderState *s) override;
 
   /**
    * Release graphics resources and ask components to release their own
    * resources.
    * \pre w_exists: w!=0
    */
-  void ReleaseGraphicsResources(vtkWindow *w);
+  void ReleaseGraphicsResources(vtkWindow *w) override;
 
  protected:
   /**
@@ -97,7 +97,7 @@ public:
   /**
    * Destructor.
    */
-  virtual ~vtkEDLShading();
+  ~vtkEDLShading() override;
 
   /**
    * Initialization of required framebuffer objects
@@ -167,8 +167,8 @@ public:
   float Zf;  // far clipping plane
 
  private:
-  vtkEDLShading(const vtkEDLShading&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkEDLShading&) VTK_DELETE_FUNCTION;
+  vtkEDLShading(const vtkEDLShading&) = delete;
+  void operator=(const vtkEDLShading&) = delete;
 };
 
 #endif

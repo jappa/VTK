@@ -63,20 +63,20 @@ class VTKRENDERINGOPENGL2_EXPORT vtkGaussianBlurPass : public vtkImageProcessing
 public:
   static vtkGaussianBlurPass *New();
   vtkTypeMacro(vtkGaussianBlurPass,vtkImageProcessingPass);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Perform rendering according to a render state \p s.
    * \pre s_exists: s!=0
    */
-  virtual void Render(const vtkRenderState *s);
+  void Render(const vtkRenderState *s) override;
 
   /**
    * Release graphics resources and ask components to release their own
    * resources.
    * \pre w_exists: w!=0
    */
-  void ReleaseGraphicsResources(vtkWindow *w);
+  void ReleaseGraphicsResources(vtkWindow *w) override;
 
  protected:
   /**
@@ -87,7 +87,7 @@ public:
   /**
    * Destructor.
    */
-  virtual ~vtkGaussianBlurPass();
+  ~vtkGaussianBlurPass() override;
 
   /**
    * Graphics resources.
@@ -100,8 +100,8 @@ public:
   vtkOpenGLHelper *BlurProgram;
 
  private:
-  vtkGaussianBlurPass(const vtkGaussianBlurPass&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGaussianBlurPass&) VTK_DELETE_FUNCTION;
+  vtkGaussianBlurPass(const vtkGaussianBlurPass&) = delete;
+  void operator=(const vtkGaussianBlurPass&) = delete;
 };
 
 #endif

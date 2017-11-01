@@ -35,7 +35,7 @@ class VTKCOMMONCORE_EXPORT vtkWindow : public vtkObject
 {
 public:
   vtkTypeMacro(vtkWindow,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -142,9 +142,9 @@ public:
    * the diagonal.
    */
   virtual unsigned char *GetPixelData(int x, int y, int x2, int y2,
-                                      int front) = 0;
+                                      int front, int right=0) = 0;
   virtual int GetPixelData(int x, int y, int x2, int y2, int front,
-                           vtkUnsignedCharArray *data) = 0;
+                           vtkUnsignedCharArray *data, int right=0) = 0;
   //@}
 
   //@{
@@ -158,7 +158,7 @@ public:
 
   /**
    * Attempt to detect and set the DPI of the display device by querying the
-   * system. Note that this is not supported on all backends, and this method
+   * system. Note that this is not supported on most backends, and this method
    * will return false if the DPI could not be detected. Use GetDPI() to
    * inspect the detected value.
    */
@@ -198,7 +198,7 @@ public:
 protected:
   int OffScreenRendering;
   vtkWindow();
-  ~vtkWindow() VTK_OVERRIDE;
+  ~vtkWindow() override;
 
   char *WindowName;
   int Size[2];
@@ -213,8 +213,8 @@ protected:
   int    TileScale[2];
 
 private:
-  vtkWindow(const vtkWindow&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkWindow&) VTK_DELETE_FUNCTION;
+  vtkWindow(const vtkWindow&) = delete;
+  void operator=(const vtkWindow&) = delete;
 };
 
 #endif

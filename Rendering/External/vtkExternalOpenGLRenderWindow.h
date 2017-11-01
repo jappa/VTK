@@ -50,18 +50,18 @@ class VTKRENDERINGEXTERNAL_EXPORT vtkExternalOpenGLRenderWindow :
 public:
   static vtkExternalOpenGLRenderWindow *New();
   vtkTypeMacro(vtkExternalOpenGLRenderWindow, vtkGenericOpenGLRenderWindow);
-  void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
    * Begin the rendering process using the existing context.
    */
-  void Start(void);
+  void Start(void) override;
 
   /**
    * Tells if this window is the current graphics context for the calling
    * thread.
    */
-  virtual bool IsCurrent();
+  bool IsCurrent() override;
 
   //@{
   /**
@@ -82,12 +82,12 @@ public:
 
 protected:
   vtkExternalOpenGLRenderWindow();
-  ~vtkExternalOpenGLRenderWindow();
+  ~vtkExternalOpenGLRenderWindow() override;
 
   int AutomaticWindowPositionAndResize;
 
 private:
-  vtkExternalOpenGLRenderWindow(const vtkExternalOpenGLRenderWindow&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExternalOpenGLRenderWindow&) VTK_DELETE_FUNCTION;
+  vtkExternalOpenGLRenderWindow(const vtkExternalOpenGLRenderWindow&) = delete;
+  void operator=(const vtkExternalOpenGLRenderWindow&) = delete;
 };
 #endif //vtkExternalOpenGLRenderWindow_h

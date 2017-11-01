@@ -1,5 +1,6 @@
 #include <algorithm>
 
+#include "vtkBlockSortHelper.h"
 #include "vtkCamera.h"
 #include "vtkDataArray.h"
 #include "vtkFloatArray.h"
@@ -14,63 +15,13 @@
 #include "vtk_glew.h"
 
 
-struct vtkVolumeTexture::SortBlocks
-{
-  vtkRenderer* Renderer;
-  double CameraPosition[4];
-
-  //----------------------------------------------------------------------------
-  SortBlocks(vtkRenderer* ren, vtkMatrix4x4* volMatrix)
-  {
-    this->Renderer = ren;
-
-    vtkCamera* cam = ren->GetActiveCamera();
-    double camWorldPos[4];
-
-    cam->GetPosition(camWorldPos);
-    camWorldPos[3] = 1.0;
-
-    // Transform the camera position to the volume (dataset) coordinate system.
-    vtkNew<vtkMatrix4x4> InverseVolumeMatrix;
-    InverseVolumeMatrix->DeepCopy(volMatrix);
-    InverseVolumeMatrix->Invert();
-    InverseVolumeMatrix->MultiplyPoint(camWorldPos, CameraPosition);
-  }
-
-  //----------------------------------------------------------------------------
-  bool operator() (vtkImageData* first, vtkImageData* second)
-  {
-    double center[3];
-    int ext[6];
-    double spacing[3];
-    first->GetSpacing(spacing);
-
-    first->GetExtent(ext);
-    center[0] = (ext[0] + (ext[1] - ext[0]) / 2.0) * spacing[0];
-    center[1] = (ext[2] + (ext[3] - ext[2]) / 2.0) * spacing[1];
-    center[2] = (ext[4] + (ext[5] - ext[4]) / 2.0) * spacing[2];
-
-    double const dist1 = vtkMath::Distance2BetweenPoints(center, this->CameraPosition);
-
-    second->GetExtent(ext);
-    center[0] = (ext[0] + (ext[1] - ext[0]) / 2.0) * spacing[0];
-    center[1] = (ext[2] + (ext[3] - ext[2]) / 2.0) * spacing[1];
-    center[2] = (ext[4] + (ext[5] - ext[4]) / 2.0) * spacing[2];
-
-    double const dist2 = vtkMath::Distance2BetweenPoints(center, this->CameraPosition);
-
-    return dist2 < dist1;
-  }
-};
-
-////////////////////////////////////////////////////////////////////////////////
 vtkVolumeTexture::vtkVolumeTexture()
 : HandleLargeDataTypes(false)
 , InterpolationType(vtkTextureObject::Linear)
-, Texture(NULL)
+, Texture(nullptr)
 , CurrentBlockIdx(0)
 , StreamBlocks(false)
-, Scalars(NULL)
+, Scalars(nullptr)
 {
   this->Partitions[0] = this->Partitions[1] = this->Partitions[2] = 1;
 
@@ -97,7 +48,7 @@ vtkStandardNewMacro(vtkVolumeTexture);
 //-----------------------------------------------------------------------------
 void vtkVolumeTexture::SetMapper(vtkOpenGLGPUVolumeRayCastMapper* mapper)
 {
-  if (mapper == NULL)
+  if (mapper == nullptr)
   {
     vtkErrorMacro("Invalid mapper!");
     return;
@@ -107,7 +58,7 @@ void vtkVolumeTexture::SetMapper(vtkOpenGLGPUVolumeRayCastMapper* mapper)
 }
 
 //-----------------------------------------------------------------------------
-void vtkVolumeTexture::LoadVolume(vtkRenderer* ren, vtkImageData* data,
+bool vtkVolumeTexture::LoadVolume(vtkRenderer* ren, vtkImageData* data,
   vtkDataArray* scalars, int const interpolation)
 {
   this->ClearBlocks();
@@ -160,8 +111,10 @@ void vtkVolumeTexture::LoadVolume(vtkRenderer* ren, vtkImageData* data,
   if (this->ImageDataBlocks.size() == 1)
   {
     VolumeBlock* onlyBlock = this->SortedVolumeBlocks.at(0);
-    this->LoadTexture(this->InterpolationType, onlyBlock);
+    return this->LoadTexture(this->InterpolationType, onlyBlock);
   }
+
+  return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -184,7 +137,7 @@ vtkVolumeTexture::VolumeBlock* vtkVolumeTexture::GetNextBlock()
   if (this->SortedVolumeBlocks.size() <= this->CurrentBlockIdx)
   {
     this->CurrentBlockIdx = 0;
-    return NULL;
+    return nullptr;
   }
 
   VolumeBlock* block = this->SortedVolumeBlocks.at(this->CurrentBlockIdx);
@@ -268,7 +221,7 @@ vtkVolumeTexture::Size3 vtkVolumeTexture::ComputeBlockSize(int* extent)
 }
 
 //-----------------------------------------------------------------------------
-void vtkVolumeTexture::LoadTexture(int const interpolation, VolumeBlock* volBlock)
+bool vtkVolumeTexture::LoadTexture(int const interpolation, VolumeBlock* volBlock)
 {
   int const noOfComponents = this->Scalars->GetNumberOfComponents();
   int scalarType = this->Scalars->GetDataType();
@@ -280,6 +233,7 @@ void vtkVolumeTexture::LoadTexture(int const interpolation, VolumeBlock* volBloc
   vtkTextureObject* texture = volBlock->TextureObject;
   vtkIdType const& tupleIdx = volBlock->TupleIndex;
 
+  bool success = true;
   if (!this->HandleLargeDataTypes)
   {
     // Adjust strides used by OpenGL to load the data (X and Y strides in case the
@@ -293,7 +247,7 @@ void vtkVolumeTexture::LoadTexture(int const interpolation, VolumeBlock* volBloc
     bool const useYStride = blockSize[1] != this->FullSize[1];
     if (useYStride)
     {
-      glPixelStorei(GL_UNPACK_IMAGE_HEIGHT_EXT, this->FullSizeAdjusted[1]);
+      glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, this->FullSizeAdjusted[1]);
     }
 
     // Account for component offset
@@ -301,8 +255,16 @@ void vtkVolumeTexture::LoadTexture(int const interpolation, VolumeBlock* volBloc
     vtkIdType const dataIdx = tupleIdx * noOfComponents;
     void* dataPtr = this->Scalars->GetVoidPointer(dataIdx);
 
-    texture->Create3DFromRaw(blockSize[0], blockSize[1], blockSize[2],
-      noOfComponents, scalarType, dataPtr);
+    if (this->StreamBlocks)
+    {
+      success = texture->Create3DFromRaw(blockSize[0], blockSize[1],
+        blockSize[2], noOfComponents, scalarType, dataPtr);
+    }
+    else
+    {
+      success = SafeLoadTexture(texture, blockSize[0], blockSize[1],
+        blockSize[2], noOfComponents, scalarType, dataPtr);
+    }
     texture->Activate();
     texture->SetWrapS(vtkTextureObject::ClampToEdge);
     texture->SetWrapT(vtkTextureObject::ClampToEdge);
@@ -318,7 +280,7 @@ void vtkVolumeTexture::LoadTexture(int const interpolation, VolumeBlock* volBloc
 
     if (useYStride)
     {
-      glPixelStorei(GL_UNPACK_IMAGE_HEIGHT_EXT, 0);
+      glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, 0);
     }
   }
   else // Handle 64-bit types
@@ -327,8 +289,16 @@ void vtkVolumeTexture::LoadTexture(int const interpolation, VolumeBlock* volBloc
     // GPU memory. Assumes GL_ARB_texture_non_power_of_two is available.
 
     scalarType = VTK_FLOAT;
-    texture->Create3DFromRaw(blockSize[0], blockSize[1], blockSize[2], noOfComponents,
-      scalarType, NULL);
+    if (this->StreamBlocks)
+    {
+      success = texture->Create3DFromRaw(blockSize[0], blockSize[1],
+        blockSize[2], noOfComponents, scalarType, nullptr);
+    }
+    else
+    {
+      success = SafeLoadTexture(texture, blockSize[0], blockSize[1],
+        blockSize[2], noOfComponents, scalarType, nullptr);
+    }
     texture->Activate();
     texture->SetWrapS(vtkTextureObject::ClampToEdge);
     texture->SetWrapT(vtkTextureObject::ClampToEdge);
@@ -388,6 +358,8 @@ void vtkVolumeTexture::LoadTexture(int const interpolation, VolumeBlock* volBloc
 
   texture->Deactivate();
   this->UploadTime.Modified();
+
+  return success;
 }
 
 //-----------------------------------------------------------------------------
@@ -397,14 +369,14 @@ void vtkVolumeTexture::ReleaseGraphicsResources(vtkWindow* win)
   {
     this->Texture->ReleaseGraphicsResources(win);
     this->Texture->Delete();
-    this->Texture = NULL;
+    this->Texture = nullptr;
   }
 }
 
 //-----------------------------------------------------------------------------
 void vtkVolumeTexture::ClearBlocks()
 {
-  if (this->ImageDataBlocks.size() == 0)
+  if (this->ImageDataBlocks.empty())
   {
     return;
   }
@@ -472,8 +444,58 @@ void vtkVolumeTexture::SplitVolume(vtkImageData* imageData, Size3 const & part)
 }
 
 //-----------------------------------------------------------------------------
+void vtkVolumeTexture::GetScaleAndBias(const int scalarType,
+                                       double* scalarRange,
+                                       float& scale,
+                                       float& bias)
+{
+  scale = 1.0f;
+  bias = 0.0f;
+  double glScale = 1.0;
+  double glBias = 0.0;
+
+  switch (scalarType)
+  {
+    case VTK_UNSIGNED_CHAR:
+      glScale = 1.0 / (VTK_UNSIGNED_CHAR_MAX + 1);
+      glBias = 0.0;
+      break;
+    case VTK_SIGNED_CHAR:
+      glScale = 2.0 / (VTK_UNSIGNED_CHAR_MAX + 1);
+      glBias = -1.0 - VTK_SIGNED_CHAR_MIN * glScale;
+      break;
+    case VTK_SHORT:
+      glScale = 2.0 / (VTK_UNSIGNED_SHORT_MAX + 1);
+      glBias = -1.0 - VTK_SHORT_MIN * glScale;
+      break;
+    case VTK_UNSIGNED_SHORT:
+      glScale = 1.0 / (VTK_UNSIGNED_SHORT_MAX + 1);
+      glBias = 0.0;
+      break;
+    case VTK_CHAR:
+    case VTK_BIT:
+    case VTK_ID_TYPE:
+    case VTK_STRING:
+      // not supported
+      assert("check: impossible case" && 0);
+      break;
+  }
+
+  double glRange[2];
+  for (int i = 0; i < 2; ++i)
+  {
+    glRange[i] = scalarRange[i] * glScale + glBias;
+  }
+  scale = static_cast<float>(1.0 / (glRange[1] - glRange[0]));
+  bias = static_cast<float>(0.0 - glRange[0] * scale);
+}
+
+//-----------------------------------------------------------------------------
 void vtkVolumeTexture::SelectTextureFormat(unsigned int& format,
-  unsigned int& internalFormat, int& type, int const scalarType, int const noOfComponents)
+                                           unsigned int& internalFormat,
+                                           int& type,
+                                           int const scalarType,
+                                           int const noOfComponents)
 {
   bool supportsFloat = false;
 #if GL_ES_VERSION_2_0 != 1
@@ -487,10 +509,6 @@ void vtkVolumeTexture::SelectTextureFormat(unsigned int& format,
 #endif
 
   this->HandleLargeDataTypes = false;
-
-  // Pixel Transfer Data Value To NI (Normalized Integer [0, 1] or [-1, 1])
-  double OglScale = 1.0;
-  double OglBias = 0.0;
 
   switch(scalarType)
   {
@@ -541,32 +559,20 @@ void vtkVolumeTexture::SelectTextureFormat(unsigned int& format,
       }
       break;
     case VTK_UNSIGNED_CHAR:
-      OglScale = 1.0 / (VTK_UNSIGNED_CHAR_MAX + 1);
-      OglBias = 0.0;
-      break;
     case VTK_SIGNED_CHAR:
-      OglScale = 2.0 / (VTK_UNSIGNED_CHAR_MAX + 1);
-      OglBias = -1.0 - VTK_SIGNED_CHAR_MIN * OglScale;
-      break;
-    case VTK_CHAR:
-      // not supported
-      assert("check: impossible case" && 0);
-      break;
-    case VTK_BIT:
-      // not supported
-      assert("check: impossible case" && 0);
-      break;
-    case VTK_ID_TYPE:
-      // not supported
-      assert("check: impossible case" && 0);
+    case VTK_SHORT:
+    case VTK_UNSIGNED_SHORT:
+      // Nothing to be done
       break;
     case VTK_INT:
     case VTK_DOUBLE:
+#if !defined(VTK_LEGACY_REMOVE)
     case VTK___INT64:
+    case VTK_UNSIGNED___INT64:
+#endif
     case VTK_LONG:
     case VTK_LONG_LONG:
     case VTK_UNSIGNED_INT:
-    case VTK_UNSIGNED___INT64:
     case VTK_UNSIGNED_LONG:
     case VTK_UNSIGNED_LONG_LONG:
       this->HandleLargeDataTypes = true;
@@ -598,18 +604,10 @@ void vtkVolumeTexture::SelectTextureFormat(unsigned int& format,
           break;
       }
       break;
-    case VTK_SHORT:
-      OglScale = 2.0 / (VTK_UNSIGNED_SHORT_MAX + 1);
-      OglBias = -1.0 - VTK_SHORT_MIN * OglScale;
-      break;
+    case VTK_CHAR:
+    case VTK_BIT:
+    case VTK_ID_TYPE:
     case VTK_STRING:
-      // not supported
-      assert("check: impossible case" && 0);
-      break;
-    case VTK_UNSIGNED_SHORT:
-      OglScale = 1.0 / (VTK_UNSIGNED_SHORT_MAX + 1);
-      OglBias = 0.0;
-      break;
     default:
       assert("check: impossible case" && 0);
       break;
@@ -618,7 +616,7 @@ void vtkVolumeTexture::SelectTextureFormat(unsigned int& format,
   // Cache the array's scalar range
   for (int n = 0; n < noOfComponents; ++n)
   {
-    double* range = this->Scalars->GetRange(n);
+    double* range = this->Scalars->GetFiniteRange(n);
     for (int i = 0; i < 2; ++i)
     {
       this->ScalarRange[n][i] = range[i];
@@ -632,17 +630,13 @@ void vtkVolumeTexture::SelectTextureFormat(unsigned int& format,
   // scale = (d - c) / (b - a)
   // bias = c - a * scale
   // For unsigned/float types c is zero.
-  double const oglScale = OglScale;
-  double const oglBias = OglBias;
   int const components = vtkMath::Min(noOfComponents, 4);
   this->Scale[0] = this->Scale[1] = this->Scale[2] = this->Scale[3] = 1.0;
   this->Bias[0] = Bias[1] = Bias[2] = Bias[3] = 0.0;
   for (int n = 0; n < components; n++)
   {
-    double const oglA = ScalarRange[n][0] * oglScale + oglBias;
-    double const oglB = ScalarRange[n][1] * oglScale + oglBias;
-    this->Scale[n] =  1.0/ (oglB - oglA);
-    this->Bias[n] = 0.0 - oglA * this->Scale[n];
+  this->GetScaleAndBias(scalarType, this->ScalarRange[n],
+                        this->Scale[n], this->Bias[n]);
   }
 }
 
@@ -664,8 +658,6 @@ void vtkVolumeTexture::UpdateInterpolationType(int const interpolation)
   {
     std::cerr << "Interpolation type not supported in this mapper." << std::endl;
   }
-
-  return;
 }
 
 //----------------------------------------------------------------------------
@@ -674,8 +666,7 @@ void vtkVolumeTexture::SortBlocksBackToFront(vtkRenderer *ren,
 {
   if (this->ImageDataBlocks.size() > 1)
   {
-    SortBlocks sortBlocks(ren, volumeMat);
-
+    vtkBlockSortHelper::BackToFront<vtkImageData> sortBlocks(ren, volumeMat);
     std::sort(this->ImageDataBlocks.begin(), this->ImageDataBlocks.end(),
       sortBlocks);
 
@@ -707,6 +698,14 @@ void vtkVolumeTexture::SetPartitions(int const x, int const y, int const z)
     this->StreamBlocks = false;
     this->Partitions[0] = this->Partitions[1] = this->Partitions[2] = 1;
   }
+
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+const vtkVolumeTexture::Size3& vtkVolumeTexture::GetPartitions()
+{
+  return this->Partitions;
 }
 
 //-----------------------------------------------------------------------------
@@ -723,4 +722,47 @@ void vtkVolumeTexture::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "UploadTime: " << this->UploadTime << '\n';
   os << indent << "CurrentBlockIdx: " << this->CurrentBlockIdx << '\n';
   os << indent << "StreamBlocks: " << this->StreamBlocks << '\n';
+}
+
+//-----------------------------------------------------------------------------
+bool vtkVolumeTexture::AreDimensionsValid(vtkTextureObject* texture, int const width,
+  int const height, int const depth)
+{
+  int const maxSize = texture->GetMaximumTextureSize3D();
+  if (width > maxSize || height > maxSize || depth > maxSize)
+  {
+    std::cout << "ERROR: OpenGL MAX_3D_TEXTURE_SIZE is " << maxSize << "\n";
+    return false;
+  }
+
+  return true;
+};
+
+//-----------------------------------------------------------------------------
+bool vtkVolumeTexture::SafeLoadTexture(vtkTextureObject* texture, int const width,
+  int const height, int const depth, int numComps, int dataType, void* dataPtr)
+{
+  if (!AreDimensionsValid(texture, width, height, depth))
+  {
+    vtkErrorMacro(<< "Invalid texture dimensions [" << width << ", " << height
+      << ", " << depth << "]");
+    return false;
+  }
+
+  if (!texture->AllocateProxyTexture3D(width, height, depth, numComps,
+    dataType))
+  {
+    vtkErrorMacro(<< "Capabilities check via proxy texture 3D allocation "
+      "failed!");
+    return false;
+  }
+
+  if (!texture->Create3DFromRaw(width, height, depth, numComps, dataType,
+    dataPtr))
+  {
+    vtkErrorMacro(<< "Texture 3D allocation failed! \n");
+    return false;
+  }
+
+  return true;
 }

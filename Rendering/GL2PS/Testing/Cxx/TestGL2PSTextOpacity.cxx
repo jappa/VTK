@@ -48,12 +48,12 @@ int TestGL2PSTextOpacity(int , char * [])
   vtkNew<vtkRenderer> ren;
   vtkNew<vtkRenderWindow> renWin;
 
-  ren->AddActor(ta.GetPointer());
-  renWin->AddRenderer(ren.GetPointer());
+  ren->AddActor(ta);
+  renWin->AddRenderer(ren);
 
 
   exporter->SetTextAsPath(1);
-  exporter->SetInput(renWin.GetPointer());
+  exporter->SetInput(renWin);
   exporter->SetFileFormatToPDF();
   exporter->SetFilePrefix("text");
   exporter->Write();
@@ -67,7 +67,7 @@ int TestGL2PSTextOpacity(int , char * [])
     std::streamsize count = ifs.gcount();
     // bad PDF instruction is a 'ca' string at the end of the line
     // count includes the 0 at the end of the string
-    if (count >= 2 && line[count - 3] == 'c' &&
+    if (count >= 3 && line[count - 3] == 'c' &&
         line[count - 2] == 'a')
       return EXIT_FAILURE;
   }
