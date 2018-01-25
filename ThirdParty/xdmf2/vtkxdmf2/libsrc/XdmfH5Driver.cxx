@@ -698,7 +698,6 @@ static haddr_t
 H5FD_dsm_get_eof(const H5FD_t *_file, H5FD_mem_t type)
 #elif ((H5_VERS_MAJOR==1)&&(H5_VERS_MINOR>=8))
 H5FD_dsm_get_eof(const H5FD_t *_file)
-#endif
 #else
 H5FD_dsm_get_eof(H5FD_t *_file)
 #endif
