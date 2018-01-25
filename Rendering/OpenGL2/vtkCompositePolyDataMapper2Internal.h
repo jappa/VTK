@@ -93,13 +93,13 @@ protected:
     GLenum mode,
     int pointSize);
 
-  void SetShaderValues(
+  virtual void SetShaderValues(
     vtkShaderProgram *prog,
     vtkCompositeMapperHelperData *hdata,
     size_t primOffset);
 
   // Description:
-  // Perform string replacments on the shader templates, called from
+  // Perform string replacements on the shader templates, called from
   // ReplaceShaderValues
   void ReplaceShaderColor(
     std::map<vtkShader::Type, vtkShader *> shaders,

@@ -103,7 +103,7 @@ public:
   /**
    * Returns an RGB color for the specified scalar value
    */
-  double *GetColor(double x) {
+  double *GetColor(double x) VTK_SIZEHINT(3) {
     return vtkScalarsToColors::GetColor(x); }
   void GetColor(double x, double rgb[3]) override;
 
@@ -129,13 +129,13 @@ public:
   /**
    * Map one value through the lookup table.
    */
-  unsigned char *MapValue(double v) override;
+  const unsigned char *MapValue(double v) override;
 
   //@{
   /**
    * Returns min and max position of all function points.
    */
-  double* GetRange() override { return this->Range; }
+  double* GetRange() VTK_SIZEHINT(2) override { return this->Range; }
   virtual void GetRange(double& arg1, double& arg2)
   {
     arg1 = this->Range[0];
@@ -186,9 +186,9 @@ public:
    * last node color. If off, values outside the range are mapped to
    * black.
    */
-  vtkSetClampMacro( Clamping, int, 0, 1 );
-  vtkGetMacro( Clamping, int );
-  vtkBooleanMacro( Clamping, int );
+  vtkSetClampMacro( Clamping, vtkTypeBool, 0, 1 );
+  vtkGetMacro( Clamping, vtkTypeBool );
+  vtkBooleanMacro( Clamping, vtkTypeBool );
   //@}
 
   //@{
@@ -204,15 +204,15 @@ public:
    * saturated colors.
    */
   vtkSetClampMacro(ColorSpace, int, VTK_CTF_RGB, VTK_CTF_LAB_CIEDE2000);
-  void SetColorSpaceToRGB(){this->SetColorSpace(VTK_CTF_RGB);};
-  void SetColorSpaceToHSV(){this->SetColorSpace(VTK_CTF_HSV);};
-  void SetColorSpaceToLab(){this->SetColorSpace(VTK_CTF_LAB);};
-  void SetColorSpaceToLabCIEDE2000() { this->SetColorSpace(VTK_CTF_LAB_CIEDE2000); };
+  void SetColorSpaceToRGB(){this->SetColorSpace(VTK_CTF_RGB);}
+  void SetColorSpaceToHSV(){this->SetColorSpace(VTK_CTF_HSV);}
+  void SetColorSpaceToLab(){this->SetColorSpace(VTK_CTF_LAB);}
+  void SetColorSpaceToLabCIEDE2000() { this->SetColorSpace(VTK_CTF_LAB_CIEDE2000); }
   void SetColorSpaceToDiverging(){this->SetColorSpace(VTK_CTF_DIVERGING);}
   vtkGetMacro( ColorSpace, int );
-  vtkSetMacro(HSVWrap, int);
-  vtkGetMacro(HSVWrap, int);
-  vtkBooleanMacro(HSVWrap, int);
+  vtkSetMacro(HSVWrap, vtkTypeBool);
+  vtkGetMacro(HSVWrap, vtkTypeBool);
+  vtkBooleanMacro(HSVWrap, vtkTypeBool);
   //@}
 
   //@{
@@ -222,8 +222,8 @@ public:
    * zero, the color mapping will be linear.
    */
   vtkSetMacro(Scale,int);
-  void SetScaleToLinear() { this->SetScale(VTK_CTF_LINEAR); };
-  void SetScaleToLog10() { this->SetScale(VTK_CTF_LOG10); };
+  void SetScaleToLinear() { this->SetScale(VTK_CTF_LINEAR); }
+  void SetScaleToLog10() { this->SetScale(VTK_CTF_LOG10); }
   vtkGetMacro(Scale,int);
   //@}
 
@@ -250,9 +250,9 @@ public:
   /**
    * Set whether the below range color should be used.
    */
-  vtkSetMacro(UseBelowRangeColor, int);
-  vtkGetMacro(UseBelowRangeColor, int);
-  vtkBooleanMacro(UseBelowRangeColor, int);
+  vtkSetMacro(UseBelowRangeColor, vtkTypeBool);
+  vtkGetMacro(UseBelowRangeColor, vtkTypeBool);
+  vtkBooleanMacro(UseBelowRangeColor, vtkTypeBool);
   //@}
 
   //@{
@@ -268,9 +268,9 @@ public:
   /**
    * Set whether the below range color should be used.
    */
-  vtkSetMacro(UseAboveRangeColor, int);
-  vtkGetMacro(UseAboveRangeColor, int);
-  vtkBooleanMacro(UseAboveRangeColor, int);
+  vtkSetMacro(UseAboveRangeColor, vtkTypeBool);
+  vtkGetMacro(UseAboveRangeColor, vtkTypeBool);
+  vtkBooleanMacro(UseAboveRangeColor, vtkTypeBool);
   //@}
 
   /**
@@ -301,9 +301,9 @@ public:
    * Toggle whether to allow duplicate scalar values in the color transfer
    * function (off by default).
    */
-  vtkSetMacro(AllowDuplicateScalars, int);
-  vtkGetMacro(AllowDuplicateScalars, int);
-  vtkBooleanMacro(AllowDuplicateScalars, int);
+  vtkSetMacro(AllowDuplicateScalars, vtkTypeBool);
+  vtkGetMacro(AllowDuplicateScalars, vtkTypeBool);
+  vtkBooleanMacro(AllowDuplicateScalars, vtkTypeBool);
   //@}
 
   /**
@@ -337,7 +337,7 @@ protected:
    * One  = clamp to the lowest value below defined points and
    * highest value above defined points
    */
-  int Clamping;
+  vtkTypeBool Clamping;
 
   /**
    * The color space in which interpolation is performed.
@@ -347,7 +347,7 @@ protected:
   /**
    * Specify if HSV is wrap or not
    */
-  int HSVWrap;
+  vtkTypeBool HSVWrap;
 
   /**
    * The color interpolation scale (linear or logarithmic).
@@ -367,7 +367,7 @@ protected:
   /**
    * Flag indicating whether below-range color should be used.
    */
-  int UseBelowRangeColor;
+  vtkTypeBool UseBelowRangeColor;
 
   /**
    * The above-range color.
@@ -377,7 +377,7 @@ protected:
   /**
    * Flag indicating whether below-range color should be used.
    */
-  int UseAboveRangeColor;
+  vtkTypeBool UseAboveRangeColor;
 
   /**
    * Temporary array to store data from the nodes.
@@ -397,7 +397,7 @@ protected:
   /**
    * If on, the same scalar value may have more than one node assigned to it.
    */
-  int AllowDuplicateScalars;
+  vtkTypeBool AllowDuplicateScalars;
 
   vtkTimeStamp BuildTime;
   unsigned char *Table;
@@ -413,7 +413,7 @@ protected:
    * in this subclass of vtkScalarsToColors.
    */
   void SetRange(double, double) override {}
-  void SetRange(double rng[2]) {this->SetRange(rng[0],rng[1]);};
+  void SetRange(const double rng[2]) override {this->SetRange(rng[0],rng[1]);}
 
   /**
    * Internal method to sort the vector and update the

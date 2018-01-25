@@ -1,6 +1,7 @@
-vtk_add_test_cxx(${vtk-module}CxxTests tests
+vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   NO_DATA NO_VALID NO_OUTPUT
   LagrangeHexahedron.cxx
+  TestAngularPeriodicDataArray.cxx
   TestColor.cxx
   TestVector.cxx
   TestVectorOperators.cxx
@@ -21,8 +22,10 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestImageIterator.cxx
   TestInterpolationDerivs.cxx
   TestInterpolationFunctions.cxx
+  TestMappedGridDeepCopy.cxx
   TestPath.cxx
   TestPentagonalPrism.cxx
+  TestPiecewiseFunctionLogScale.cxx
   TestPixelExtent.cxx
   TestPointLocators.cxx
   TestPolyDataRemoveCell.cxx
@@ -31,6 +34,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestPolyhedron0.cxx
   TestPolyhedron1.cxx
   TestPolyhedron3.cxx
+  TestPolyhedron5.cxx
   TestPolyhedronConvexity.cxx
   TestQuadraticPolygon.cxx
   TestRect.cxx
@@ -67,7 +71,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   UnitTestPlanesIntersection.cxx
   UnitTestTriangleIntersection.cxx
   )
-vtk_add_test_cxx(${vtk-module}CxxTests data_tests
+vtk_add_test_cxx(vtkCommonDataModelCxxTests data_tests
   TestLagrangeTriangle.cxx
   TestLagrangeTetra.cxx
   quadraticIntersection.cxx
@@ -80,22 +84,20 @@ vtk_add_test_cxx(${vtk-module}CxxTests data_tests
   TestQuadraticPolygonFilters.cxx
   )
 # add to the list but don't define a test
-list(APPEND data_tests TestPolyhedron2.cxx)
+list(APPEND data_tests TestPolyhedron2.cxx TestPolyhedron6.cxx)
 
-vtk_add_test_cxx(${vtk-module}CxxTests output_tests
+vtk_add_test_cxx(vtkCommonDataModelCxxTests output_tests
   TestKdTreeRepresentation.cxx,NO_DATA
   )
-#vtk_add_test_cxx(${vtk-module}CxxTests custom_tests
-#  LagrangeInterpolation.cxx,NO_DATA
-#  CUSTOM_BASELINES
-#  DATA{../Data/Baseline/LagrangeInterpolation_333hex.png,:}
-#  DATA{../Data/Baseline/LagrangeInterpolation_531hex.png,:}
-#  DATA{../Data/Baseline/LagrangeInterpolation_333wedge.png,:}
-#  )
 ExternalData_add_test(VTKData
   NAME TestPolyhedron2
-  COMMAND ${vtk-module}CxxTests TestPolyhedron2
+  COMMAND vtkCommonDataModelCxxTests TestPolyhedron2
   -D DATA{../Data/polyhedron_mesh.vtu}
+  )
+ExternalData_add_test(VTKData
+  NAME TestPolyhedron6
+  COMMAND ${vtk-module}CxxTests TestPolyhedron6
+   DATA{../Data/cell_850113.vtu} DATA{../Data/cell_12851_26.vtu}
   )
 set(all_tests
   ${tests}
@@ -103,4 +105,4 @@ set(all_tests
   ${output_tests}
   ${custom_tests}
   )
-vtk_test_cxx_executable(${vtk-module}CxxTests all_tests)
+vtk_test_cxx_executable(vtkCommonDataModelCxxTests all_tests)

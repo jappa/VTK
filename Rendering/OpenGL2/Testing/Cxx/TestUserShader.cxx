@@ -48,6 +48,8 @@ int TestUserShader(int argc, char *argv[])
   reader->SetFileName(fileName);
   reader->Update();
 
+  delete [] fileName;
+
   vtkNew<vtkTriangleMeshPointNormals> norms;
   norms->SetInputConnection(reader->GetOutputPort());
   norms->Update();
@@ -87,6 +89,18 @@ int TestUserShader(int argc, char *argv[])
     "//VTK::Normal::Impl\n" // we still want the default
     "  myNormalMCVSOutput = normalMC;\n", //but we add this
     false // only do it once
+    );
+  mapper->AddShaderReplacement(
+    vtkShader::Vertex,
+    "//VTK::Color::Impl", // dummy replacement for testing clear method
+    true,
+    "VTK::Color::Impl\n",
+    false
+    );
+  mapper->ClearShaderReplacement(
+    vtkShader::Vertex,     // clear our dummy replacement
+    "//VTK::Color::Impl",
+    true
     );
 
   // now modify the fragment shader

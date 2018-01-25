@@ -782,7 +782,6 @@ static int isClassWrapped(const char *classname)
     entry = vtkParseHierarchy_FindEntry(hierarchyInfo, classname);
 
     if (entry == 0 ||
-        vtkParseHierarchy_GetProperty(entry, "WRAP_EXCLUDE") ||
         !vtkParseHierarchy_IsTypeOf(hierarchyInfo, entry, "vtkObjectBase"))
     {
       return 0;
@@ -1256,6 +1255,13 @@ int main(int argc, char *argv[])
   /* get the command-line options */
   options = vtkParse_GetCommandLineOptions();
 
+  /* get the hierarchy info for accurate typing */
+  if (options->HierarchyFileNames)
+  {
+    hierarchyInfo = vtkParseHierarchy_ReadFiles(
+      options->NumberOfHierarchyFileNames, options->HierarchyFileNames);
+  }
+
   /* get the output file */
   fp = fopen(options->OutputFileName, "w");
 
@@ -1269,22 +1275,37 @@ int main(int argc, char *argv[])
   if ((data = file_info->MainClass) == NULL)
   {
     fclose(fp);
-    exit(1);
+    exit(0);
   }
 
-  /* get the hierarchy info for accurate typing */
-  if (options->HierarchyFileNames)
+  if (data->Template)
   {
-    hierarchyInfo = vtkParseHierarchy_ReadFiles(
-      options->NumberOfHierarchyFileNames, options->HierarchyFileNames);
-    if (hierarchyInfo)
-    {
-      /* resolve using declarations within the header files */
-      vtkWrap_ApplyUsingDeclarations(data, file_info, hierarchyInfo);
+    fclose(fp);
+    exit(0);
+  }
 
-      /* expand typedefs */
-      vtkWrap_ExpandTypedefs(data, file_info, hierarchyInfo);
+  for (i = 0; i < data->NumberOfSuperClasses; ++i)
+  {
+    if (strchr(data->SuperClasses[i], '<'))
+    {
+      fclose(fp);
+      exit(0);
     }
+  }
+
+  if (hierarchyInfo)
+  {
+    if (!vtkWrap_IsTypeOf(hierarchyInfo, data->Name, "vtkObjectBase"))
+    {
+      fclose(fp);
+      exit(0);
+    }
+
+    /* resolve using declarations within the header files */
+    vtkWrap_ApplyUsingDeclarations(data, file_info, hierarchyInfo);
+
+    /* expand typedefs */
+    vtkWrap_ExpandTypedefs(data, file_info, hierarchyInfo);
   }
 
   fprintf(fp,"// java wrapper for %s object\n//\n",data->Name);

@@ -130,13 +130,17 @@ void vtkDataSetMapper::Render(vtkRenderer *ren, vtkActor *act)
     this->GetUseLookupTableScalarRange());
   this->PolyDataMapper->SetScalarRange(this->GetScalarRange());
 
-  #ifdef VTK_LEGACY_SILENT
-  this->PolyDataMapper->SetImmediateModeRendering(
-    this->GetImmediateModeRendering());
-  #endif
   this->PolyDataMapper->SetColorMode(this->GetColorMode());
   this->PolyDataMapper->SetInterpolateScalarsBeforeMapping(
                                this->GetInterpolateScalarsBeforeMapping());
+
+  double f, u;
+  this->GetRelativeCoincidentTopologyPolygonOffsetParameters(f,u);
+  this->PolyDataMapper->SetRelativeCoincidentTopologyPolygonOffsetParameters(f,u);
+  this->GetRelativeCoincidentTopologyLineOffsetParameters(f,u);
+  this->PolyDataMapper->SetRelativeCoincidentTopologyLineOffsetParameters(f,u);
+  this->GetRelativeCoincidentTopologyPointOffsetParameter(u);
+  this->PolyDataMapper->SetRelativeCoincidentTopologyPointOffsetParameter(u);
 
   this->PolyDataMapper->SetScalarMode(this->GetScalarMode());
   if ( this->ScalarMode == VTK_SCALAR_MODE_USE_POINT_FIELD_DATA ||

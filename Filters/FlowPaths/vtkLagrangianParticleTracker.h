@@ -42,7 +42,7 @@
  *
  * The most important parameters of this filter is it's integrationModel.
  * Only one integration model implementation exist currently in ParaView
- * ,vtkLagrangianMatidaIntegrationModel but the design enables plugin developpers
+ * ,vtkLagrangianMatidaIntegrationModel but the design enables plugin developers
  * to expand this tracker by creating new models.
  * A model can define  :
  * * The number of integration variable and new user defined integration variable
@@ -72,11 +72,11 @@
  *      when the next position is too far
  *  * Different kind of cell length computation, including a divergence theorem
  *      based computation
- *  * Optional lines rendering controlled by a treshold
+ *  * Optional lines rendering controlled by a threshold
  *  * Ghost cell support
- *  * Non planar quad interactionn support
+ *  * Non planar quad interaction support
  *  * Built-in support for surface interaction including, terminate, bounce,
- *      break-up and pass-trough surface
+ *      break-up and pass-through surface
  * The serial and parallel filters are fully tested.
  *
  * @sa
@@ -138,6 +138,16 @@ public:
    */
   void SetIntegrator(vtkInitialValueProblemSolver* integrator);
   vtkGetObjectMacro(Integrator, vtkInitialValueProblemSolver);
+  //@}
+
+  //@{
+  /**
+   * Set/Get whether or not to use PolyVertex cell type
+   * for the interaction output
+   * Default is false
+   */
+  vtkSetMacro(GeneratePolyVertexInteractionOutput, bool);
+  vtkGetMacro(GeneratePolyVertexInteractionOutput, bool);
   //@}
 
   //@{
@@ -339,6 +349,7 @@ protected:
     vtkDataObject* interractionOutput);
 
   static void InsertPolyVertexCell(vtkPolyData* polydata);
+  static void InsertVertexCells(vtkPolyData* polydata);
 
   virtual void GetParticleFeed(std::queue<vtkLagrangianParticle*>& particleQueue);
 
@@ -378,6 +389,7 @@ protected:
   int MaximumNumberOfSteps;
   bool AdaptiveStepReintegration;
   bool UseParticlePathsRenderingThreshold;
+  bool GeneratePolyVertexInteractionOutput;
   int ParticlePathsRenderingPointsThreshold;
   bool CreateOutOfDomainParticle;
   vtkIdType ParticleCounter;

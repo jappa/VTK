@@ -87,9 +87,9 @@ public:
    * Implementation note: duplicating points is an easier method to implement
    * than a minimal number of points.
    */
-  vtkSetMacro(DuplicateSharedPoints, int);
-  vtkGetMacro(DuplicateSharedPoints, int);
-  vtkBooleanMacro(DuplicateSharedPoints, int);
+  vtkSetMacro(DuplicateSharedPoints, vtkTypeBool);
+  vtkGetMacro(DuplicateSharedPoints, vtkTypeBool);
+  vtkBooleanMacro(DuplicateSharedPoints, vtkTypeBool);
   //@}
 
   //@{
@@ -97,9 +97,9 @@ public:
    * Flag to tell the source to generate either a quad or two triangle for a
    * set of four points. Initial value is false (generate triangles).
    */
-  vtkSetMacro(Quads, int);
-  vtkGetMacro(Quads, int);
-  vtkBooleanMacro(Quads, int);
+  vtkSetMacro(Quads, vtkTypeBool);
+  vtkGetMacro(Quads, vtkTypeBool);
+  vtkBooleanMacro(Quads, vtkTypeBool);
   //@}
 
   //@{
@@ -161,8 +161,8 @@ protected:
 
   double Bounds[6];
   int Level;
-  int DuplicateSharedPoints;
-  int Quads;
+  vtkTypeBool DuplicateSharedPoints;
+  vtkTypeBool Quads;
   int OutputPointsPrecision;
 
 private:

@@ -11,8 +11,6 @@ set(Module_SRCS
   vtkXMLHierarchicalBoxDataReader.cxx
   vtkXMLHierarchicalBoxDataWriter.cxx
   vtkXMLHierarchicalDataReader.cxx
-  vtkXMLHyperOctreeReader.cxx
-  vtkXMLHyperOctreeWriter.cxx
   vtkXMLImageDataReader.cxx
   vtkXMLImageDataWriter.cxx
   vtkXMLMultiBlockDataReader.cxx
@@ -49,27 +47,11 @@ set(Module_SRCS
   vtkXMLWriter.cxx
   )
 
-set_source_files_properties(
-  vtkXMLCompositeDataReader
-  vtkXMLCompositeDataWriter
-  vtkXMLDataReader
-  vtkXMLPDataReader
-  vtkXMLPStructuredDataReader
-  vtkXMLPUnstructuredDataReader
-  vtkXMLReader
-  vtkXMLStructuredDataReader
-  vtkXMLStructuredDataWriter
-  vtkXMLUnstructuredDataReader
-  vtkXMLUnstructuredDataWriter
-  vtkXMLWriter
-  ABSTRACT
+if (NOT VTK_LEGACY_REMOVE)
+  list(APPEND Module_SRCS
+    vtkXMLHyperOctreeReader.cxx
+    vtkXMLHyperOctreeWriter.cxx
   )
-
-set_source_files_properties(
-  vtkXMLWriterC
-  PROPERTIES
-    WRAP_EXCLUDE 1
-    WRAP_EXCLUDE_PYTHON 1
-  )
+endif()
 
 vtk_module_library(vtkIOXML ${Module_SRCS})

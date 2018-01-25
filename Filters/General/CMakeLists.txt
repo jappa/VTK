@@ -28,6 +28,8 @@ set(Module_SRCS
   vtkDeformPointSet.cxx
   vtkDensifyPolyData.cxx
   vtkDicer.cxx
+  vtkDiscreteFlyingEdges2D.cxx
+  vtkDiscreteFlyingEdges3D.cxx
   vtkDiscreteMarchingCubes.cxx
   vtkEdgePoints.cxx
   vtkExtractSelectedFrustum.cxx
@@ -117,15 +119,6 @@ set(Module_SRCS
   vtkPassArrays.cxx
   vtkSplitColumnComponents.cxx
   vtkCellTreeLocator.cxx
-  )
-
-set_source_files_properties(
-  vtkApproximatingSubdivisionFilter
-  vtkDicer
-  vtkGraphWeightFilter
-  vtkInterpolatingSubdivisionFilter
-  vtkSubdivisionFilter
-  ABSTRACT
   )
 
 vtk_module_library(vtkFiltersGeneral ${Module_SRCS})

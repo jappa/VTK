@@ -171,6 +171,12 @@ vtkGenericEnSightReader::~vtkGenericEnSightReader()
 //-----------------------------------------------------------------------------
 int vtkGenericEnSightReader::CanReadFile(const char *casefilename)
 {
+  return IsEnSightFile(casefilename);
+}
+
+//-----------------------------------------------------------------------------
+bool vtkGenericEnSightReader::IsEnSightFile(const char *casefilename)
+{
   vtkGenericEnSightReader *reader = vtkGenericEnSightReader::New();
   reader->SetCaseFileName(casefilename);
   int type = reader->DetermineEnSightVersion(1);
@@ -965,7 +971,7 @@ int vtkGenericEnSightReader::GetNumberOfVariables(int type)
     case vtkEnSightReader::COMPLEX_VECTOR_PER_ELEMENT:
       return this->GetNumberOfComplexVectorsPerElement();
     default:
-      vtkWarningMacro("unknow variable type");
+      vtkWarningMacro("unknown variable type");
       return -1;
   }
 }

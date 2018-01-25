@@ -15,6 +15,7 @@
 #include "vtkVolumeProperty.h"
 
 #include "vtkColorTransferFunction.h"
+#include "vtkContourValues.h"
 #include "vtkDataArray.h"
 #include "vtkImageData.h"
 #include "vtkMath.h"
@@ -99,6 +100,8 @@ void vtkVolumeProperty::DeepCopy(vtkVolumeProperty *p)
   {
     return;
   }
+
+  this->IsoSurfaceValues->DeepCopy(p->IsoSurfaceValues);
 
   this->SetIndependentComponents(p->GetIndependentComponents());
 
@@ -229,6 +232,9 @@ vtkMTimeType vtkVolumeProperty::GetMTime()
       }
     }
   }
+
+  time = this->IsoSurfaceValues->GetMTime();
+  mTime = vtkMath::Max(mTime, time);
 
   return mTime;
 }
@@ -736,4 +742,10 @@ void vtkVolumeProperty::PrintSelf(ostream& os, vtkIndent indent)
   // this->GrayTransferFunctionMTime
   // this->RGBTransferFunctionMTime
   // this->ScalarOpacityMTime
+}
+
+//------------------------------------------------------------------------------
+vtkContourValues* vtkVolumeProperty::GetIsoSurfaceValues()
+{
+  return this->IsoSurfaceValues;
 }

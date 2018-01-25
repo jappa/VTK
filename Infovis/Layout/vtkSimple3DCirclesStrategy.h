@@ -20,7 +20,7 @@
  * Places vertices on circles depending on the graph vertices hierarchy level.
  * The source graph could be vtkDirectedAcyclicGraph or vtkDirectedGraph if MarkedStartPoints array was added.
  * The algorithm collects the standalone points, too and take them to a separated circle. If method is FixedRadiusMethod,
- * the radius of the circles will be equal. If method is FixedDistanceMethod, the distance beetwen the points on circles will
+ * the radius of the circles will be equal. If method is FixedDistanceMethod, the distance between the points on circles will
  * be equal.
  *
  * In first step initial points are searched. A point is initial, if its in degree equal zero and out degree is greater than zero (or
@@ -63,7 +63,7 @@ public:
 
   //@{
   /**
-   * Set or get cicrle generating method (FixedRadiusMethod/FixedDistanceMethod). Default is FixedRadiusMethod.
+   * Set or get circle generating method (FixedRadiusMethod/FixedDistanceMethod). Default is FixedRadiusMethod.
    */
   vtkSetMacro(Method,int);
   vtkGetMacro(Method,int);
@@ -120,20 +120,20 @@ public:
   //@{
   /**
    * Set or get ForceToUseUniversalStartPointsFinder. If ForceToUseUniversalStartPointsFinder is true, MarkedStartVertices won't be used.
-   * In this case the input graph must be vtkDirectedAcyclicGraph (Defualt: false).
+   * In this case the input graph must be vtkDirectedAcyclicGraph (Default: false).
    */
-  vtkSetMacro(ForceToUseUniversalStartPointsFinder,int);
-  vtkGetMacro(ForceToUseUniversalStartPointsFinder,int);
-  vtkBooleanMacro(ForceToUseUniversalStartPointsFinder,int);
+  vtkSetMacro(ForceToUseUniversalStartPointsFinder,vtkTypeBool);
+  vtkGetMacro(ForceToUseUniversalStartPointsFinder,vtkTypeBool);
+  vtkBooleanMacro(ForceToUseUniversalStartPointsFinder,vtkTypeBool);
   //@}
   //@{
   /**
    * Set or get auto height (Default: false). If AutoHeight is true, (r(i+1) - r(i-1))/Height will be smaller than tan(MinimumRadian).
    * If you want equal distances and parallel circles, you should turn off AutoHeight.
    */
-  vtkSetMacro(AutoHeight,int);
-  vtkGetMacro(AutoHeight,int);
-  vtkBooleanMacro(AutoHeight,int);
+  vtkSetMacro(AutoHeight,vtkTypeBool);
+  vtkGetMacro(AutoHeight,vtkTypeBool);
+  vtkBooleanMacro(AutoHeight,vtkTypeBool);
   //@}
   //@{
   /**
@@ -187,8 +187,8 @@ protected:
   int Method;
   vtkAbstractArray * MarkedStartVertices;
   vtkVariant MarkedValue;
-  int ForceToUseUniversalStartPointsFinder;
-  int AutoHeight;
+  vtkTypeBool ForceToUseUniversalStartPointsFinder;
+  vtkTypeBool AutoHeight;
   double MinimumRadian;
 
   vtkIntArray * HierarchicalLayers;

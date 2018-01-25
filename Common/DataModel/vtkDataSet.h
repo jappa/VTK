@@ -17,7 +17,7 @@
  * @brief   abstract class to specify dataset behavior
  *
  * vtkDataSet is an abstract class that specifies an interface for dataset
- * objects. vtkDataSet also provides methods to provide informations about
+ * objects. vtkDataSet also provides methods to provide information about
  * the data, such as center, bounding box, and representative length.
  *
  * In vtk a dataset consists of a structure (geometry and topology) and
@@ -90,7 +90,7 @@ public:
    * Get point coordinates with ptId such that: 0 <= ptId < NumberOfPoints.
    * THIS METHOD IS NOT THREAD SAFE.
    */
-  virtual double *GetPoint(vtkIdType ptId) = 0;
+  virtual double *GetPoint(vtkIdType ptId) VTK_SIZEHINT(3) = 0;
 
   /**
    * Copy point coordinates into user provided array x[3] for specified
@@ -271,7 +271,7 @@ public:
    * (xmin,xmax, ymin,ymax, zmin,zmax).
    * THIS METHOD IS NOT THREAD SAFE.
    */
-  double *GetBounds();
+  double *GetBounds() VTK_SIZEHINT(6);
 
   /**
    * Return a pointer to the geometry bounding box in the form
@@ -285,7 +285,7 @@ public:
    * Get the center of the bounding box.
    * THIS METHOD IS NOT THREAD SAFE.
    */
-  double *GetCenter();
+  double *GetCenter() VTK_SIZEHINT(3);
 
   /**
    * Get the center of the bounding box.
@@ -328,7 +328,7 @@ public:
    * Update to create or refresh the scalars before calling this method.
    * THIS METHOD IS NOT THREAD SAFE.
    */
-  double *GetScalarRange();
+  double *GetScalarRange() VTK_SIZEHINT(2);
 
   /**
    * Convenience method returns largest cell size in dataset. This is generally
@@ -370,7 +370,7 @@ public:
   /**
    * This method checks to see if the cell and point attributes
    * match the geometry.  Many filters will crash if the number of
-   * tupples in an array is less than the number of points/cells.
+   * tuples in an array is less than the number of points/cells.
    * This method returns 1 if there is a mismatch,
    * and 0 if everything is ok.  It prints an error if an
    * array is too short, and a warning if an array is too long.

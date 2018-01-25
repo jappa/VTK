@@ -93,10 +93,6 @@ vtkGlyph3DMapper::vtkGlyph3DMapper()
   this->SetOrientationArray(vtkDataSetAttributes::VECTORS);
   this->SetSelectionIdArray(vtkDataSetAttributes::SCALARS);
 
-#if !defined(VTK_LEGACY_REMOVE)
-  this->NestedDisplayLists = true;
-#endif
-
   this->Masking = false;
   this->SelectionColorId=1;
 }
@@ -373,6 +369,8 @@ const char* vtkGlyph3DMapper::GetOrientationModeAsString()
     return "Direction";
   case vtkGlyph3DMapper::ROTATION:
     return "Rotation";
+  case vtkGlyph3DMapper::QUATERNION:
+    return "Quaternion";
   }
   return "Invalid";
 }
@@ -428,9 +426,6 @@ void vtkGlyph3DMapper::PrintSelf(ostream& os, vtkIndent indent)
   {
     this->BlockAttributes->PrintSelf(os, indent.GetNextIndent());
   }
-#if !defined(VTK_LEGACY_REMOVE)
-  os << "NestedDisplayLists: " << (this->NestedDisplayLists? "On" : "Off") << endl;
-#endif
 }
 
 // ---------------------------------------------------------------------------
@@ -844,41 +839,8 @@ void vtkGlyph3DMapper::SetInputData(vtkDataObject* input)
   this->SetInputDataInternal(0, input);
 }
 
-#if !defined(VTK_LEGACY_REMOVE)
 //---------------------------------------------------------------------------
-void vtkGlyph3DMapper::SetNestedDisplayLists(bool val)
+vtkIdType vtkGlyph3DMapper::GetMaxNumberOfLOD()
 {
-  VTK_LEGACY_BODY(vtkGlyph3DMapper::SetNestedDisplayLists, "VTK 8.1");
-  if (this->NestedDisplayLists != val)
-  {
-    this->NestedDisplayLists = val;
-    this->Modified();
-  }
+  return 0;
 }
-
-bool vtkGlyph3DMapper::GetNestedDisplayLists()
-{
-  VTK_LEGACY_BODY(vtkGlyph3DMapper::GetNestedDisplayLists, "VTK 8.1");
-  return this->NestedDisplayLists;
-}
-
-void vtkGlyph3DMapper::NestedDisplayListsOn()
-{
-  VTK_LEGACY_BODY(vtkGlyph3DMapper::NestedDisplayListsOn, "VTK 8.1.");
-  if (this->NestedDisplayLists != true)
-  {
-    this->NestedDisplayLists = true;
-    this->Modified();
-  }
-}
-
-void vtkGlyph3DMapper::NestedDisplayListsOff()
-{
-  VTK_LEGACY_BODY(vtkGlyph3DMapper::NestedDisplayListsOn, "VTK 8.1.");
-  if (this->NestedDisplayLists != false)
-  {
-    this->NestedDisplayLists = false;
-    this->Modified();
-  }
-}
-#endif

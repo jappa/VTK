@@ -138,9 +138,9 @@ public:
   /**
    * Whether to enable/disable edges using array values.  Default is off.
    */
-  vtkSetMacro(EnableEdgesByArray, int);
-  vtkGetMacro(EnableEdgesByArray, int);
-  vtkBooleanMacro(EnableEdgesByArray, int);
+  vtkSetMacro(EnableEdgesByArray, vtkTypeBool);
+  vtkGetMacro(EnableEdgesByArray, vtkTypeBool);
+  vtkBooleanMacro(EnableEdgesByArray, vtkTypeBool);
   //@}
 
   //@{
@@ -155,9 +155,9 @@ public:
   /**
    * Whether to enable/disable vertices using array values.  Default is off.
    */
-  vtkSetMacro(EnableVerticesByArray, int);
-  vtkGetMacro(EnableVerticesByArray, int);
-  vtkBooleanMacro(EnableVerticesByArray, int);
+  vtkSetMacro(EnableVerticesByArray, vtkTypeBool);
+  vtkGetMacro(EnableVerticesByArray, vtkTypeBool);
+  vtkBooleanMacro(EnableVerticesByArray, vtkTypeBool);
   //@}
 
   //@{
@@ -251,7 +251,7 @@ public:
    * Return bounding box (array of six doubles) of data expressed as
    * (xmin,xmax, ymin,ymax, zmin,zmax).
    */
-  double *GetBounds() override;
+  double *GetBounds() VTK_SIZEHINT(6) override;
   void GetBounds(double* bounds) override
     { Superclass::GetBounds(bounds); }
 
@@ -281,8 +281,8 @@ protected:
 
   char* EnabledEdgesArrayName;
   char* EnabledVerticesArrayName;
-  int EnableEdgesByArray;
-  int EnableVerticesByArray;
+  vtkTypeBool EnableEdgesByArray;
+  vtkTypeBool EnableVerticesByArray;
 
   vtkGetStringMacro(IconArrayNameInternal);
   vtkSetStringMacro(IconArrayNameInternal);

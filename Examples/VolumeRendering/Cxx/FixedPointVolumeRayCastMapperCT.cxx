@@ -87,14 +87,14 @@ int main(int argc, char *argv[])
   // Parse the parameters
 
   int count = 1;
-  char *dirname = NULL;
+  char *dirname = nullptr;
   double opacityWindow = 4096;
   double opacityLevel = 2048;
   int blendType = 0;
   int clip = 0;
   double reductionFactor = 1.0;
   double frameRate = 10.0;
-  char *fileName=0;
+  char *fileName=nullptr;
   int fileType=0;
 
   bool independentComponents=true;
@@ -236,8 +236,8 @@ int main(int argc, char *argv[])
   iren->GetInteractorStyle()->SetDefaultRenderer(renderer);
 
   // Read the data
-  vtkAlgorithm *reader=0;
-  vtkImageData *input=0;
+  vtkAlgorithm *reader=nullptr;
+  vtkImageData *input=nullptr;
   if(dirname)
   {
     vtkDICOMImageReader *dicomReader = vtkDICOMImageReader::New();

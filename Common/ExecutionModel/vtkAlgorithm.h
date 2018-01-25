@@ -200,9 +200,9 @@ public:
    * Set/Get the AbortExecute flag for the process object. Process objects
    * may handle premature termination of execution in different ways.
    */
-  vtkSetMacro(AbortExecute,int);
-  vtkGetMacro(AbortExecute,int);
-  vtkBooleanMacro(AbortExecute,int);
+  vtkSetMacro(AbortExecute,vtkTypeBool);
+  vtkGetMacro(AbortExecute,vtkTypeBool);
+  vtkBooleanMacro(AbortExecute,vtkTypeBool);
   //@}
 
   //@{
@@ -241,7 +241,7 @@ public:
   //@}
 
   // left public for performance since it is used in inner loops
-  int AbortExecute;
+  vtkTypeBool AbortExecute;
 
   /**
    * Keys used to specify input port requirements.
@@ -660,11 +660,11 @@ public:
    * use 3D extents. Where port is not specified, it is assumed to
    * be 0.
    */
-  int* GetUpdateExtent()
+  int* GetUpdateExtent() VTK_SIZEHINT(6)
   {
     return this->GetUpdateExtent(0);
   }
-  int* GetUpdateExtent(int port);
+  int* GetUpdateExtent(int port) VTK_SIZEHINT(6);
   void GetUpdateExtent(int& x0, int& x1, int& y0, int& y1,
                        int& z0, int& z1)
   {
@@ -794,7 +794,7 @@ protected:
    * this signature. This will override the connection id that the
    * user set in SetInputArrayToProcess() with the connection id
    * passed. This way, the user specifies one array to process and
-   * that information is  used to obtain arrays for all the connection
+   * that information is used to obtain arrays for all the connection
    * on the port with the appropriate connection id substituted.
    */
   vtkDataArray *GetInputArrayToProcess(int idx,
@@ -828,7 +828,7 @@ protected:
    * this signature. This will override the connection id that the
    * user set in SetInputArrayToProcess() with the connection id
    * passed. This way, the user specifies one array to process and
-   * that information is  used to obtain arrays for all the connection
+   * that information is used to obtain arrays for all the connection
    * on the port with the appropriate connection id substituted.
    */
   vtkAbstractArray *GetInputAbstractArrayToProcess(int idx,

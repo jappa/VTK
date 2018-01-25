@@ -42,13 +42,8 @@ class vtkPainterCommunicator;
 class vtkPPainterCommunicator;
 class vtkPPixelExtentOps;
 
-#ifdef VTK_OPENGL2
 class vtkOpenGLHelper;
 class vtkOpenGLFramebufferObject;
-#else
-class vtkShaderProgram2;
-class vtkFrameBufferObject2;
-#endif
 
 class VTKRENDERINGPARALLELLIC_EXPORT vtkPSurfaceLICComposite : public vtkSurfaceLICComposite
 {
@@ -123,7 +118,7 @@ private:
 
   /**
    * The efficiency of a decomposition is the ratio of useful pixels
-   * to guard pixels. If this factor shrinks bellow 1 there may be
+   * to guard pixels. If this factor shrinks below 1 there may be
    * an issue.
    */
   double EstimateDecompEfficiency(
@@ -204,13 +199,8 @@ private:
 
   vtkWeakPointer<vtkOpenGLRenderWindow> Context; // rendering context
 
-#ifdef VTK_OPENGL2
   vtkOpenGLFramebufferObject *FBO;               // Framebuffer object
   vtkOpenGLHelper *CompositeShader;
-#else
-  vtkFrameBufferObject2 *FBO;                    // buffer object
-  vtkShaderProgram2 *CompositeShader;            // shader program for compositing
-#endif
 
   std::deque<vtkPPixelTransfer> GatherProgram;   // ordered steps required to move data to new decomp
   std::deque<vtkPPixelTransfer> ScatterProgram;  // ordered steps required to unmove data from new decomp

@@ -6,9 +6,6 @@ include(${_VTKModuleMacros_DIR}/vtkModuleAPI.cmake)
 include(VTKGenerateExportHeader)
 include(vtkWrapping)
 include(vtkTargetLinkLibrariesWithDynamicLookup)
-if(VTK_MAKE_INSTANTIATORS)
-  include(vtkMakeInstantiator)
-endif()
 if(UNIX AND VTK_BUILD_FORWARDING_EXECUTABLES)
   include(vtkForwardingExecutable)
 endif()
@@ -26,7 +23,6 @@ endif()
 #  OPTIONAL_PYTHON_LINK = Optionally link the python library to this module
 #  TEST_DEPENDS = Modules that are needed by this modules testing executables
 #  DESCRIPTION = Free text description of the module
-#  TCL_NAME = Alternative name for the TCL wrapping (cannot contain numbers)
 #  IMPLEMENTS = Modules that this module implements, using the auto init feature
 #  BACKEND = An implementation backend that this module belongs (valid with
 #            IMPLEMENTS only)
@@ -68,7 +64,6 @@ macro(vtk_module _name)
   set(${vtk-module}_IMPLEMENTATION_REQUIRED_BY_BACKEND 0)
   set(${vtk-module}_BACKEND "")
   set(${vtk-module}_DESCRIPTION "description")
-  set(${vtk-module}_TCL_NAME "${vtk-module}")
   set(${vtk-module}_EXCLUDE_FROM_ALL 0)
   set(${vtk-module}_EXCLUDE_FROM_WRAPPING 0)
   set(${vtk-module}_EXCLUDE_FROM_WRAP_HIERARCHY 0)
@@ -77,7 +72,7 @@ macro(vtk_module _name)
   foreach(arg ${ARGN})
     # XXX: Adding a new keyword? Update Utilities/Maintenance/WhatModulesVTK.py
     # and Utilities/Maintenance/VisualizeModuleDependencies.py as well.
-    if("${arg}" MATCHES "^((|COMPILE_|PRIVATE_|TEST_|)DEPENDS|DESCRIPTION|TCL_NAME|IMPLEMENTS|BACKEND|DEFAULT|GROUPS|TEST_LABELS|KIT|LEGACY)$")
+    if("${arg}" MATCHES "^((|COMPILE_|PRIVATE_|TEST_|)DEPENDS|DESCRIPTION|IMPLEMENTS|BACKEND|DEFAULT|GROUPS|TEST_LABELS|KIT|LEGACY)$")
       set(_doing "${arg}")
     elseif("${arg}" STREQUAL "EXCLUDE_FROM_ALL")
       set(_doing "")
@@ -114,9 +109,6 @@ macro(vtk_module _name)
     elseif("${_doing}" STREQUAL "DESCRIPTION")
       set(_doing "")
       set(${vtk-module}_DESCRIPTION "${arg}")
-    elseif("${_doing}" STREQUAL "TCL_NAME")
-      set(_doing "")
-      set(${vtk-module}_TCL_NAME "${arg}")
     elseif("${_doing}" STREQUAL "IMPLEMENTS")
       list(APPEND ${vtk-module}_DEPENDS "${arg}")
       list(APPEND ${vtk-module}_IMPLEMENTS "${arg}")
@@ -165,11 +157,6 @@ macro(vtk_module _name)
   list(SORT ${vtk-module}_DEPENDS) # Deterministic order.
   list(SORT ${vtk-module-test}_DEPENDS) # Deterministic order.
   list(SORT ${vtk-module}_IMPLEMENTS) # Deterministic order.
-  if(NOT (${vtk-module}_EXCLUDE_FROM_WRAPPING OR
-          ${vtk-module}_EXCLUDE_FROM_TCL_WRAPPING) AND
-      "${${vtk-module}_TCL_NAME}" MATCHES "[0-9]")
-    message(AUTHOR_WARNING "Specify a TCL_NAME with no digits.")
-  endif()
   endif()
 endmacro()
 
@@ -362,7 +349,7 @@ macro(vtk_module_export_info)
       DESTINATION ${VTK_INSTALL_PACKAGE_DIR}/Modules
       COMPONENT Development)
     if(NOT ${vtk-module}_EXCLUDE_FROM_WRAPPING)
-      if(VTK_WRAP_PYTHON OR VTK_WRAP_TCL OR VTK_WRAP_JAVA)
+      if(VTK_WRAP_PYTHON OR VTK_WRAP_JAVA)
         install(FILES ${${vtk-module}_WRAP_HIERARCHY_FILE}
           DESTINATION ${VTK_INSTALL_PACKAGE_DIR}/Modules
           COMPONENT Development)
@@ -397,26 +384,7 @@ function(vtk_module_export sources)
         get_filename_component(_filename "${hdr}" NAME)
         string(REGEX REPLACE "\\.h$" "" _cls "${_filename}")
 
-        get_source_file_property(_wrap_exclude ${src} WRAP_EXCLUDE)
-        get_source_file_property(_wrap_exclude_python ${src} WRAP_EXCLUDE_PYTHON)
-        get_source_file_property(_abstract ${src} ABSTRACT)
-
         list(APPEND vtk-module-HEADERS ${_cls})
-
-        if(_abstract)
-          set(vtk-module-ABSTRACT
-            "${vtk-module-ABSTRACT}set(${vtk-module}_HEADER_${_cls}_ABSTRACT 1)\n")
-        endif()
-
-        if(_wrap_exclude)
-          set(vtk-module-WRAP_EXCLUDE
-            "${vtk-module-WRAP_EXCLUDE}set(${vtk-module}_HEADER_${_cls}_WRAP_EXCLUDE 1)\n")
-        endif()
-
-        if(_wrap_exclude_python)
-          set(vtk-module-WRAP_EXCLUDE_PYTHON
-            "${vtk-module-WRAP_EXCLUDE_PYTHON}set(${vtk-module}_HEADER_${_cls}_WRAP_EXCLUDE_PYTHON 1)\n")
-        endif()
       endif()
     endif()
   endforeach()
@@ -656,7 +624,6 @@ function(vtk_module_library name)
   vtk_module_impl()
 
   set(vtk-module-HEADERS)
-  set(vtk-module-ABSTRACT)
 
   # Collect header files matching sources.
   set(_hdrs ${${vtk-module}_HDRS})
@@ -678,25 +645,6 @@ function(vtk_module_library name)
   list(APPEND _hdrs "${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}Module.h")
   list(REMOVE_DUPLICATES _hdrs)
 
-  # The instantiators are off by default, and only work on wrapped modules.
-  if(VTK_MAKE_INSTANTIATORS AND NOT ${vtk-module}_EXCLUDE_FROM_WRAPPING)
-    string(TOUPPER "${vtk-module}_EXPORT" _export_macro)
-    vtk_make_instantiator3(${vtk-module}Instantiator _instantiator_SRCS
-      "${ARGN}" ${_export_macro} ${CMAKE_CURRENT_BINARY_DIR}
-      ${vtk-module}Module.h)
-    list(APPEND _hdrs "${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}Instantiator.h")
-  endif()
-
-  # Add the vtkWrapHierarchy custom command output to the target, if any.
-  # TODO: Re-order things so we do not need to duplicate this condition.
-  if(NOT ${vtk-module}_EXCLUDE_FROM_WRAPPING AND
-      NOT ${vtk-module}_EXCLUDE_FROM_WRAP_HIERARCHY AND
-      ( VTK_WRAP_PYTHON OR VTK_WRAP_TCL OR VTK_WRAP_JAVA ))
-    set(_hierarchy ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}Hierarchy.stamp.txt)
-  else()
-    set(_hierarchy "")
-  endif()
-
   set(target_suffix)
   set(force_object)
   set(export_symbol_object)
@@ -709,7 +657,8 @@ function(vtk_module_library name)
     # OBJECT libraries don't like this variable being set; clear it.
     unset(${vtk-module}_LIB_DEPENDS CACHE)
   endif()
-  vtk_add_library(${vtk-module}${force_object} ${ARGN} ${_hdrs} ${_instantiator_SRCS} ${_hierarchy})
+  vtk_add_library(${vtk-module}${force_object} ${ARGN} ${_hdrs})
+
   if(_vtk_build_as_kit)
     # Make an interface library to link with for libraries.
     add_library(${vtk-module} INTERFACE)
@@ -828,29 +777,15 @@ VTK_AUTOINIT(${vtk-module})
       )
   endif()
 
-  if(BUILD_TESTING AND TCL_TCLSH)
-    add_test(NAME ${vtk-module}-TestSetObjectMacro
-      COMMAND ${TCL_TCLSH}
-      ${VTK_SOURCE_DIR}/Testing/Core/FindString.tcl
-      "${${vtk-module}_SOURCE_DIR}/vtk\\\\*.h"
-      # "${CMAKE_CURRENT_SOURCE_DIR}/vtk\\\\*.h"
-      "vtkSetObjectMacro"
-      ${VTK_SOURCE_DIR}/Common/Core/vtkSetGet.h
-      )
-    add_test(NAME ${vtk-module}-TestPrintSelf
-      COMMAND ${TCL_TCLSH}
-      ${VTK_SOURCE_DIR}/Testing/Core/PrintSelfCheck.tcl
-      ${${vtk-module}_SOURCE_DIR})
-    set_tests_properties(${vtk-module}-TestSetObjectMacro
-      PROPERTIES LABELS "${${vtk-module}_TEST_LABELS}"
-      )
-    set_tests_properties(${vtk-module}-TestPrintSelf
-      PROPERTIES LABELS "${${vtk-module}_TEST_LABELS}"
-      )
-  endif()
-
   # Add the module to the list of wrapped modules if necessary
   vtk_add_wrapping(${vtk-module} "${ARGN}" "${${vtk-module}_HDRS}")
+
+  # Add the vtkWrapHierarchy custom command output to the target, if any.
+  # TODO: Re-order things so we do not need to duplicate this condition.
+  if (TARGET "${vtk-module}Hierarchy")
+    add_dependencies("${vtk-module}${target_suffix}"
+      "${vtk-module}Hierarchy")
+  endif ()
 
   # Export the module information.
   vtk_module_export("${ARGN}")

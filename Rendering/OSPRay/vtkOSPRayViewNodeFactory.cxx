@@ -16,6 +16,7 @@
 #include "vtkObjectFactory.h"
 
 #include "vtkOSPRayActorNode.h"
+#include "vtkOSPRayAMRVolumeMapperNode.h"
 #include "vtkOSPRayCameraNode.h"
 #include "vtkOSPRayCompositePolyDataMapper2Node.h"
 #include "vtkOSPRayLightNode.h"
@@ -28,6 +29,12 @@
 vtkViewNode *ren_maker()
 {
   vtkOSPRayRendererNode *vn = vtkOSPRayRendererNode::New();
+  return vn;
+}
+
+vtkViewNode *amrm_maker()
+{
+  vtkOSPRayAMRVolumeMapperNode *vn = vtkOSPRayAMRVolumeMapperNode::New();
   return vn;
 }
 
@@ -100,8 +107,10 @@ vtkOSPRayViewNodeFactory::vtkOSPRayViewNodeFactory()
   this->RegisterOverride("vtkOSPRayVolumeMapper", vm_maker);
   this->RegisterOverride("vtkOpenGLGPUVolumeRayCastMapper", vm_maker);
   this->RegisterOverride("vtkCompositePolyDataMapper2", cpd_maker);
-  this->RegisterOverride("vtkProjectedTetrahedraMapper", tetm_maker);
+  this->RegisterOverride("vtkOpenGLProjectedTetrahedraMapper", tetm_maker);
+  this->RegisterOverride("vtkUnstructuredGridVolumeZSweepMapper", tetm_maker);
   this->RegisterOverride("vtkUnstructuredGridVolumeRayCastMapper", tetm_maker);
+  this->RegisterOverride("vtkAMRVolumeMapper", amrm_maker);
 }
 
 //----------------------------------------------------------------------------

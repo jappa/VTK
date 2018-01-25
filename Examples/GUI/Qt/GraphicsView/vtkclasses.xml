@@ -286,8 +286,6 @@
          <class id="vtkRungeKutta45" library="Common">
          </class>
       </class>
-      <class id="vtkInstantiator" library="Common">
-      </class>
       <class id="vtkMath" library="Common">
       </class>
       <class id="vtkMatrix4x4" library="Common">
@@ -2512,10 +2510,6 @@
          <class id="vtkScalarsToColorsPainter" library="Rendering">
             <class id="vtkOpenGLScalarsToColorsPainter" library="Rendering">
             </class>
-         </class>
-      </class>
-      <class id="vtkPainterDeviceAdapter" library="Rendering">
-         <class id="vtkOpenGLPainterDeviceAdapter" library="Rendering">
          </class>
       </class>
       <class id="vtkProperty" library="Rendering">

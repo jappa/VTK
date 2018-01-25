@@ -50,7 +50,7 @@ class VTKGUISUPPORTQT_EXPORT vtkQtTreeModelAdapter : public vtkQtAbstractModelAd
   Q_OBJECT
 
 public:
-  vtkQtTreeModelAdapter(QObject *parent = 0, vtkTree* tree = 0);
+  vtkQtTreeModelAdapter(QObject *parent = nullptr, vtkTree* tree = nullptr);
   ~vtkQtTreeModelAdapter() override;
 
   //@{
@@ -67,7 +67,7 @@ public:
    * same this as the data objects modification time. It is the mod
    * time of the object when it was placed into the Qt model adapter.
    * You can use this mtime as part of the checking to see whether
-   * you need to update the the adapter by call SetVTKDataObject again. :)
+   * you need to update the adapter by call SetVTKDataObject again. :)
    */
   vtkMTimeType GetVTKDataObjectMTime() const;
 
@@ -108,11 +108,7 @@ public:
    * pedigreeid vtkSelection into a QMimeData when items are dragged.
    * Currently only leaves of the tree can be dragged.
    */
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
   Qt::DropActions supportedDragActions() const override;
-#else
-  Qt::DropActions supportedDragActions() const;
-#endif
   QMimeData * mimeData ( const QModelIndexList & indexes ) const override;
   QStringList mimeTypes () const override;
   //@}

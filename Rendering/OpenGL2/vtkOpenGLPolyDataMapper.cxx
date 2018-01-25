@@ -221,6 +221,7 @@ void vtkOpenGLPolyDataMapper::ReleaseGraphicsResources(vtkWindow* win)
   this->Modified();
 }
 
+//-----------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::AddShaderReplacement(
     vtkShader::Type shaderType, // vertex, fragment, etc
     const std::string& originalValue,
@@ -240,6 +241,7 @@ void vtkOpenGLPolyDataMapper::AddShaderReplacement(
   this->UserShaderReplacements[spec] = values;
 }
 
+//-----------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::ClearShaderReplacement(
     vtkShader::Type shaderType, // vertex, fragment, etc
     const std::string& originalValue,
@@ -253,10 +255,54 @@ void vtkOpenGLPolyDataMapper::ClearShaderReplacement(
   typedef std::map<const vtkShader::ReplacementSpec,
     vtkShader::ReplacementValue>::iterator RIter;
   RIter found = this->UserShaderReplacements.find(spec);
-  if (found == this->UserShaderReplacements.end())
+  if (found != this->UserShaderReplacements.end())
   {
     this->UserShaderReplacements.erase(found);
   }
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLPolyDataMapper::ClearAllShaderReplacements(
+  vtkShader::Type shaderType)
+{
+  // First clear all shader code
+  if ((shaderType == vtkShader::Vertex) && this->VertexShaderCode)
+  {
+    this->SetVertexShaderCode(nullptr);
+  }
+  else if ((shaderType == vtkShader::Fragment) && this->FragmentShaderCode)
+  {
+    this->SetFragmentShaderCode(nullptr);
+  }
+  else if ((shaderType == vtkShader::Geometry) && this->GeometryShaderCode)
+  {
+    this->SetGeometryShaderCode(nullptr);
+  }
+
+  // Now clear custom tag replacements
+  std::map<const vtkShader::ReplacementSpec,
+           vtkShader::ReplacementValue>::iterator rIter;
+  for (rIter = this->UserShaderReplacements.begin();
+       rIter != this->UserShaderReplacements.end();)
+  {
+    if (rIter->first.ShaderType == shaderType)
+    {
+      this->UserShaderReplacements.erase(rIter++);
+    }
+    else
+    {
+      ++rIter;
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLPolyDataMapper::ClearAllShaderReplacements()
+{
+  this->SetVertexShaderCode(nullptr);
+  this->SetFragmentShaderCode(nullptr);
+  this->SetGeometryShaderCode(nullptr);
+  this->UserShaderReplacements.clear();
 }
 
 //-----------------------------------------------------------------------------
@@ -1008,7 +1054,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderTCoord(
   if (!this->InterpolateScalarsBeforeMapping || !this->ColorCoordinates)
   {
     vtkShaderProgram::Substitute(FSSource, "//VTK::TCoord::Impl",
-      tCoordImpFS + "gl_FragData[0] = clamp(gl_FragData[0],0.0,1.0) * tcolor;");
+      tCoordImpFS + "gl_FragData[0] = gl_FragData[0] * tcolor;");
   }
 
   shaders[vtkShader::Vertex]->SetSource(VSSource);
@@ -1145,7 +1191,6 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
       "//VTK::Normal::Dec",
       "uniform float ZCalcS;\n"
       "uniform float ZCalcR;\n"
-      "uniform int cameraParallel;\n"
       );
     vtkShaderProgram::Substitute(FSSource,
       "//VTK::Normal::Impl",
@@ -1191,7 +1236,6 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
       "varying vec3 tubeBasis2;\n"
       "uniform float ZCalcS;\n"
       "uniform float ZCalcR;\n"
-      "uniform int cameraParallel;\n"
       );
     vtkShaderProgram::Substitute(FSSource,
       "//VTK::Normal::Impl",
@@ -1311,7 +1355,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
       // no clue if this is the best way to do this.
       // the code below has been optimized a bit so what follows is
       // an explanation of the basic approach. Compute the gradient of the line
-      // with respect to x and y, the the larger of the two
+      // with respect to x and y, the larger of the two
       // cross that with the camera view direction. That gives a vector
       // orthogonal to the camera view and the line. Note that the line and the camera
       // view are probably not orthogonal. Which is why when we cross result that with
@@ -1340,10 +1384,6 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
     }
     else // not lines, so surface
     {
-      vtkShaderProgram::Substitute(FSSource,
-        "//VTK::Normal::Dec",
-        "uniform int cameraParallel;");
-
       vtkShaderProgram::Substitute(
             FSSource,"//VTK::UniformFlow::Impl",
             "vec3 fdx = vec3(dFdx(vertexVC.x),dFdx(vertexVC.y),dFdx(vertexVC.z));\n"
@@ -1371,6 +1411,11 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderPositionVC(
   std::string VSSource = shaders[vtkShader::Vertex]->GetSource();
   std::string GSSource = shaders[vtkShader::Geometry]->GetSource();
   std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
+
+  vtkShaderProgram::Substitute(FSSource,
+    "//VTK::Camera::Dec",
+    "uniform int cameraParallel;\n",
+    false);
 
  // do we need the vertex in the shader in View Coordinates
   if (this->LastLightComplexity[this->LastBoundBO] > 0)
@@ -1685,7 +1730,7 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShaders(
     return true;
   }
 
-  // if texturing then texture componets/blend funcs may have changed
+  // if texturing then texture components/blend funcs may have changed
   if (this->VBOs->GetNumberOfComponents("tcoordMC"))
   {
     vtkMTimeType texMTime = 0;
@@ -1761,7 +1806,7 @@ void vtkOpenGLPolyDataMapper::UpdateShaders(
     this->SetLightingShaderParameters(cellBO, ren, actor);
 
     // allow the program to set what it wants
-    this->InvokeEvent(vtkCommand::UpdateShaderEvent,&cellBO);
+    this->InvokeEvent(vtkCommand::UpdateShaderEvent, cellBO.Program);
   }
 
   vtkOpenGLCheckErrorMacro("failed after UpdateShader");
@@ -3295,7 +3340,7 @@ void vtkOpenGLPolyDataMapper::BuildIBO(
           }
           if (!ef->IsA("vtkUnsignedCharArray"))
           {
-            vtkDebugMacro(<< "Currently only unsigned char edge flags are suported.");
+            vtkDebugMacro(<< "Currently only unsigned char edge flags are supported.");
             ef = nullptr;
           }
         }
@@ -3328,7 +3373,7 @@ void vtkOpenGLPolyDataMapper::BuildIBO(
         }
         else if (!ef->IsA("vtkUnsignedCharArray"))
         {
-          vtkDebugMacro(<< "Currently only unsigned char edge flags are suported.");
+          vtkDebugMacro(<< "Currently only unsigned char edge flags are supported.");
           ef = nullptr;
         }
       }
@@ -3356,7 +3401,6 @@ void vtkOpenGLPolyDataMapper::BuildIBO(
 //-----------------------------------------------------------------------------
 bool vtkOpenGLPolyDataMapper::GetIsOpaque()
 {
-  // Straight copy of what the vtkPainterPolyDataMapper was doing.
   if (this->ScalarVisibility &&
       (this->ColorMode == VTK_COLOR_MODE_DEFAULT ||
        this->ColorMode == VTK_COLOR_MODE_DIRECT_SCALARS))

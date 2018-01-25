@@ -36,12 +36,16 @@ mark_as_advanced(VTK_USE_SYSTEM_MPI4PY)
 
 if (NOT VTK_USE_SYSTEM_MPI4PY)
   # Configure mpi4py.
-  set (MPI4PY_INSTALL_PACKAGE_DIR "${VTK_INSTALL_LIBRARY_DIR}/site-packages")
-  set (MPI4PY_PACKAGE_BINARY_DIR  "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/site-packages")
+  set (MPI4PY_INSTALL_PACKAGE_DIR "${VTK_INSTALL_PYTHON_MODULES_DIR}")
+  set (MPI4PY_PACKAGE_BINARY_DIR  "${VTK_BUILD_PYTHON_MODULES_DIR}")
 
   # Block warnings unless we are instructed to allow them.
   # SET(VTKMPI4PY_WARNINGS_ALLOW 1)
   vtk_third_party_warning_suppress(VTKMPI4PY C)
 
   add_subdirectory(vtkmpi4py)
+else ()
+  set_property(GLOBAL APPEND
+    PROPERTY
+      vtk_required_python_modules "mpi4py>=2.0.0")
 endif ()

@@ -43,9 +43,9 @@ public:
    * When off (the default) this source produces a discrete set of values.
    * When on, this source produces a value analytically for any queried time.
    */
-  vtkSetClampMacro(Analytic, int, 0, 1);
-  vtkGetMacro(Analytic, int);
-  vtkBooleanMacro(Analytic, int);
+  vtkSetClampMacro(Analytic, vtkTypeBool, 0, 1);
+  vtkGetMacro(Analytic, vtkTypeBool);
+  vtkBooleanMacro(Analytic, vtkTypeBool);
   //@}
 
   //@{
@@ -63,12 +63,12 @@ public:
   //@{
   /**
    * When off (the default) this produces a single cell data set.
-   * When on the the number of cells (in the Y direction) grows
+   * When on the number of cells (in the Y direction) grows
    * and shrinks over time along a hat function.
    */
-  vtkSetClampMacro(Growing, int, 0, 1);
-  vtkGetMacro(Growing, int);
-  vtkBooleanMacro(Growing, int);
+  vtkSetClampMacro(Growing, vtkTypeBool, 0, 1);
+  vtkGetMacro(Growing, vtkTypeBool);
+  vtkBooleanMacro(Growing, vtkTypeBool);
   //@}
 
 protected:
@@ -90,10 +90,10 @@ protected:
   double YFunction(double time);
   int NumCellsFunction(double time);
 
-  int Analytic;
+  vtkTypeBool Analytic;
   double XAmplitude;
   double YAmplitude;
-  int Growing;
+  vtkTypeBool Growing;
 
   int NumSteps;
   double *Steps;

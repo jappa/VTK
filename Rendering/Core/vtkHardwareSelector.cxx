@@ -35,10 +35,6 @@
 
 #define ID_OFFSET 1
 
-#ifdef VTK_OPENGL1
-#include "vtkPainterDeviceAdapter.h"
-#endif
-
 //----------------------------------------------------------------------------
 namespace
 {
@@ -230,7 +226,6 @@ void vtkHardwareSelector::BeginSelection()
   this->MaxAttributeId = 0;
   this->Renderer->Clear();
   this->Renderer->SetSelector(this);
-  this->Renderer->PreserveDepthBufferOn();
   this->Internals->HitProps.clear();
   this->Internals->Props.clear();
   this->ReleasePixBuffers();
@@ -241,7 +236,6 @@ void vtkHardwareSelector::EndSelection()
 {
   this->Internals->HitProps.clear();
   this->Renderer->SetSelector(nullptr);
-  this->Renderer->PreserveDepthBufferOff();
 }
 
 //----------------------------------------------------------------------------
@@ -376,41 +370,6 @@ void vtkHardwareSelector::BeginRenderProp()
   // device specific prep
   vtkRenderWindow *renWin = this->Renderer->GetRenderWindow();
   this->BeginRenderProp(renWin);
-
-  //cout << "In BeginRenderProp" << endl;
-  //glFinish();
-#ifdef VTK_OPENGL1
-  if (this->CurrentPass == ACTOR_PASS)
-  {
-    int propid = this->PropID;
-    if (propid >= 0xfffffe)
-    {
-      vtkErrorMacro("Too many props. Currently only " << 0xfffffe
-        << " props are supported.");
-      return;
-    }
-    float color[3];
-    // Since 0 is reserved for nothing selected, we offset propid by 1.
-    propid = propid + 1;
-    vtkHardwareSelector::Convert(propid, color);
-    renWin->GetPainterDeviceAdapter()->SendAttribute(
-      vtkDataSetAttributes::SCALARS, 3, VTK_FLOAT, color);
-  }
-  else if (this->CurrentPass == PROCESS_PASS)
-  {
-    float color[3];
-    // Since 0 is reserved for nothing selected, we offset propid by 1.
-    vtkHardwareSelector::Convert(this->ProcessID + 1, color);
-    renWin->GetPainterDeviceAdapter()->SendAttribute(
-      vtkDataSetAttributes::SCALARS, 3, VTK_FLOAT, color);
-  }
-  else
-  {
-    float color[3] = {0, 0, 0};
-    renWin->GetPainterDeviceAdapter()->SendAttribute(
-      vtkDataSetAttributes::SCALARS, 3, VTK_FLOAT, color);
-  }
-#endif
 }
 
 //----------------------------------------------------------------------------
@@ -441,18 +400,6 @@ void vtkHardwareSelector::RenderCompositeIndex(unsigned int index)
     return;
   }
 
-#ifdef VTK_OPENGL1
-  index += ID_OFFSET;
-
-  //glFinish();
-  if (this->CurrentPass == COMPOSITE_INDEX_PASS)
-  {
-    float color[3];
-    vtkHardwareSelector::Convert(static_cast<int>(0xffffff & index), color);
-    this->Renderer->GetRenderWindow()->GetPainterDeviceAdapter()->SendAttribute(
-      vtkDataSetAttributes::SCALARS, 3, VTK_FLOAT, color);
-  }
-#endif
 }
 
 //----------------------------------------------------------------------------
@@ -473,25 +420,6 @@ void vtkHardwareSelector::RenderAttributeId(vtkIdType attribid)
   {
     return;
   }
-
-#ifdef VTK_OPENGL1
-  // 0 is reserved.
-  attribid += ID_OFFSET;
-
-  for (int cc=0; cc < 3; cc++)
-  {
-    int words24 = (0xffffff & attribid);
-    attribid = attribid >> 24;
-    if ((this->CurrentPass - ID_LOW24) == cc)
-    {
-      float color[3];
-      vtkHardwareSelector::Convert(words24, color);
-      this->Renderer->GetRenderWindow()->GetPainterDeviceAdapter()->SendAttribute(
-        vtkDataSetAttributes::SCALARS, 3, VTK_FLOAT, color);
-      break;
-    }
-  }
-#endif
 }
 
 //----------------------------------------------------------------------------
@@ -504,14 +432,6 @@ void vtkHardwareSelector::RenderProcessId(unsigned int processid)
       vtkErrorMacro("Invalid id: " << processid);
       return;
     }
-
-#ifdef VTK_OPENGL1
-    float color[3];
-    vtkHardwareSelector::Convert(
-      static_cast<int>(processid + 1), color);
-    this->Renderer->GetRenderWindow()->GetPainterDeviceAdapter()->SendAttribute(
-      vtkDataSetAttributes::SCALARS, 3, VTK_FLOAT, color);
-#endif
   }
 }
 

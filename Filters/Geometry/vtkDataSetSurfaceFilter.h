@@ -59,9 +59,9 @@ public:
    * triangle strips.  This should render faster and use less memory, but no
    * cell data is copied.  By default, UseStrips is Off.
    */
-  vtkSetMacro(UseStrips, int);
-  vtkGetMacro(UseStrips, int);
-  vtkBooleanMacro(UseStrips, int);
+  vtkSetMacro(UseStrips, vtkTypeBool);
+  vtkGetMacro(UseStrips, vtkTypeBool);
+  vtkBooleanMacro(UseStrips, vtkTypeBool);
   //@}
 
   //@{
@@ -83,12 +83,12 @@ public:
    * since in that case each tringle strip can represent more than on of the
    * input cells.
    */
-  vtkSetMacro(PassThroughCellIds,int);
-  vtkGetMacro(PassThroughCellIds,int);
-  vtkBooleanMacro(PassThroughCellIds,int);
-  vtkSetMacro(PassThroughPointIds,int);
-  vtkGetMacro(PassThroughPointIds,int);
-  vtkBooleanMacro(PassThroughPointIds,int);
+  vtkSetMacro(PassThroughCellIds,vtkTypeBool);
+  vtkGetMacro(PassThroughCellIds,vtkTypeBool);
+  vtkBooleanMacro(PassThroughCellIds,vtkTypeBool);
+  vtkSetMacro(PassThroughPointIds,vtkTypeBool);
+  vtkGetMacro(PassThroughPointIds,vtkTypeBool);
+  vtkBooleanMacro(PassThroughPointIds,vtkTypeBool);
   //@}
 
   //@{
@@ -174,7 +174,7 @@ protected:
   vtkDataSetSurfaceFilter();
   ~vtkDataSetSurfaceFilter() override;
 
-  int UseStrips;
+  vtkTypeBool UseStrips;
 
   int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
@@ -253,13 +253,13 @@ protected:
 
   int PieceInvariant;
 
-  int PassThroughCellIds;
+  vtkTypeBool PassThroughCellIds;
   void RecordOrigCellId(vtkIdType newIndex, vtkIdType origId);
   virtual void RecordOrigCellId(vtkIdType newIndex, vtkFastGeomQuad *quad);
   vtkIdTypeArray *OriginalCellIds;
   char *OriginalCellIdsName;
 
-  int PassThroughPointIds;
+  vtkTypeBool PassThroughPointIds;
   void RecordOrigPointId(vtkIdType newIndex, vtkIdType origId);
   vtkIdTypeArray *OriginalPointIds;
   char *OriginalPointIdsName;

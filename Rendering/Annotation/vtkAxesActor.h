@@ -108,7 +108,7 @@ public:
    * method GetBounds(double bounds[6]) is available from the superclass.)
    */
   void GetBounds(double bounds[6]);
-  double *GetBounds() override;
+  double *GetBounds() VTK_SIZEHINT(6) override;
   //@}
 
   /**
@@ -279,9 +279,9 @@ public:
   /**
    * Enable/disable drawing the axis labels.
    */
-  vtkSetMacro(AxisLabels, int);
-  vtkGetMacro(AxisLabels, int);
-  vtkBooleanMacro(AxisLabels, int);
+  vtkSetMacro(AxisLabels, vtkTypeBool);
+  vtkGetMacro(AxisLabels, vtkTypeBool);
+  vtkBooleanMacro(AxisLabels, vtkTypeBool);
   //@}
 
   enum
@@ -336,7 +336,7 @@ protected:
   vtkCaptionActor2D *YAxisLabel;
   vtkCaptionActor2D *ZAxisLabel;
 
-  int                AxisLabels;
+  vtkTypeBool        AxisLabels;
 
 
   int                ConeResolution;

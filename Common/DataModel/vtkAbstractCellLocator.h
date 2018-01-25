@@ -70,9 +70,9 @@ public:
    * won't cause disk caching (24 extra bytes per cell are required to
    * save the bounds).
    */
-  vtkSetMacro(CacheCellBounds,int);
-  vtkGetMacro(CacheCellBounds,int);
-  vtkBooleanMacro(CacheCellBounds,int);
+  vtkSetMacro(CacheCellBounds,vtkTypeBool);
+  vtkGetMacro(CacheCellBounds,vtkTypeBool);
+  vtkBooleanMacro(CacheCellBounds,vtkTypeBool);
   //@}
 
   //@{
@@ -81,9 +81,9 @@ public:
    * not applicable to all implementations, but if the locator is being used
    * as a geometry simplification technique, there is no need to keep them.
    */
-  vtkSetMacro(RetainCellLists,int);
-  vtkGetMacro(RetainCellLists,int);
-  vtkBooleanMacro(RetainCellLists,int);
+  vtkSetMacro(RetainCellLists,vtkTypeBool);
+  vtkGetMacro(RetainCellLists,vtkTypeBool);
+  vtkBooleanMacro(RetainCellLists,vtkTypeBool);
   //@}
 
   //@{
@@ -93,9 +93,9 @@ public:
    * If LazyEvaluation is supported, this turns on/off the feature.
    * if not supported, it is ignored.
    */
-  vtkSetMacro(LazyEvaluation,int);
-  vtkGetMacro(LazyEvaluation,int);
-  vtkBooleanMacro(LazyEvaluation,int);
+  vtkSetMacro(LazyEvaluation,vtkTypeBool);
+  vtkGetMacro(LazyEvaluation,vtkTypeBool);
+  vtkBooleanMacro(LazyEvaluation,vtkTypeBool);
   //@}
 
   //@{
@@ -106,9 +106,9 @@ public:
    * Turning on this flag enables some locators to skip the rebuilding
    * phase
    */
-  vtkSetMacro(UseExistingSearchStructure,int);
-  vtkGetMacro(UseExistingSearchStructure,int);
-  vtkBooleanMacro(UseExistingSearchStructure,int);
+  vtkSetMacro(UseExistingSearchStructure,vtkTypeBool);
+  vtkGetMacro(UseExistingSearchStructure,vtkTypeBool);
+  vtkBooleanMacro(UseExistingSearchStructure,vtkTypeBool);
   //@}
 
   /**
@@ -129,7 +129,8 @@ public:
 
   /**
    * Return intersection point (if any) AND the cell which was intersected by
-   * the finite line. The cell is returned as a cell id and as a generic cell.
+   * the finite line. The cell is returned as a cell id and as a generic
+   * cell.
    */
   virtual int IntersectWithLine(
     double p1[3], double p2[3], double tol, double& t, double x[3],
@@ -145,7 +146,7 @@ public:
    * lies outside the closed surface.
    * Either 'points' or 'cellIds' can be set to nullptr if you don't want
    * to receive that information. This method is currently only implemented
-   * in vtkOBBTree
+   * in vtkOBBTree.
    */
   virtual int IntersectWithLine(
     const double p1[3], const double p2[3],
@@ -287,10 +288,10 @@ protected:
   //@}
 
   int NumberOfCellsPerNode;
-  int RetainCellLists;
-  int CacheCellBounds;
-  int LazyEvaluation;
-  int UseExistingSearchStructure;
+  vtkTypeBool RetainCellLists;
+  vtkTypeBool CacheCellBounds;
+  vtkTypeBool LazyEvaluation;
+  vtkTypeBool UseExistingSearchStructure;
   vtkGenericCell *GenericCell;
   double (*CellBounds)[6];
 
@@ -300,5 +301,3 @@ private:
 };
 
 #endif
-
-

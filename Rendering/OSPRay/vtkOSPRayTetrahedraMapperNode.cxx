@@ -21,7 +21,7 @@
 #include "vtkOSPRayRendererNode.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkPointData.h"
-#include "vtkUnstructuredGridVolumeRayCastMapper.h"
+#include "vtkUnstructuredGridVolumeMapper.h"
 #include "vtkVolume.h"
 #include "vtkVolumeNode.h"
 #include "vtkVolumeProperty.h"
@@ -35,8 +35,8 @@ vtkOSPRayTetrahedraMapperNode::vtkOSPRayTetrahedraMapperNode()
 {
   this->SamplingRate=0.0f;
   this->NumColors = 128;
-  this->OSPRayVolume = NULL;
-  this->TransferFunction = NULL;
+  this->OSPRayVolume = nullptr;
+  this->TransferFunction = nullptr;
 }
 
 vtkOSPRayTetrahedraMapperNode::~vtkOSPRayTetrahedraMapperNode()
@@ -55,8 +55,8 @@ void vtkOSPRayTetrahedraMapperNode::Render(bool prepass)
 {
   if (prepass)
   {
-    vtkUnstructuredGridVolumeRayCastMapper *mapper =
-      vtkUnstructuredGridVolumeRayCastMapper::SafeDownCast(this->GetRenderable());
+    vtkUnstructuredGridVolumeMapper *mapper =
+      vtkUnstructuredGridVolumeMapper::SafeDownCast(this->GetRenderable());
     if (!mapper)
     {
       vtkErrorMacro("invalid mapper");
@@ -182,8 +182,8 @@ void vtkOSPRayTetrahedraMapperNode::Render(bool prepass)
       assert(tetrahedraData);
       ospSetData(this->OSPRayVolume, "tetrahedra", tetrahedraData);
 
-      ospSet1i(this->OSPRayVolume, "nVertices", this->Vertices.size());
-      ospSet1i(this->OSPRayVolume, "nTetrahedra", this->Cells.size()/4);
+      ospSet1i(this->OSPRayVolume, "nVertices", static_cast<int>(this->Vertices.size()));
+      ospSet1i(this->OSPRayVolume, "nTetrahedra", static_cast<int>(this->Cells.size())/4);
     }
 
     double* dim = mapper->GetBounds();
@@ -251,7 +251,6 @@ void vtkOSPRayTetrahedraMapperNode::Render(bool prepass)
     if (this->SamplingRate == 0.0f)  // 0 means automatic sampling rate
     {
       //automatically determine sampling rate
-      float minSamplingRate = 0.075f; // lower for min adaptive sampling step
       if (minBound < 100)
       {
         float s = (100.0f - minBound)/100.0f;

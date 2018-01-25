@@ -38,7 +38,7 @@ vtkStandardNewMacro(vtkLASReader)
 //----------------------------------------------------------------------------
 vtkLASReader::vtkLASReader()
 {
-  this->FileName = NULL;
+  this->FileName = nullptr;
 
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
@@ -59,7 +59,7 @@ int vtkLASReader::RequestData(vtkInformation* vtkNotUsed(request),
   // Get the info object
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
-  // Get the ouptut
+  // Get the output
   vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // Open LAS File for reading

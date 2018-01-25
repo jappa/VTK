@@ -5,6 +5,7 @@ set(Module_SRCS
   vtkAdjacentVertexIterator.cxx
   vtkAMRBox.cxx
   vtkAMRUtilities.cxx
+  vtkAngularPeriodicDataArray.txx
   vtkAnimationScene.cxx
   vtkAnnotation.cxx
   vtkAnnotationLayers.cxx
@@ -68,9 +69,6 @@ set(Module_SRCS
   vtkHexahedron.cxx
   vtkHierarchicalBoxDataIterator.cxx
   vtkHierarchicalBoxDataSet.cxx
-  vtkHyperOctreeCursor.cxx
-  vtkHyperOctree.cxx
-  vtkHyperOctreePointsGrabber.cxx
   vtkHyperTree.cxx
   vtkHyperTreeCursor.cxx
   vtkHyperTreeGrid.cxx
@@ -122,6 +120,7 @@ set(Module_SRCS
   vtkOutEdgeIterator.cxx
   vtkPath.cxx
   vtkPentagonalPrism.cxx
+  vtkPeriodicDataArray.txx
   vtkPerlinNoise.cxx
   vtkPiecewiseFunction.cxx
   vtkPixel.cxx
@@ -222,89 +221,22 @@ set(Module_SRCS
   vtkUniformGridAMRDataIterator.cxx
   )
 
+if (NOT VTK_LEGACY_REMOVE)
+  list(APPEND Module_SRCS
+    vtkHyperOctree.cxx
+    vtkHyperOctreeCursor.cxx
+    vtkHyperOctreePointsGrabber.cxx
+  )
+endif()
+
 set(${vtk-module}_HDRS
+  vtkAngularPeriodicDataArray.h
   vtkArrayListTemplate.h
   vtkCellType.h
   vtkMappedUnstructuredGrid.h
   vtkMappedUnstructuredGridCellIterator.h
+  vtkPeriodicDataArray.h
   vtkStaticCellLinksTemplate.h
   )
-
-set_source_files_properties(
-  vtkAbstractCellLinks
-  vtkAbstractCellLocator
-  vtkAbstractPointLocator
-  vtkCell
-  vtkCell3D
-  vtkCellIterator
-  vtkCompositeDataIterator
-  vtkCompositeDataSet
-  vtkDataObjectTree
-  vtkAbstractElectronicData
-  vtkDataSet
-  vtkDataSetGhostGenerator
-  vtkDistributedGraphHelper
-  vtkGenericAttribute
-  vtkGenericAdaptorCell
-  vtkGenericCellIterator
-  vtkGenericCellTessellator
-  vtkGenericDataSet
-  vtkGenericPointIterator
-  vtkGenericSubdivisionErrorMetric
-  vtkGraph
-  vtkHyperOctreeCursor
-  vtkHyperOctreePointsGrabber
-  vtkHyperTree
-  vtkHyperTreeCursor
-  vtkImplicitFunction
-  vtkIncrementalPointLocator
-  vtkInformationQuadratureSchemeDefinitionVectorKey
-  vtkLocator
-  vtkNonLinearCell
-  vtkPointSet
-  vtkSpline
-  vtkStructuredData
-  vtkTreeIterator
-  vtkUnstructuredGridBase
-  ABSTRACT
-  )
-
-set_source_files_properties(
-  vtkAMRBox
-  vtkArrayListTemplate.txx
-  vtkAtom
-  vtkBond
-  vtkBoundingBox
-  vtkCellType
-  vtkDataArrayDispatcher
-  vtkDispatcher_Private
-  vtkDispatcher
-  vtkDoubleDispatcher
-  vtkMappedUnstructuredGrid.txx
-  vtkMappedUnstructuredGridCellIterator.txx
-  vtkMarchingSquaresLineCases
-  vtkMarchingCubesTriangleCases
-  vtkImageIterator
-  vtkImageProgressIterator
-  vtkPixelExtent.cxx
-  vtkPixelTransfer.cxx
-  vtkStaticCellLinksTemplate.txx
-  vtkVector
-  vtkColor
-  vtkRect
-  vtkVectorOperators
-  vtkAMRDataInternals
-  WRAP_EXCLUDE
-  )
-
-set_source_files_properties(
-  vtkDispatcher_Private
-  PROPERTIES WRAP_EXCLUDE_PYTHON 1
-)
-
-set_source_files_properties(
-  vtkLagrangeInterpolation.cxx
-  PROPERTIES WRAP_EXCLUDE 1
-)
 
 vtk_module_library(vtkCommonDataModel ${Module_SRCS})

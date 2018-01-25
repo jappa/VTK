@@ -13,7 +13,7 @@ if(APPLE AND NOT APPLE_IOS)
   if (VTK_USE_CARBON)
     message(FATAL_ERROR "Carbon support has been removed, but it appears that it was requested. If you require Carbon support, use VTK 6.x.  Otherwise, turn off the VTK_USE_CARBON option.")
   endif ()
-elseif(UNIX AND NOT ANDROID AND NOT APPLE_IOS)
+elseif(UNIX AND NOT ANDROID AND NOT APPLE_IOS AND NOT CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   set(default_use_x ON)
 endif()
 
@@ -39,7 +39,7 @@ mark_as_advanced(VTK_OPENGL_HAS_OSMESA)
 set(default_has_egl OFF)
 if(DEFINED VTK_USE_OFFSCREEN_EGL AND VTK_USE_OFFSCREEN_EGL)
   message(DEPRECATION "`VTK_USE_OFFSCREEN_EGL` cache variable is replaced by "
-    "`VTK_OPENGL_HAS_EGL`. Plase use it instead. The new name "
+    "`VTK_OPENGL_HAS_EGL`. Please use it instead. The new name "
     "better reflects the variable's purpose.")
   set(default_has_egl ${VTK_USE_OFFSCREEN_EGL})
 endif()
@@ -60,9 +60,6 @@ set(VTK_DEFAULT_EGL_DEVICE_INDEX "${default_egl_device_index}" CACHE STRING
 mark_as_advanced(VTK_DEFAULT_EGL_DEVICE_INDEX)
 
 # Some sanity checks for use of EGL.
-if (VTK_OPENGL_HAS_EGL AND VTK_RENDERING_BACKEND STREQUAL "OpenGL")
-  message(FATAL_ERROR "You can use VTK_OPENGL_HAS_EGL only for `OpenGL2` rendering backend")
-endif()
 if (VTK_OPENGL_HAS_EGL AND ANDROID)
   message(FATAL_ERROR "You cannot use VTK_OPENGL_HAS_EGL on the ANDROID platform")
 endif()
@@ -98,7 +95,7 @@ if(VTK_OPENGL_HAS_OSMESA OR VTK_OPENGL_HAS_EGL)
 endif()
 
 #-----------------------------------------------------------------------------
-if(NOT APPLE_IOS AND NOT ANDROID)
+if(NOT APPLE_IOS AND NOT ANDROID AND NOT CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   # For builds where we can support both on-screen and headless rendering, the default
   # is to create an on-screen render window. Setting this option to ON will change the default
   # to create an headless render window by default instead.
@@ -124,7 +121,7 @@ if(VTK_OPENGL_HAS_EGL)
 endif()
 
 if(VTK_CAN_DO_ONSCREEN)
-  # OpenGL libraries are explicity needed if windowing system-based API is being
+  # OpenGL libraries are explicitly needed if windowing system-based API is being
   # used. Otherwise, if only doing OFFSCREEN, the GL API is provided by the
   # offscreen library be it EGL or OSMESA.
   find_package(OpenGL REQUIRED)

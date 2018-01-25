@@ -53,7 +53,7 @@ public:
   /**
    * Initialize the event handler
    */
-  void Initialize() override;
+  virtual void Initialize() override;
 
   //@{
   /**
@@ -65,8 +65,8 @@ public:
    * and all other interactors associated with the widget are disabled
    * when their data is not displayed.
    */
-  void Enable() override;
-  void Disable() override;
+  virtual void Enable() override;
+  virtual void Disable() override;
   //@}
 
   //@{
@@ -121,14 +121,14 @@ public:
    * Methods to set the default exit method for the class. This method is
    * only used if no instance level ExitMethod has been defined.  It is
    * provided as a means to control how an interactor is exited given
-   * the various language bindings (tcl, Win32, etc.).
+   * the various language bindings (Win32, etc.).
    */
   static void SetClassExitMethod(void (*f)(void *), void *arg);
   static void SetClassExitMethodArgDelete(void (*f)(void *));
   //@}
 
   /**
-   * These methods correspond to the the Exit, User and Pick
+   * These methods correspond to the Exit, User and Pick
    * callbacks. They allow for the Style to invoke them.
    */
   void ExitCallback() override;
@@ -147,7 +147,7 @@ protected:
   /**
    * Class variables so an exit method can be defined for this class
    * (used to set different exit methods for various language bindings,
-   * i.e. tcl, java, Win32)
+   * i.e. java, Win32)
    */
   static void (*ClassExitMethod)(void *);
   static void (*ClassExitMethodArgDelete)(void *);

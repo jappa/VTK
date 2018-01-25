@@ -122,9 +122,9 @@ public:
   /**
    * Turn on/off flag to control whether scalar data is used to color objects.
    */
-  vtkSetMacro(ScalarVisibility, int);
-  vtkGetMacro(ScalarVisibility, int);
-  vtkBooleanMacro(ScalarVisibility, int);
+  vtkSetMacro(ScalarVisibility, vtkTypeBool);
+  vtkGetMacro(ScalarVisibility, vtkTypeBool);
+  vtkBooleanMacro(ScalarVisibility, vtkTypeBool);
   //@}
 
   //@{
@@ -134,9 +134,9 @@ public:
    * decreasing the time it takes to update many mappers. This should only be
    * used if the data never changes.
    */
-  vtkSetMacro(Static, int);
-  vtkGetMacro(Static, int);
-  vtkBooleanMacro(Static, int);
+  vtkSetMacro(Static, vtkTypeBool);
+  vtkGetMacro(Static, vtkTypeBool);
+  vtkBooleanMacro(Static, vtkTypeBool);
   //@}
 
   //@{
@@ -174,9 +174,9 @@ public:
    * This option avoids color interpolation by using a one dimensional
    * texture map for the colors.
    */
-  vtkSetMacro(InterpolateScalarsBeforeMapping, int);
-  vtkGetMacro(InterpolateScalarsBeforeMapping, int);
-  vtkBooleanMacro(InterpolateScalarsBeforeMapping, int);
+  vtkSetMacro(InterpolateScalarsBeforeMapping, vtkTypeBool);
+  vtkGetMacro(InterpolateScalarsBeforeMapping, vtkTypeBool);
+  vtkBooleanMacro(InterpolateScalarsBeforeMapping, vtkTypeBool);
   //@}
 
   //@{
@@ -188,9 +188,9 @@ public:
    * mappers/actors will probably wish to force the mapper to use the
    * LookupTable unchanged.
    */
-  vtkSetMacro(UseLookupTableScalarRange, int);
-  vtkGetMacro(UseLookupTableScalarRange, int);
-  vtkBooleanMacro(UseLookupTableScalarRange, int);
+  vtkSetMacro(UseLookupTableScalarRange, vtkTypeBool);
+  vtkGetMacro(UseLookupTableScalarRange, vtkTypeBool);
+  vtkBooleanMacro(UseLookupTableScalarRange, vtkTypeBool);
   //@}
 
   //@{
@@ -201,50 +201,6 @@ public:
    */
   vtkSetVector2Macro(ScalarRange, double);
   vtkGetVectorMacro(ScalarRange, double, 2);
-  //@}
-
-  //@{
-  /**
-   * Turn on/off flag to control whether data is rendered using
-   * immediate mode or note. Immediate mode rendering
-   * tends to be slower but it can handle larger datasets.
-   * The default value is immediate mode off. If you are
-   * having problems rendering a large dataset you might
-   * want to consider using immediate more rendering.
-   */
-  VTK_LEGACY(void SetImmediateModeRendering(int));
-  VTK_LEGACY(int GetImmediateModeRendering());
-  VTK_LEGACY(void ImmediateModeRenderingOn());
-  VTK_LEGACY(void ImmediateModeRenderingOff());
-  //@}
-
-  //@{
-  /**
-   * Turn on/off flag to control whether data is rendered using
-   * immediate mode or note. Immediate mode rendering
-   * tends to be slower but it can handle larger datasets.
-   * The default value is immediate mode off. If you are
-   * having problems rendering a large dataset you might
-   * want to consider using immediate more rendering.
-   */
-  VTK_LEGACY(static void SetGlobalImmediateModeRendering(int val));
-  VTK_LEGACY(static void GlobalImmediateModeRenderingOn());
-  VTK_LEGACY(static void GlobalImmediateModeRenderingOff());
-  VTK_LEGACY(static int  GetGlobalImmediateModeRendering());
-  //@}
-
-  //@{
-  /**
-   * Force compile only mode in case display lists are used
-   * (ImmediateModeRendering is false). If ImmediateModeRendering is true,
-   * no rendering happens. Changing the value of this flag does not change
-   * modified time of the mapper. Initial value is false.
-   * This can be used by another rendering class which also uses display lists
-   * (call of display lists can be nested but not their creation.)
-   * There is no good reason to expose it to wrappers.
-   */
-  VTK_LEGACY(int GetForceCompileOnly());
-  VTK_LEGACY(void SetForceCompileOnly(int value));
   //@}
 
   /**
@@ -462,7 +418,7 @@ public:
    * Return bounding box (array of six doubles) of data expressed as
    * (xmin,xmax, ymin,ymax, zmin,zmax).
    */
-  double *GetBounds() override;
+  double *GetBounds() VTK_SIZEHINT(6) override;
   void GetBounds(double bounds[6]) override
     { this->vtkAbstractMapper3D::GetBounds(bounds); }
 
@@ -506,23 +462,6 @@ public:
                                            double alpha,
                                            int &cellFlag);
   //@}
-
-  //@{
-  /**
-   * Set/Get the light-model color mode.
-   */
-  VTK_LEGACY(void SetScalarMaterialMode(int val));
-  VTK_LEGACY(int GetScalarMaterialMode());
-  VTK_LEGACY(void SetScalarMaterialModeToDefault());
-  VTK_LEGACY(void SetScalarMaterialModeToAmbient());
-  VTK_LEGACY(void SetScalarMaterialModeToDiffuse());
-  VTK_LEGACY(void SetScalarMaterialModeToAmbientAndDiffuse());
-  //@}
-
-  /**
-   * Return the light-model color mode.
-   */
-  VTK_LEGACY(const char *GetScalarMaterialModeAsString());
 
   /**
    * Returns if the mapper does not expect to have translucent geometry. This
@@ -582,7 +521,7 @@ protected:
   vtkUnsignedCharArray *Colors;
 
   // Use texture coordinates for coloring.
-  int InterpolateScalarsBeforeMapping;
+  vtkTypeBool InterpolateScalarsBeforeMapping;
   // Coordinate for each point.
   vtkFloatArray *ColorCoordinates;
   // 1D ColorMap used for the texture image.
@@ -590,15 +529,10 @@ protected:
   void MapScalarsToTexture(vtkAbstractArray* scalars, double alpha);
 
   vtkScalarsToColors *LookupTable;
-  int ScalarVisibility;
+  vtkTypeBool ScalarVisibility;
   vtkTimeStamp BuildTime;
   double ScalarRange[2];
-  int UseLookupTableScalarRange;
-
-#ifndef VTK_LEGACY_REMOVE
-  int ImmediateModeRendering;
-  int ForceCompileOnly;
-#endif
+  vtkTypeBool UseLookupTableScalarRange;
 
   int ColorMode;
   int ScalarMode;
@@ -615,7 +549,7 @@ protected:
   // data set. If -1, treat array values as cell data.
   vtkIdType FieldDataTupleId;
 
-  int Static;
+  vtkTypeBool Static;
 
   double CoincidentPolygonFactor;
   double CoincidentPolygonOffset;

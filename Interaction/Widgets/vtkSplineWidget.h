@@ -134,9 +134,9 @@ public:
    * planes respectively and 3 for arbitrary oblique planes when the widget
    * is tied to a vtkPlaneSource.
    */
-  vtkSetMacro(ProjectToPlane,int);
-  vtkGetMacro(ProjectToPlane,int);
-  vtkBooleanMacro(ProjectToPlane,int);
+  vtkSetMacro(ProjectToPlane,vtkTypeBool);
+  vtkGetMacro(ProjectToPlane,vtkTypeBool);
+  vtkBooleanMacro(ProjectToPlane,vtkTypeBool);
   //@}
 
   /**
@@ -172,7 +172,7 @@ public:
    * Grab the polydata (including points) that defines the spline.  The
    * polydata consists of points and line segments numbering Resolution + 1
    * and Resoltuion, respectively. Points are guaranteed to be up-to-date when
-   * either the InteractionEvent or  EndInteraction events are invoked. The
+   * either the InteractionEvent or EndInteraction events are invoked. The
    * user provides the vtkPolyData and the points and polyline are added to it.
    */
   void GetPolyData(vtkPolyData *pd);
@@ -237,7 +237,7 @@ public:
   void SetHandlePosition(int handle, double x, double y, double z);
   void SetHandlePosition(int handle, double xyz[3]);
   void GetHandlePosition(int handle, double xyz[3]);
-  double* GetHandlePosition(int handle);
+  double* GetHandlePosition(int handle) VTK_SIZEHINT(3);
   //@}
 
   //@{
@@ -248,9 +248,9 @@ public:
    * form a closed loop.  This method enforces consistency with
    * user supplied subclasses of vtkSpline.
    */
-  void SetClosed(int closed);
-  vtkGetMacro(Closed,int);
-  vtkBooleanMacro(Closed,int);
+  void SetClosed(vtkTypeBool closed);
+  vtkGetMacro(Closed,vtkTypeBool);
+  vtkBooleanMacro(Closed,vtkTypeBool);
   //@}
 
   /**
@@ -280,9 +280,9 @@ public:
    * Turn on / off event processing for this widget. If off, the widget will
    * not respond to user interaction
    */
-  vtkSetClampMacro(ProcessEvents, int, 0, 1);
-  vtkGetMacro(ProcessEvents, int);
-  vtkBooleanMacro( ProcessEvents, int );
+  vtkSetClampMacro(ProcessEvents, vtkTypeBool, 0, 1);
+  vtkGetMacro(ProcessEvents, vtkTypeBool);
+  vtkBooleanMacro( ProcessEvents, vtkTypeBool );
   //@}
 
 protected:
@@ -320,7 +320,7 @@ protected:
   // Controlling vars
   int   ProjectionNormal;
   double ProjectionPosition;
-  int   ProjectToPlane;
+  vtkTypeBool   ProjectToPlane;
   vtkPlaneSource* PlaneSource;
 
   // Projection capabilities
@@ -332,7 +332,7 @@ protected:
   vtkParametricSpline *ParametricSpline;
   vtkParametricFunctionSource *ParametricFunctionSource;
   int NumberOfHandles;
-  int Closed;
+  vtkTypeBool Closed;
   void BuildRepresentation();
 
   // The line segments
@@ -378,7 +378,7 @@ protected:
   // For efficient spinning
   double Centroid[3];
   void CalculateCentroid();
-  int  ProcessEvents;
+  vtkTypeBool  ProcessEvents;
 
 private:
   vtkSplineWidget(const vtkSplineWidget&) = delete;

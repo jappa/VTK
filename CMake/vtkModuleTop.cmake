@@ -4,9 +4,6 @@ if(BUILD_TESTING)
   if(VTK_WRAP_PYTHON)
     list(APPEND _test_languages "Python")
   endif()
-  if(VTK_WRAP_TCL)
-    list(APPEND _test_languages "Tcl")
-  endif()
   if(VTK_WRAP_JAVA)
     list(APPEND _test_languages "Java")
   endif()
@@ -175,7 +172,7 @@ endforeach()
 
 if (NOT VTK_BUILD_ALL_MODULES_FOR_TESTS)
   # If VTK_BUILD_ALL_MODULES_FOR_TESTS is OFF, it implies that we didn't add any
-  # test modules to the dependecy graph. We now add the test modules for all
+  # test modules to the dependency graph. We now add the test modules for all
   # enabled modules if all the test dependencies are already satisfied
   # (BUG #13297).
   foreach(vtk-module IN LISTS VTK_MODULES_ENABLED)
@@ -237,6 +234,15 @@ if(VTK_ENABLE_KITS)
       list(APPEND ${module}_KIT_DEPENDS ${dep})
     endforeach()
   endforeach()
+
+  foreach (kit IN LISTS vtk_kits)
+    set_property(GLOBAL
+      PROPERTY
+        "_vtk_${kit}Kit_is_kit" TRUE)
+    set_property(GLOBAL
+      PROPERTY
+        "_vtk_${kit}Kit_kit_modules" "${_${kit}_modules}")
+  endforeach ()
 
   list(REMOVE_DUPLICATES vtk_kits)
 
@@ -415,6 +421,9 @@ foreach(kit IN LISTS vtk_modules_and_kits)
   else()
     if(VTK_ENABLE_KITS)
       set(_vtk_build_as_kit ${${kit}_KIT})
+      if(${kit} STREQUAL "vtkRenderingOpenGL2")
+        include(vtkOpenGL)
+      endif()
     else()
       set(_vtk_build_as_kit)
     endif()
@@ -506,16 +515,13 @@ if (NOT VTK_INSTALL_NO_DEVELOPMENT)
                 CMake/vtkInitializeBuildType.cmake
                 CMake/pythonmodules.h.in
                 CMake/UseVTK.cmake
-                CMake/FindTCL.cmake
                 CMake/TopologicalSort.cmake
-                CMake/vtkTclTkMacros.cmake
                 CMake/vtk-forward.c.in
                 CMake/vtkGroups.cmake
+                CMake/vtkEncodeString.cmake
                 CMake/vtkForwardingExecutable.cmake
+                CMake/vtkHashSource.cmake
                 CMake/vtkJavaWrapping.cmake
-                CMake/vtkMakeInstantiator.cmake
-                CMake/vtkMakeInstantiator.cxx.in
-                CMake/vtkMakeInstantiator.h.in
                 CMake/vtkModuleAPI.cmake
                 CMake/vtkModuleHeaders.cmake.in
                 CMake/vtkModuleInfo.cmake.in
@@ -528,21 +534,24 @@ if (NOT VTK_INSTALL_NO_DEVELOPMENT)
                 CMake/vtkPythonPackages.cmake
                 CMake/vtkPythonWrapping.cmake
                 CMake/vtkTargetLinkLibrariesWithDynamicLookup.cmake
-                CMake/vtkTclWrapping.cmake
                 CMake/vtkThirdParty.cmake
                 CMake/vtkWrapHierarchy.cmake
                 CMake/vtkWrapJava.cmake
                 CMake/vtkWrapperInit.data.in
                 CMake/vtkWrapping.cmake
                 CMake/vtkWrapPython.cmake
-                CMake/vtkWrapPythonSIP.cmake
-                CMake/vtkWrapPython.sip.in
-                CMake/vtkWrapTcl.cmake
 
     DESTINATION ${VTK_INSTALL_PACKAGE_DIR})
   get_property(VTK_TARGETS GLOBAL PROPERTY VTK_TARGETS)
   if(VTK_TARGETS)
     install(EXPORT ${VTK_INSTALL_EXPORT_NAME}  DESTINATION ${VTK_INSTALL_PACKAGE_DIR} FILE ${VTK_INSTALL_EXPORT_NAME}.cmake)
+    if((NOT CMAKE_VERSION VERSION_LESS 3.7) AND
+      (CMAKE_SYSTEM_NAME STREQUAL "Android"))
+      install(
+        EXPORT_ANDROID_MK ${VTK_INSTALL_EXPORT_NAME}
+        DESTINATION ${VTK_INSTALL_NDK_MODULES_DIR}
+        )
+    endif()
   else()
     set(CMAKE_CONFIGURABLE_FILE_CONTENT "# No targets!")
     configure_file(${CMAKE_ROOT}/Modules/CMakeConfigurableFile.in
@@ -551,3 +560,12 @@ if (NOT VTK_INSTALL_NO_DEVELOPMENT)
             DESTINATION ${VTK_INSTALL_PACKAGE_DIR})
   endif()
 endif()
+
+get_property(vtk_requirements GLOBAL
+  PROPERTY vtk_required_python_modules)
+if (vtk_requirements)
+  list(REMOVE_DUPLICATES vtk_requirements)
+  string(REPLACE ";" "\n" vtk_requirements "${vtk_requirements}")
+  file(WRITE "${CMAKE_BINARY_DIR}/requirements.txt"
+    "${vtk_requirements}\n")
+endif ()

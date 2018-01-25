@@ -270,7 +270,7 @@ void Set##name (type _arg[2]) \
 }
 
 #define vtkGetVector2Macro(name,type) \
-virtual type *Get##name () \
+virtual type *Get##name () VTK_SIZEHINT(2) \
 { \
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " pointer " << this->name); \
   return this->name; \
@@ -304,7 +304,7 @@ virtual void Set##name (type _arg[3]) \
 }
 
 #define vtkGetVector3Macro(name,type) \
-virtual type *Get##name () \
+virtual type *Get##name () VTK_SIZEHINT(3) \
 { \
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " pointer " << this->name); \
   return this->name; \
@@ -341,7 +341,7 @@ virtual void Set##name (type _arg[4]) \
 
 
 #define vtkGetVector4Macro(name,type) \
-virtual type *Get##name () \
+virtual type *Get##name () VTK_SIZEHINT(4) \
 { \
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " pointer " << this->name); \
   return this->name; \
@@ -380,7 +380,7 @@ virtual void Set##name (type _arg[6]) \
 }
 
 #define vtkGetVector6Macro(name,type) \
-virtual type *Get##name () \
+virtual type *Get##name () VTK_SIZEHINT(6) \
 { \
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " pointer " << this->name); \
   return this->name; \
@@ -460,7 +460,7 @@ extern VTKCOMMONCORE_EXPORT void vtkOutputWindowDisplayDebugText(const char*);
       vtkmsg.rdbuf()->freeze(0);}}
 
 //
-// This macro is used for  debug statements in instance methods
+// This macro is used for debug statements in instance methods
 // vtkDebugMacro(<< "this is debug info" << this->SomeVariable);
 //
 #define vtkDebugMacro(x) \
@@ -715,18 +715,6 @@ virtual double *Get##name() \
     return thisClass::New(); \
   } \
   public:
-
-#ifndef VTK_LEGACY_REMOVE
-// Macro to implement the instantiator's wrapper around the New()
-// method.  Use this macro if and only if vtkStandardNewMacro or
-// vtkObjectFactoryNewMacro is not used by the class.
-#define vtkInstantiatorNewMacro(thisClass) \
-  extern vtkObject* vtkInstantiator##thisClass##New(); \
-  vtkObject* vtkInstantiator##thisClass##New() \
-  { \
-    return thisClass::New(); \
-  }
-#endif
 
 // NOTE: This is no longer the prefer method for dispatching an array to a
 // worker template. See vtkArrayDispatch for the new approach.

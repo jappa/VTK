@@ -59,7 +59,7 @@ static string vtkTestingGetArgOrEnvOrDefault(
 {
   string argValue;
 
-  // Serach command tail.
+  // Search command tail.
   int argc = static_cast<int>(argv.size());
   for (int i = 0; i < argc; i++)
   {
@@ -335,7 +335,7 @@ int vtkTesting::LookForFile(const char* newFileName)
 }
 
 //-----------------------------------------------------------------------------
-void vtkTesting::SetFrontBuffer(int frontBuffer)
+void vtkTesting::SetFrontBuffer(vtkTypeBool frontBuffer)
 {
   vtkWarningMacro("SetFrontBuffer method is deprecated and has no effet anymore.");
   this->FrontBuffer = frontBuffer;

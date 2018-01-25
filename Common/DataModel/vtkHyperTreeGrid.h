@@ -576,7 +576,7 @@ public:
                                          unsigned int& );
 
   /**
-   * Convert the Cartesian coordinates of a root in the grid  to its global index.
+   * Convert the Cartesian coordinates of a root in the grid to its global index.
    */
   void GetIndexFromLevelZeroCoordinates( vtkIdType&,
                                          unsigned int,
@@ -720,8 +720,8 @@ protected:
   bool InitPureMaterialMask;
 
   bool HasInterface;
-  char *InterfaceNormalsName;
-  char *InterfaceInterceptsName;
+  char* InterfaceNormalsName;
+  char* InterfaceInterceptsName;
 
   vtkDataArray* XCoordinates;
   vtkDataArray* YCoordinates;

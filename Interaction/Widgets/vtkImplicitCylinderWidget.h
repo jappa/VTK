@@ -14,7 +14,7 @@
 =========================================================================*/
 /**
  * @class   vtkImplicitCylinderWidget
- * @brief   3D widget for manipulating an infinite cylnder
+ * @brief   3D widget for manipulating an infinite cylinder
  *
  * This 3D widget defines an infinite cylinder that can be
  * interactively placed in a scene. The widget is assumed to consist
@@ -116,7 +116,7 @@ public:
    */
   void SetRepresentation( vtkImplicitCylinderRepresentation *rep );
 
-  // Descritpion:
+  // Description:
   // Disable/Enable the widget if needed.
   // Unobserved the camera if the widget is disabled.
   void SetEnabled(int enabling) override;

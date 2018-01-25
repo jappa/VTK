@@ -85,9 +85,9 @@ public:
    * Set/Get the flag which enables selection in a rectangular display
    * region.
    */
-  vtkSetMacro(SelectionWindow, int);
-  vtkGetMacro(SelectionWindow, int);
-  vtkBooleanMacro(SelectionWindow, int);
+  vtkSetMacro(SelectionWindow, vtkTypeBool);
+  vtkGetMacro(SelectionWindow, vtkTypeBool);
+  vtkBooleanMacro(SelectionWindow, vtkTypeBool);
   //@}
 
   //@{
@@ -104,9 +104,9 @@ public:
    * Set/Get the flag which enables inverse selection; i.e., invisible points
    * are selected.
    */
-  vtkSetMacro(SelectInvisible, int);
-  vtkGetMacro(SelectInvisible, int);
-  vtkBooleanMacro(SelectInvisible, int);
+  vtkSetMacro(SelectInvisible, vtkTypeBool);
+  vtkGetMacro(SelectInvisible, vtkTypeBool);
+  vtkBooleanMacro(SelectInvisible, vtkTypeBool);
   //@}
 
   //@{
@@ -146,10 +146,10 @@ protected:
   vtkRenderer *Renderer;
   vtkMatrix4x4 *CompositePerspectiveTransform;
 
-  int SelectionWindow;
+  vtkTypeBool SelectionWindow;
   int Selection[4];
   int InternalSelection[4];
-  int SelectInvisible;
+  vtkTypeBool SelectInvisible;
   double Tolerance;
 
 private:

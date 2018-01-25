@@ -159,7 +159,7 @@ public:
    * Reads the FORMAT part of the case file to determine whether this is an
    * EnSight6 or EnSightGold data set.  Returns an identifier listed in
    * the FileTypes enum or -1 if an error occurred or the file could not
-   * be indentified as any EnSight type.
+   * be identified as any EnSight type.
    */
   int DetermineEnSightVersion(int quiet=0);
 
@@ -167,9 +167,9 @@ public:
   /**
    * Set/get the flag for whether to read all the variables
    */
-  vtkBooleanMacro(ReadAllVariables, int);
-  vtkSetMacro(ReadAllVariables, int);
-  vtkGetMacro(ReadAllVariables, int);
+  vtkBooleanMacro(ReadAllVariables, vtkTypeBool);
+  vtkSetMacro(ReadAllVariables, vtkTypeBool);
+  vtkGetMacro(ReadAllVariables, vtkTypeBool);
   //@}
 
   //@{
@@ -260,16 +260,21 @@ public:
    * Warning, if the Points are listed in non sequential order
    * then setting this flag will reorder them.
    */
-  vtkSetMacro(ParticleCoordinatesByIndex, int);
-  vtkGetMacro(ParticleCoordinatesByIndex, int);
-  vtkBooleanMacro(ParticleCoordinatesByIndex, int);
+  vtkSetMacro(ParticleCoordinatesByIndex, vtkTypeBool);
+  vtkGetMacro(ParticleCoordinatesByIndex, vtkTypeBool);
+  vtkBooleanMacro(ParticleCoordinatesByIndex, vtkTypeBool);
   //@}
 
   /**
    * Returns true if the file pointed to by casefilename appears to be a
    * valid EnSight case file.
    */
-  static int CanReadFile(const char *casefilename);
+  static bool IsEnSightFile(const char *casefilename);
+
+  /**
+  * Returns IsEnSightFile() by default, but can be overridden
+  */
+  virtual int CanReadFile(const char *casefilename);
 
 //THIB
 vtkGenericEnSightReader* GetReader() { return this->Reader; }
@@ -407,10 +412,10 @@ protected:
   vtkDataArrayCollection *TimeSets;
   virtual void SetTimeSets(vtkDataArrayCollection*);
 
-  int ReadAllVariables;
+  vtkTypeBool ReadAllVariables;
 
   int ByteOrder;
-  int ParticleCoordinatesByIndex;
+  vtkTypeBool ParticleCoordinatesByIndex;
 
   // The EnSight file version being read.  Valid after
   // UpdateInformation.  Value is -1 for unknown version.

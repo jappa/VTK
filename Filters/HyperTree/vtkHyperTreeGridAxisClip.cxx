@@ -38,13 +38,13 @@ vtkCxxSetObjectMacro(vtkHyperTreeGridAxisClip, Quadric, vtkQuadric);
 //-----------------------------------------------------------------------------
 vtkHyperTreeGridAxisClip::vtkHyperTreeGridAxisClip()
 {
-  // Defaut clipping mode is by plane
+  // Default clipping mode is by plane
   this->ClipType = vtkHyperTreeGridAxisClip::PLANE;
 
-  // Defaut normal axis is Z
+  // Default normal axis is Z
   this->PlaneNormalAxis = 0;
 
-  // Defaut place intercept is 0
+  // Default place intercept is 0
   this->PlanePosition = 0.;
 
   // Default clipping box is a unit cube centered at origin
@@ -62,7 +62,7 @@ vtkHyperTreeGridAxisClip::vtkHyperTreeGridAxisClip()
                                   0., 0., 0.,
                                   -1. );
 
-  // Defaut inside/out flag is false
+  // Default inside/out flag is false
   this->InsideOut = 0;
 
   // This filter always creates an output with a material mask
@@ -348,7 +348,7 @@ int vtkHyperTreeGridAxisClip::ProcessTrees( vtkHyperTreeGrid* input,
 
   // Retrieve material mask
   vtkBitArray* mask
-    = input->HasMaterialMask() ? input->GetMaterialMask() : 0;
+    = input->HasMaterialMask() ? input->GetMaterialMask() : nullptr;
 
   // Storage for Cartesian indices
   unsigned int cart[3];
@@ -540,7 +540,7 @@ void vtkHyperTreeGridAxisClip::RecursivelyProcessTree( vtkHyperTreeGridCursor* i
 
       // Clean up
       childCursor->Delete();
-      childCursor = 0;
+      childCursor = nullptr;
     } // inChild
   } // if ( ! cursor->IsLeaf() && ! clipped )
   else if ( ! clipped && mask && mask->GetValue( inId ) )

@@ -96,11 +96,11 @@ public:
   void* GetGenericDrawable() override;
   void SetWindowInfo(char*) override;
   void SetParentInfo(char*) override;
-  int* GetScreenSize() override;
+  int* GetScreenSize() VTK_SIZEHINT(2) override;
   void Start() override;
   void HideCursor() override;
   void ShowCursor() override;
-  void SetFullScreen(int) override;
+  void SetFullScreen(vtkTypeBool) override;
   void WindowRemap() override;
   int  GetEventPending() override;
   void SetNextWindowId(void*) override;
@@ -160,7 +160,7 @@ public:
   * Overridden to invoke vtkCommand::StartPickEvent and
   * vtkCommand::EndPickEvent.
   */
-  void SetIsPicking(int isPicking) override;
+  void SetIsPicking(vtkTypeBool isPicking) override;
 
 protected:
   int DirectStatus;

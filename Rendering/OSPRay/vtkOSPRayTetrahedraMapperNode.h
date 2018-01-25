@@ -3,7 +3,7 @@
   Program:   Visualization Toolkit
   Module:    vtkOSPRayTetrahedraMapperNode.h
 
-  Copyright (c) Carson Brownlee, Ken Martin, Will Schroeder, Bill Lorensen
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
   See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
@@ -16,7 +16,7 @@
  * @class   vtkOSPRayTetrahedraMapperNode
  * @brief   Unstructured grid volume renderer.
  *
- * vtkOSPRayTetrahedraMapperNode impliments a volume rendering
+ * vtkOSPRayTetrahedraMapperNode implements a volume rendering
  * that directly samples the AMR structure using OSPRay.
  *
 */

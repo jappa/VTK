@@ -15,6 +15,7 @@
 
 #ifndef vtkSegYIOUtils_h
 #define vtkSegYIOUtils_h
+#ifndef __VTK_WRAP__
 
 #include <fstream>
 
@@ -37,12 +38,13 @@ private:
   vtkSegYIOUtils();
   bool checkIfBigEndian()
   {
-    ushort a = 0x1234;
+    unsigned short a = 0x1234;
     if (*((unsigned char*)&a) == 0x12)
       return true;
     return false;
   }
 };
 
+#endif
 #endif // vtkSegYIOUtils_h
 // VTK-HeaderTest-Exclude: vtkSegYIOUtils.h

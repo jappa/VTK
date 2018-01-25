@@ -59,6 +59,7 @@ set(Module_SRCS
   vtkMapperCollection.cxx
   vtkMapper.cxx
   vtkObserverMediator.cxx
+  vtkPointGaussianMapper.cxx
   vtkPolyDataMapper2D.cxx
   vtkPolyDataMapper.cxx
   vtkProp3DCollection.cxx
@@ -138,31 +139,11 @@ set(Module_SRCS
   vtkRenderWidget.cxx
   )
 
-if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
-  # needed as we do not have vtkRenderingOpenGLConfigure.h here
-  set_source_files_properties(
-    vtkRenderWindow.cxx  # dummy out painterdevice adapter
-    vtkHardwareSelector.cxx # dummy out painter device adapter
-    PROPERTIES COMPILE_FLAGS -DVTK_OPENGL2)
-  list(APPEND Module_SRCS
-    vtkPointGaussianMapper.cxx
-    )
-  set_source_files_properties(
-    vtkPointGaussianMapper
-    ABSTRACT
-    )
-endif()
-
-if(VTK_RENDERING_BACKEND STREQUAL "OpenGL")
-  # needed as we do not have vtkRenderingOpenGLConfigure.h here
-  set_source_files_properties(
-    vtkRenderWindow.cxx  # dummy out painterdevice adapter
-    vtkHardwareSelector.cxx # dummy out painter device adapter
-    PROPERTIES COMPILE_FLAGS -DVTK_OPENGL1)
-  list(APPEND Module_SRCS
-    vtkPainterDeviceAdapter.cxx
-    )
-endif()
+# needed as we do not have vtkRenderingOpenGLConfigure.h here
+set_source_files_properties(
+  vtkRenderWindow.cxx  # dummy out painterdevice adapter
+  vtkHardwareSelector.cxx # dummy out painter device adapter
+  PROPERTIES COMPILE_FLAGS -DVTK_OPENGL2)
 
 set(${vtk-module}_HDRS
   vtkGPUInfoListArray.h
@@ -171,48 +152,6 @@ set(${vtk-module}_HDRS
   vtkRayCastStructures.h
   vtkRenderingCoreEnums.h
   vtkTDxMotionEventInfo.h
-  )
-
-set_source_files_properties(
-  vtkAbstractInteractionDevice
-  vtkAbstractMapper3D
-  vtkAbstractMapper
-  vtkAbstractRenderDevice
-  vtkAbstractVolumeMapper
-  vtkAbstractPicker
-  vtkAbstractPropPicker
-  vtkCuller
-  vtkFrameBufferObjectBase
-  vtkGPUInfoList.cxx
-  vtkHardwareSelector
-  vtkImageMapper3D
-  vtkInteractorObserver
-  vtkMapper
-  vtkMapper2D
-  vtkProp
-  vtkProp3D
-  vtkRendererDelegate
-  vtkRenderPass
-  vtkRenderState
-  vtkShader
-  vtkShaderDeviceAdapter
-  vtkShaderDeviceAdapter2
-  vtkShaderProgram
-  vtkTextRenderer
-  vtkTDxInteractorStyle
-  vtkViewport
-  vtkVisibilitySort
-  vtkStringToImage
-  ABSTRACT
-  )
-
-set_source_files_properties(
-  vtkAbstractInteractionDevice
-  vtkAbstractRenderDevice
-  vtkCIEDE2000
-  vtkRenderState
-  vtkRenderWidget
-  WRAP_EXCLUDE
   )
 
 # On OS X, vtkRenderWindowJava must be compiled with Objective C++

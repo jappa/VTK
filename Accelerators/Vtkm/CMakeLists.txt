@@ -17,7 +17,7 @@
 #ensure we link against our dependencies
 include(module.cmake)
 
-vtk_module_dep_includes(vtkm)
+vtk_module_dep_includes(vtkVTKm)
 list(APPEND CMAKE_MODULE_PATH "${VTK_SOURCE_DIR}/ThirdParty/vtkm/vtk-m/CMake")
 
 if(VTKm_ENABLE_TBB)
@@ -106,8 +106,6 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/vtkmConfig.h.in"
 #  - SKIP_HEADER_INSTALL is enabled as we need to install these headers
 #    to the vtkmlib directory and not the root include directory as vtk
 #    normally does
-#  - WRAP_EXCLUDE* are enabled as we don't want any vtkmlib private classes
-#    being used as public api
 # ====================
 set_source_files_properties(
   vtkmlib/PolyDataConverter
@@ -121,30 +119,28 @@ set_source_files_properties(
   vtkmlib/ImplicitFunctionConverter
   PROPERTIES
     SKIP_HEADER_INSTALL 1
-    WRAP_EXCLUDE 1
-    WRAP_EXCLUDE_PYTHON 1
   )
-
-# ====================
-# Important for wrapping and install rules for vtkmlib
-#  - WRAP_EXCLUDE* are enabled as we don't want any vtkm private classes
-#    being used as public api
-# ====================
-set_source_files_properties(
-  vtkmCellSetExplicit
-  vtkmCellSetSingleType
-  vtkmConnectivityExec
-  PROPERTIES
-    WRAP_EXCLUDE 1
-    WRAP_EXCLUDE_PYTHON 1
-  )
-
 
 set(${vtk-module}_HDRS
   vtkmTags.h
   vtkmFilterPolicy.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkmConfig.h
   )
+
+
+# The VTK-m project uses large amounts of memory to compile as it does lots
+# of template expansion. To reduce the amount of tension on the machine when
+# using generators such as ninja we restrict the number of VTK-m enabled
+# compilation units to be built at the same time.
+# The logic we use is that no more than half the system memory should be used
+# on VTK-m compilation units, where we expect each compilation unit to use
+# 2GB of memory.
+cmake_host_system_information(RESULT vtkm_mem_ QUERY TOTAL_PHYSICAL_MEMORY)
+math(EXPR vtkm_pool_size "(${vtkm_mem_}/2)/2048")
+if(vtkm_pool_size EQUAL 0)
+  set(vtkm_pool_size 1)
+endif()
+set_property(GLOBAL APPEND PROPERTY JOB_POOLS vtkm_pool=${vtkm_pool_size})
 
 #we are building with CUDA support
 if(VTKm_ENABLE_CUDA)
@@ -195,7 +191,7 @@ if(VTKm_ENABLE_CUDA)
   # CUDA doesn't obey usage requirements so we have to use
   # CUDA_INCLUDE_DIRECTORIES, but do get the proper list of
   # include dirs I need to query the module system, which
-  # doesnt exist currently, so we manually call vtk_module_impl
+  # doesn't exist currently, so we manually call vtk_module_impl
   vtk_module_impl()
   cuda_include_directories(${CMAKE_CURRENT_BINARY_DIR}
                            ${CMAKE_CURRENT_SOURCE_DIR}
@@ -208,8 +204,9 @@ if(VTKm_ENABLE_CUDA)
                    )
 
   set_target_properties(vtkAcceleratorsVTKmCuda
-                        PROPERTIES POSITION_INDEPENDENT_CODE True)
-
+                        PROPERTIES POSITION_INDEPENDENT_CODE True
+                        JOB_POOL_COMPILE vtkm_pool
+                        )
   vtk_module_library(vtkAcceleratorsVTKm
                      ${headers}
                      ${lib_srcs}
@@ -231,9 +228,10 @@ else()
                      ${lib_srcs}
                      ${cpu_accelerator_srcs}
                      )
+  set_property(TARGET vtkAcceleratorsVTKm PROPERTY JOB_POOL_COMPILE vtkm_pool)
 endif()
 
-target_link_libraries(vtkAcceleratorsVTKm PRIVATE ${VTKm_LIBRARIES})
+target_link_libraries(vtkAcceleratorsVTKm PRIVATE vtkm_cont ${VTKm_LIBRARIES})
 target_include_directories(vtkAcceleratorsVTKm PRIVATE ${VTKm_INCLUDE_DIRS})
 
 if (MSVC)

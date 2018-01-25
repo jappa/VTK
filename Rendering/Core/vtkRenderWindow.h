@@ -46,9 +46,6 @@
 #include "vtkNew.h" // For vtkNew
 
 class vtkFloatArray;
-#ifndef VTK_LEGACY_REMOVE
-class vtkPainterDeviceAdapter;
-#endif
 class vtkProp;
 class vtkCollection;
 class vtkRenderTimerLog;
@@ -210,9 +207,9 @@ public:
   /**
    * Turn on/off rendering full screen window size.
    */
-  virtual void SetFullScreen(int) = 0;
-  vtkGetMacro(FullScreen,int);
-  vtkBooleanMacro(FullScreen,int);
+  virtual void SetFullScreen(vtkTypeBool) = 0;
+  vtkGetMacro(FullScreen,vtkTypeBool);
+  vtkBooleanMacro(FullScreen,vtkTypeBool);
   //@}
 
   //@{
@@ -221,9 +218,9 @@ public:
    * borders off, because that bypasses the window manager and can cause
    * undesirable behavior.
    */
-  vtkSetMacro(Borders,int);
-  vtkGetMacro(Borders,int);
-  vtkBooleanMacro(Borders,int);
+  vtkSetMacro(Borders,vtkTypeBool);
+  vtkGetMacro(Borders,vtkTypeBool);
+  vtkBooleanMacro(Borders,vtkTypeBool);
   //@}
 
   //@{
@@ -231,27 +228,27 @@ public:
    * Prescribe that the window be created in a stereo-capable mode. This
    * method must be called before the window is realized. Default is off.
    */
-  vtkGetMacro(StereoCapableWindow,int);
-  vtkBooleanMacro(StereoCapableWindow,int);
-  virtual void SetStereoCapableWindow(int capable);
+  vtkGetMacro(StereoCapableWindow,vtkTypeBool);
+  vtkBooleanMacro(StereoCapableWindow,vtkTypeBool);
+  virtual void SetStereoCapableWindow(vtkTypeBool capable);
   //@}
 
   //@{
   /**
    * Turn on/off stereo rendering.
    */
-  vtkGetMacro(StereoRender,int);
-  void SetStereoRender(int stereo);
-  vtkBooleanMacro(StereoRender,int);
+  vtkGetMacro(StereoRender,vtkTypeBool);
+  void SetStereoRender(vtkTypeBool stereo);
+  vtkBooleanMacro(StereoRender,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Turn on/off the use of alpha bitplanes.
    */
-  vtkSetMacro(AlphaBitPlanes, int);
-  vtkGetMacro(AlphaBitPlanes, int);
-  vtkBooleanMacro(AlphaBitPlanes, int);
+  vtkSetMacro(AlphaBitPlanes, vtkTypeBool);
+  vtkGetMacro(AlphaBitPlanes, vtkTypeBool);
+  vtkBooleanMacro(AlphaBitPlanes, vtkTypeBool);
   //@}
 
   //@{
@@ -259,9 +256,9 @@ public:
    * Turn on/off point smoothing. Default is off.
    * This must be applied before the first Render.
    */
-  vtkSetMacro(PointSmoothing,int);
-  vtkGetMacro(PointSmoothing,int);
-  vtkBooleanMacro(PointSmoothing,int);
+  vtkSetMacro(PointSmoothing,vtkTypeBool);
+  vtkGetMacro(PointSmoothing,vtkTypeBool);
+  vtkBooleanMacro(PointSmoothing,vtkTypeBool);
   //@}
 
   //@{
@@ -269,9 +266,9 @@ public:
    * Turn on/off line smoothing. Default is off.
    * This must be applied before the first Render.
    */
-  vtkSetMacro(LineSmoothing,int);
-  vtkGetMacro(LineSmoothing,int);
-  vtkBooleanMacro(LineSmoothing,int);
+  vtkSetMacro(LineSmoothing,vtkTypeBool);
+  vtkGetMacro(LineSmoothing,vtkTypeBool);
+  vtkBooleanMacro(LineSmoothing,vtkTypeBool);
   //@}
 
   //@{
@@ -279,9 +276,9 @@ public:
    * Turn on/off polygon smoothing. Default is off.
    * This must be applied before the first Render.
    */
-  vtkSetMacro(PolygonSmoothing,int);
-  vtkGetMacro(PolygonSmoothing,int);
-  vtkBooleanMacro(PolygonSmoothing,int);
+  vtkSetMacro(PolygonSmoothing,vtkTypeBool);
+  vtkGetMacro(PolygonSmoothing,vtkTypeBool);
+  vtkBooleanMacro(PolygonSmoothing,vtkTypeBool);
   //@}
 
   //@{
@@ -389,9 +386,9 @@ public:
   /**
    * Turn on/off buffer swapping between images.
    */
-  vtkSetMacro(SwapBuffers,int);
-  vtkGetMacro(SwapBuffers,int);
-  vtkBooleanMacro(SwapBuffers,int);
+  vtkSetMacro(SwapBuffers,vtkTypeBool);
+  vtkGetMacro(SwapBuffers,vtkTypeBool);
+  vtkBooleanMacro(SwapBuffers,vtkTypeBool);
   //@}
 
   //@{
@@ -464,53 +461,6 @@ public:
 
   //@{
   /**
-   * Set the number of frames for doing antialiasing. The default is
-   * zero. Typically five or six will yield reasonable results without
-   * taking too long.
-   */
-  VTK_LEGACY(virtual void SetAAFrames(int));
-  VTK_LEGACY(virtual int GetAAFrames());
-  //@}
-
-  //@{
-  /**
-   * Set the number of frames for doing focal depth. The default is zero.
-   * Depending on how your scene is organized you can get away with as
-   * few as four frames for focal depth or you might need thirty.
-   * One thing to note is that if you are using focal depth frames,
-   * then you will not need many (if any) frames for antialiasing.
-   */
-  VTK_LEGACY(virtual int GetFDFrames());
-  VTK_LEGACY(virtual void SetFDFrames(int fdFrames));
-  //@}
-
-  //@{
-  /**
-   * Turn on/off using constant offsets for focal depth rendering.
-   * The default is off. When constants offsets are used, re-rendering
-   * the same scene using the same camera yields the same image; otherwise
-   * offsets are random numbers at each rendering that yields
-   * slightly different images.
-   */
-  VTK_LEGACY(virtual int GetUseConstantFDOffsets());
-  VTK_LEGACY(virtual void SetUseConstantFDOffsets(int));
-  //@}
-
-  //@{
-  /**
-   * Set the number of sub frames for doing motion blur. The default is zero.
-   * Once this is set greater than one, you will no longer see a new frame
-   * for every Render().  If you set this to five, you will need to do
-   * five Render() invocations before seeing the result. This isn't
-   * very impressive unless something is changing between the Renders.
-   * Changing this value may reset the current subframe count.
-   */
-  VTK_LEGACY(virtual int GetSubFrames());
-  VTK_LEGACY(virtual void SetSubFrames(int subFrames));
-  //@}
-
-  //@{
-  /**
    * This flag is set if the window hasn't rendered since it was created
    */
   vtkGetMacro(NeverRendered,int);
@@ -528,9 +478,9 @@ public:
   virtual int CheckAbortStatus();
   //@}
 
-  vtkGetMacro(IsPicking,int);
-  vtkSetMacro(IsPicking,int);
-  vtkBooleanMacro(IsPicking,int);
+  vtkGetMacro(IsPicking,vtkTypeBool);
+  vtkSetMacro(IsPicking,vtkTypeBool);
+  vtkBooleanMacro(IsPicking,vtkTypeBool);
 
   /**
    * Check to see if a mouse button has been pressed.  All other events
@@ -672,15 +622,6 @@ public:
 
   //@{
   /**
-   * Get the vtkPainterDeviceAdapter which can be used to paint on
-   * this render window.  Note the old OpenGL backend requires this
-   * method.
-   */
-  VTK_LEGACY(vtkPainterDeviceAdapter *GetPainterDeviceAdapter());
-  //@}
-
-  //@{
-  /**
    * Set / Get the number of multisamples to use for hardware antialiasing.
    */
   vtkSetMacro(MultiSamples,int);
@@ -691,9 +632,9 @@ public:
   /**
    * Set / Get the availability of the stencil buffer.
    */
-  vtkSetMacro(StencilCapable, int);
-  vtkGetMacro(StencilCapable, int);
-  vtkBooleanMacro(StencilCapable, int);
+  vtkSetMacro(StencilCapable, vtkTypeBool);
+  vtkGetMacro(StencilCapable, vtkTypeBool);
+  vtkBooleanMacro(StencilCapable, vtkTypeBool);
   //@}
 
   //@{
@@ -741,36 +682,25 @@ protected:
   ~vtkRenderWindow() override;
 
   virtual void DoStereoRender();
-  virtual void DoFDRender();
-  virtual void DoAARender();
 
-#ifndef VTK_LEGACY_REMOVE
-  vtkPainterDeviceAdapter* PainterDeviceAdapter;
-#endif
   vtkRendererCollection *Renderers;
   vtkNew<vtkRenderTimerLog> RenderTimer;
-  int Borders;
-  int FullScreen;
+  vtkTypeBool Borders;
+  vtkTypeBool FullScreen;
   int OldScreen[5];
-  int PointSmoothing;
-  int LineSmoothing;
-  int PolygonSmoothing;
-  int StereoRender;
+  vtkTypeBool PointSmoothing;
+  vtkTypeBool LineSmoothing;
+  vtkTypeBool PolygonSmoothing;
+  vtkTypeBool StereoRender;
   int StereoType;
-  int StereoCapableWindow;
-  int AlphaBitPlanes;
+  vtkTypeBool StereoCapableWindow;
+  vtkTypeBool AlphaBitPlanes;
   vtkRenderWindowInteractor *Interactor;
   unsigned char* StereoBuffer; // used for red blue stereo
   float *AccumulationBuffer;   // used for many techniques
   unsigned int AccumulationBufferSize;
-  int AAFrames;
-  int FDFrames;
-  int UseConstantFDOffsets; // to use the same offsets at each rendering
-  double *ConstantFDOffsets[2];
-  int SubFrames;               // number of sub frames
-  int CurrentSubFrame;         // what one are we on
-  unsigned char *ResultFrame;  // used for any non immediate rendering
-  int   SwapBuffers;
+  unsigned char *ResultFrame;
+  vtkTypeBool   SwapBuffers;
   double DesiredUpdateRate;
   int   AbortRender;
   int   InAbortCheck;
@@ -778,11 +708,11 @@ protected:
   int   NeverRendered;
   int   NumberOfLayers;
   int CurrentCursor;
-  int IsPicking;
+  vtkTypeBool IsPicking;
   float AnaglyphColorSaturation;
   int AnaglyphColorMask[2];
   int MultiSamples;
-  int StencilCapable;
+  vtkTypeBool StencilCapable;
   int CapturingGL2PSSpecialProps;
   int DeviceIndex;
 

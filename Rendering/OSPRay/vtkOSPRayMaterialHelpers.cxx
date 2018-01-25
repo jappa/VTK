@@ -20,6 +20,8 @@
 #include "vtkProperty.h"
 #include "vtkTexture.h"
 
+#include "ospray/ospray.h"
+
 //------------------------------------------------------------------------------
 osp::Texture2D *vtkOSPRayMaterialHelpers::VTKToOSPTexture
   (vtkImageData *vColorTextureMap)
@@ -56,8 +58,8 @@ osp::Texture2D *vtkOSPRayMaterialHelpers::VTKToOSPTexture
 //------------------------------------------------------------------------------
 void vtkOSPRayMaterialHelpers::MakeMaterials
   (vtkOSPRayRendererNode *orn,
-   OSPRenderer oRenderer,
-   std::map<std::string, OSPMaterial> &mats)
+   osp::Renderer *oRenderer,
+   std::map<std::string, osp::Material*> &mats)
 {
   vtkOSPRayMaterialLibrary *ml = vtkOSPRayRendererNode::GetMaterialLibrary(orn->GetRenderer());
   if (!ml)
@@ -69,7 +71,7 @@ void vtkOSPRayMaterialHelpers::MakeMaterials
   std::set<std::string >::iterator it = nicknames.begin();
   while (it != nicknames.end())
   {
-    OSPMaterial newmat = vtkOSPRayMaterialHelpers::MakeMaterial
+    osp::Material* newmat = vtkOSPRayMaterialHelpers::MakeMaterial
       (orn, oRenderer, *it);
     mats[*it] = newmat;
     ++it;
@@ -121,11 +123,11 @@ void vtkOSPRayMaterialHelpers::MakeMaterials
   }
 
 //------------------------------------------------------------------------------
-OSPMaterial vtkOSPRayMaterialHelpers::MakeMaterial
+osp::Material* vtkOSPRayMaterialHelpers::MakeMaterial
   (vtkOSPRayRendererNode *orn,
-  OSPRenderer oRenderer, std::string nickname)
+  osp::Renderer* oRenderer, std::string nickname)
 {
-  OSPMaterial oMaterial;
+  osp::Material* oMaterial;
   vtkOSPRayMaterialLibrary *ml = vtkOSPRayRendererNode::GetMaterialLibrary(orn->GetRenderer());
   if (!ml)
     {
@@ -162,9 +164,11 @@ OSPMaterial vtkOSPRayMaterialHelpers::MakeMaterial
   else if (implname == "MetallicPaint")
   {
     oMaterial = ospNewMaterial(oRenderer, implname.c_str());
-    OSPSET3F(shadeColor)
-    OSPSET3F(glitterColor)
-    OSPSET1F(glitterSpread)
+    OSPSET3F(baseColor)
+    OSPSET3F(color)
+    OSPSET1F(flakeAmount)
+    OSPSET3F(flakeColor)
+    OSPSET1F(flakeSpread)
     OSPSET1F(eta)
   }
   else if (implname == "OBJMaterial")
@@ -172,14 +176,26 @@ OSPMaterial vtkOSPRayMaterialHelpers::MakeMaterial
     oMaterial = ospNewMaterial(oRenderer, implname.c_str());
     OSPSET1F(alpha);//aka "d", default 1.0
     OSPSET3F(color);//aka "Kd" aka "kd", default (0.8,0.8,0.8)
+    OSPSET3F(kd);//aka "Kd" aka "kd", default (0.8,0.8,0.8)
+    OSPSET3F(Kd);//aka "Kd" aka "kd", default (0.8,0.8,0.8)
     OSPSET3F(ks);//aka "Ks", default (0.0,0.0,0.0)
+    OSPSET3F(Ks);//aka "Ks", default (0.0,0.0,0.0)
     OSPSET1F(ns);//aka "Ns", default 10.0
+    OSPSET1F(Ns);//aka "Ns", default 10.0
     OSPSET3F(tf);//aka "Tf", default (0.0,0.0,0.0)
+    OSPSET3F(Tf);//aka "Tf", default (0.0,0.0,0.0)
     OSPSETTEXTURE(map_d);
     OSPSETTEXTURE(map_kd);
+    OSPSETTEXTURE(map_Kd);
+    OSPSETTEXTURE(colorMap);
     OSPSETTEXTURE(map_ks);
+    OSPSETTEXTURE(map_Ks);
     OSPSETTEXTURE(map_ns);
+    OSPSETTEXTURE(map_Ns);
     OSPSETTEXTURE(map_bump);
+    OSPSETTEXTURE(map_Bump);
+    OSPSETTEXTURE(normalmap);
+    OSPSETTEXTURE(BumpMap);
 
     /*
     //todo hookup these texture transforms up, for now could be just in 9 long double vectors, but should really be a 3x3
@@ -202,6 +218,9 @@ OSPMaterial vtkOSPRayMaterialHelpers::MakeMaterial
   {
     oMaterial = ospNewMaterial(oRenderer, implname.c_str());
     OSPSET3F(transmission);
+    OSPSET3F(color);
+    OSPSET3F(attenuationColor);
+    OSPSET1F(attenuationDistance);
     OSPSET1F(eta);
     OSPSET1F(thickness);
   }

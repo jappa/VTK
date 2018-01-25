@@ -89,9 +89,9 @@ public:
    * box. When on, the normals point into the hexahedron.  InsideOut is off
    * by default.
    */
-  vtkSetMacro(InsideOut,int);
-  vtkGetMacro(InsideOut,int);
-  vtkBooleanMacro(InsideOut,int);
+  vtkSetMacro(InsideOut,vtkTypeBool);
+  vtkGetMacro(InsideOut,vtkTypeBool);
+  vtkBooleanMacro(InsideOut,vtkTypeBool);
   //@}
 
   /**
@@ -194,7 +194,7 @@ public:
   int  ComputeInteractionState(int X, int Y, int modify=0) override;
   void StartWidgetInteraction(double e[2]) override;
   void WidgetInteraction(double e[2]) override;
-  double *GetBounds() override;
+  double *GetBounds() VTK_SIZEHINT(6) override;
   //@}
 
   //@{
@@ -283,7 +283,7 @@ protected:
   virtual void CreateDefaultProperties();
 
   // Control the orientation of the normals
-  int InsideOut;
+  vtkTypeBool InsideOut;
   int OutlineFaceWires;
   int OutlineCursorWires;
   void GenerateOutline();

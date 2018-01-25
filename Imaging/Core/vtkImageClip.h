@@ -49,7 +49,7 @@ public:
   void SetOutputWholeExtent(int minX, int maxX, int minY, int maxY,
                             int minZ, int maxZ);
   void GetOutputWholeExtent(int extent[6]);
-  int *GetOutputWholeExtent() {return this->OutputWholeExtent;}
+  int *GetOutputWholeExtent() VTK_SIZEHINT(6) {return this->OutputWholeExtent;}
   //@}
 
   void ResetOutputWholeExtent();
@@ -60,9 +60,9 @@ public:
    * the data's extent may actually be larger.  When this flag is on,
    * the data extent will be no more than the OutputWholeExtent.
    */
-  vtkSetMacro(ClipData, int);
-  vtkGetMacro(ClipData, int);
-  vtkBooleanMacro(ClipData, int);
+  vtkSetMacro(ClipData, vtkTypeBool);
+  vtkGetMacro(ClipData, vtkTypeBool);
+  vtkBooleanMacro(ClipData, vtkTypeBool);
   //@}
 
 protected:
@@ -74,7 +74,7 @@ protected:
   int Initialized; // Set the OutputImageExtent for the first time.
   int OutputWholeExtent[6];
 
-  int ClipData;
+  vtkTypeBool ClipData;
 
   int RequestInformation (vtkInformation *,
                                   vtkInformationVector **,

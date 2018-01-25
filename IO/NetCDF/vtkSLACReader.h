@@ -72,18 +72,18 @@ public:
   /**
    * If on, reads the internal volume of the data set.  Set to off by default.
    */
-  vtkGetMacro(ReadInternalVolume, int);
-  vtkSetMacro(ReadInternalVolume, int);
-  vtkBooleanMacro(ReadInternalVolume, int);
+  vtkGetMacro(ReadInternalVolume, vtkTypeBool);
+  vtkSetMacro(ReadInternalVolume, vtkTypeBool);
+  vtkBooleanMacro(ReadInternalVolume, vtkTypeBool);
   //@}
 
   //@{
   /**
    * If on, reads the external surfaces of the data set.  Set to on by default.
    */
-  vtkGetMacro(ReadExternalSurface, int);
-  vtkSetMacro(ReadExternalSurface, int);
-  vtkBooleanMacro(ReadExternalSurface, int);
+  vtkGetMacro(ReadExternalSurface, vtkTypeBool);
+  vtkSetMacro(ReadExternalSurface, vtkTypeBool);
+  vtkBooleanMacro(ReadExternalSurface, vtkTypeBool);
   //@}
 
   //@{
@@ -91,9 +91,9 @@ public:
    * If on, reads midpoint information for external surfaces and builds
    * quadratic surface triangles.  Set to on by default.
    */
-  vtkGetMacro(ReadMidpoints, int);
-  vtkSetMacro(ReadMidpoints, int);
-  vtkBooleanMacro(ReadMidpoints, int);
+  vtkGetMacro(ReadMidpoints, vtkTypeBool);
+  vtkSetMacro(ReadMidpoints, vtkTypeBool);
+  vtkBooleanMacro(ReadMidpoints, vtkTypeBool);
   //@}
 
   //@{
@@ -150,7 +150,7 @@ public:
   //@{
   /**
    * All the data sets stored in the multiblock output share the same point
-   * data.  For convienience, the point coordinates (vtkPoints) and point data
+   * data.  For convenience, the point coordinates (vtkPoints) and point data
    * (vtkPointData) are saved under these keys in the vtkInformation of the
    * output data set.
    */
@@ -227,9 +227,9 @@ protected:
 
   char *MeshFileName;
 
-  int ReadInternalVolume;
-  int ReadExternalSurface;
-  int ReadMidpoints;
+  vtkTypeBool ReadInternalVolume;
+  vtkTypeBool ReadExternalSurface;
+  vtkTypeBool ReadMidpoints;
 
   /**
    * True if reading from a proper mode file.  Set in RequestInformation.

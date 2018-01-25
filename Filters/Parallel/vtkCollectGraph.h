@@ -42,7 +42,7 @@ public:
 
   //@{
   /**
-   * By defualt this filter uses the global controller,
+   * By default this filter uses the global controller,
    * but this method can be used to set another instead.
    */
   virtual void SetController(vtkMultiProcessController*);
@@ -63,9 +63,9 @@ public:
   /**
    * To collect or just copy input to output. Off (collect) by default.
    */
-  vtkSetMacro(PassThrough, int);
-  vtkGetMacro(PassThrough, int);
-  vtkBooleanMacro(PassThrough, int);
+  vtkSetMacro(PassThrough, vtkTypeBool);
+  vtkGetMacro(PassThrough, vtkTypeBool);
+  vtkBooleanMacro(PassThrough, vtkTypeBool);
   //@}
 
   enum {
@@ -91,7 +91,7 @@ protected:
   vtkCollectGraph();
   ~vtkCollectGraph() override;
 
-  int PassThrough;
+  vtkTypeBool PassThrough;
   int OutputType;
 
   // Data generation method

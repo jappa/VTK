@@ -40,7 +40,7 @@ public:
 
   //@{
   /**
-   * By defualt this filter uses the global controller,
+   * By default this filter uses the global controller,
    * but this method can be used to set another instead.
    */
   virtual void SetController(vtkMultiProcessController*);
@@ -51,9 +51,9 @@ public:
   /**
    * Turn on/off creating ghost cells (on by default).
    */
-  vtkSetMacro(CreateGhostCells, int);
-  vtkGetMacro(CreateGhostCells, int);
-  vtkBooleanMacro(CreateGhostCells, int);
+  vtkSetMacro(CreateGhostCells, vtkTypeBool);
+  vtkGetMacro(CreateGhostCells, vtkTypeBool);
+  vtkBooleanMacro(CreateGhostCells, vtkTypeBool);
   //@}
 
 protected:
@@ -67,7 +67,7 @@ protected:
   void SatelliteExecute(int procId, vtkUnstructuredGrid *output,
                         vtkInformation *outInfo);
 
-  int CreateGhostCells;
+  vtkTypeBool CreateGhostCells;
   vtkMultiProcessController *Controller;
 
 private:

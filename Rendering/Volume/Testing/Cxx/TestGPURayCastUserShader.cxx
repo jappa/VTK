@@ -117,7 +117,7 @@ int TestGPURayCastUserShader(int argc, char* argv[])
     "\n  else"
     "\n    {"
     "\n    vec4 depthValue = in_projectionMatrix * in_modelViewMatrix *"
-    "\n                      in_volumeMatrix * in_textureDatasetMatrix *"
+    "\n                      in_volumeMatrix[0] * in_textureDatasetMatrix[0] *"
     "\n                      vec4(l_opaqueFragPos, 1.0);"
     "\n    depthValue /= depthValue.w;"
     "\n    fragOutput0 = vec4(vec3(0.5 * (gl_DepthRange.far -"
@@ -125,6 +125,16 @@ int TestGPURayCastUserShader(int argc, char* argv[])
     "\n                      (gl_DepthRange.far + gl_DepthRange.near)), 1.0);"
     "\n    }",
     false);
+  mapper->AddShaderReplacement(
+    vtkShader::Fragment,  // dummy replacement to test clear method
+    "//VTK::ComputeGradient::Dec",
+    true,
+    "VTK::ComputeGradient::Dec",
+    false);
+  mapper->ClearShaderReplacement(
+    vtkShader::Fragment, // clear the dummy replacement
+    "//VTK::ComputeGradient::Dec",
+    true);
 
   vtkNew<vtkVolume> volume;
   volume->SetMapper(mapper.GetPointer());

@@ -115,9 +115,9 @@ public:
    * structured point set are set to cap value. This can be used to insure
    * surfaces are closed.
    */
-  vtkSetMacro(Capping,int);
-  vtkGetMacro(Capping,int);
-  vtkBooleanMacro(Capping,int);
+  vtkSetMacro(Capping,vtkTypeBool);
+  vtkGetMacro(Capping,vtkTypeBool);
+  vtkBooleanMacro(Capping,vtkTypeBool);
   //@}
 
   //@{
@@ -132,9 +132,9 @@ public:
   /**
    * Turn on/off the computation of normals (normals are float values).
    */
-  vtkSetMacro(ComputeNormals,int);
-  vtkGetMacro(ComputeNormals,int);
-  vtkBooleanMacro(ComputeNormals,int);
+  vtkSetMacro(ComputeNormals,vtkTypeBool);
+  vtkGetMacro(ComputeNormals,vtkTypeBool);
+  vtkBooleanMacro(ComputeNormals,vtkTypeBool);
   //@}
 
   //@{
@@ -183,10 +183,10 @@ protected:
   int OutputScalarType;
   int SampleDimensions[3];
   double ModelBounds[6];
-  int Capping;
+  vtkTypeBool Capping;
   double CapValue;
   vtkImplicitFunction *ImplicitFunction;
-  int ComputeNormals;
+  vtkTypeBool ComputeNormals;
   char *ScalarArrayName;
   char *NormalArrayName;
 

@@ -135,9 +135,9 @@ public:
    * RescaleSlope and RescaleIntercept will be set to 1 and 0
    * respectively.  This is off by default.
    */
-  vtkSetMacro(RescaleRealValues, int);
-  vtkBooleanMacro(RescaleRealValues, int);
-  vtkGetMacro(RescaleRealValues, int);
+  vtkSetMacro(RescaleRealValues, vtkTypeBool);
+  vtkBooleanMacro(RescaleRealValues, vtkTypeBool);
+  vtkGetMacro(RescaleRealValues, vtkTypeBool);
   //@}
 
   //@{
@@ -147,7 +147,7 @@ public:
    * scalar range, but in some cases the MINC file stores an
    * incorrect valid_range and the DataRange will be incorrect.
    */
-  virtual double *GetDataRange();
+  virtual double *GetDataRange() VTK_SIZEHINT(2);
   virtual void GetDataRange(double range[2]) {
     double *r = this->GetDataRange();
     range[0] = r[0]; range[1] = r[1]; };
@@ -188,7 +188,7 @@ protected:
   vtkMatrix4x4 *DirectionCosines;
   double RescaleSlope;
   double RescaleIntercept;
-  int RescaleRealValues;
+  vtkTypeBool RescaleRealValues;
   vtkMINCImageAttributes *ImageAttributes;
 
   int FileNameHasChanged;

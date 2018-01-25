@@ -153,7 +153,7 @@ public:
    * Return id of previously inserted point if this is true, otherwise return
    * -1. This method is thread safe.
    */
-  vtkIdType IsInsertedPoint(double x, double  y, double z) override
+  vtkIdType IsInsertedPoint(double x, double y, double z) override
   {
     double xyz[3];
     xyz[0] = x; xyz[1] = y; xyz[2] = z;
@@ -177,7 +177,7 @@ public:
    * Given a position x, return the id of the point closest to it. This method
    * is used when performing incremental point insertion. Note that -1
    * indicates that no point was found.
-   * This method is thread safe if  BuildLocator() is directly or
+   * This method is thread safe if BuildLocator() is directly or
    * indirectly called from a single thread first.
    */
   vtkIdType FindClosestInsertedPoint(const double x[3]) override;

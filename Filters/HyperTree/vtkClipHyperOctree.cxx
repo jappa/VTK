@@ -52,6 +52,8 @@ vtkCxxSetObjectMacro(vtkClipHyperOctree,ClipFunction,vtkImplicitFunction);
 // set to 0.0; and generate clip scalars turned off.
 vtkClipHyperOctree::vtkClipHyperOctree(vtkImplicitFunction *cf)
 {
+  VTK_LEGACY_BODY(vtkClipHyperOctree, "VTK 8.1");
+
   this->ClipFunction = cf;
   this->InsideOut = 0;
   this->Locator = nullptr;
@@ -585,7 +587,7 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
             default:
               assert("check: impossible case" && 0);
               cellType=0; // useless, only for removing warning about
-              // unitialized function.
+              // uninitialized function.
               break;
           } //switch
 

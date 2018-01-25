@@ -157,6 +157,8 @@ public:
     vtkShader::Type shaderType, // vertex, fragment, etc
     const std::string& originalValue,
     bool replaceFirst);
+  void ClearAllShaderReplacements(vtkShader::Type shaderType);
+  void ClearAllShaderReplacements();
   //@}
 
   //@{
@@ -320,7 +322,7 @@ protected:
     vtkRenderer *ren, vtkActor *act);
 
   /**
-   * Perform string replacments on the shader templates
+   * Perform string replacements on the shader templates
    */
   virtual void ReplaceShaderValues(
     std::map<vtkShader::Type, vtkShader *> shaders,
@@ -328,7 +330,7 @@ protected:
 
   //@{
   /**
-   * Perform string replacments on the shader templates, called from
+   * Perform string replacements on the shader templates, called from
    * ReplaceShaderValues
    */
   virtual void ReplaceShaderRenderPass(
@@ -427,7 +429,7 @@ protected:
   // the order is always
   //  ColorInternalTexture
   //  Actors texture
-  //  Properies textures
+  //  Properties textures
   virtual std::vector<vtkTexture *> GetTextures(vtkActor *actor);
 
   // do we have textures coordinates that require special handling
@@ -469,7 +471,7 @@ protected:
   // if set to true, tcoords will be passed to the
   // VBO even if the mapper knows of no texture maps
   // normally tcoords are only added to the VBO if the
-  // mapper has indentified a texture map as well.
+  // mapper has identified a texture map as well.
   bool ForceTextureCoordinates;
 
   void BuildCellTextures(
@@ -495,7 +497,7 @@ protected:
   vtkOpenGLBufferObject *CellNormalBuffer;
   bool HaveCellNormals;
 
-  // aditional picking indirection
+  // additional picking indirection
   char* PointIdArrayName;
   char* CellIdArrayName;
   char* ProcessIdArrayName;

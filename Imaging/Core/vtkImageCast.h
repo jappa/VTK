@@ -23,7 +23,7 @@
  *
  * @warning
  * As vtkImageCast only casts values without rescaling them, its use is not
- * recommented. vtkImageShiftScale is the recommented way to change the type
+ * recommended. vtkImageShiftScale is the recommended way to change the type
  * of an image data.
  *
  * @sa
@@ -76,9 +76,9 @@ public:
    * of the data type.  On the other hand, clamping is slower.
    * By default ClampOverflow is off.
    */
-  vtkSetMacro(ClampOverflow, int);
-  vtkGetMacro(ClampOverflow, int);
-  vtkBooleanMacro(ClampOverflow, int);
+  vtkSetMacro(ClampOverflow, vtkTypeBool);
+  vtkGetMacro(ClampOverflow, vtkTypeBool);
+  vtkBooleanMacro(ClampOverflow, vtkTypeBool);
   //@}
 
 
@@ -86,7 +86,7 @@ protected:
   vtkImageCast();
   ~vtkImageCast() override {}
 
-  int ClampOverflow;
+  vtkTypeBool ClampOverflow;
   int OutputScalarType;
   int RequestInformation (vtkInformation *, vtkInformationVector**, vtkInformationVector *) override;
 

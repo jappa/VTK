@@ -118,15 +118,20 @@ public:
   double GetTuple1(vtkIdType tupleIdx)
     VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples());
   double* GetTuple2(vtkIdType tupleIdx)
-    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples());
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples())
+    VTK_SIZEHINT(2);
   double* GetTuple3(vtkIdType tupleIdx)
-    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples());
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples())
+    VTK_SIZEHINT(3);
   double* GetTuple4(vtkIdType tupleIdx)
-    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples());
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples())
+    VTK_SIZEHINT(4);
   double* GetTuple6(vtkIdType tupleIdx)
-    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples());
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples())
+    VTK_SIZEHINT(6);
   double* GetTuple9(vtkIdType tupleIdx)
-    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples());
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples())
+    VTK_SIZEHINT(9);
   //@}
 
   void SetTuple(vtkIdType dstTupleIdx, vtkIdType srcTupleIdx,
@@ -380,7 +385,7 @@ public:
    * modified or the requested component changes.
    * THIS METHOD IS NOT THREAD SAFE.
    */
-  double* GetRange(int comp)
+  double* GetRange(int comp) VTK_SIZEHINT(2)
   {
     this->GetRange(this->Range, comp);
     return this->Range;
@@ -394,13 +399,13 @@ public:
    * on subsequent calls to GetRange() unless the array is modified.
    * THIS METHOD IS NOT THREAD SAFE.
    */
-  double* GetRange()
+  double* GetRange() VTK_SIZEHINT(2)
   {
     return this->GetRange(0);
   }
 
   /**
-   * The the range of the data array values will be returned in the provided
+   * The range of the data array values will be returned in the provided
    * range array argument. If the data array has multiple components, then
    * this will return the range of only the first component (component zero).
    * The range is computend and then cached, and will not be re-computed on
@@ -435,7 +440,7 @@ public:
    * modified or the requested component changes.
    * THIS METHOD IS NOT THREAD SAFE.
    */
-  double *GetFiniteRange(int comp)
+  double *GetFiniteRange(int comp) VTK_SIZEHINT(2)
   {
     this->GetFiniteRange(this->FiniteRange, comp);
     return this->FiniteRange;
@@ -449,13 +454,13 @@ public:
    * on subsequent calls to GetRange() unless the array is modified.
    * THIS METHOD IS NOT THREAD SAFE.
    */
-  double *GetFiniteRange()
+  double *GetFiniteRange() VTK_SIZEHINT(2)
   {
     return this->GetFiniteRange(0);
   }
 
   /**
-   * The the range of the data array values will be returned in the provided
+   * The range of the data array values will be returned in the provided
    * range array argument. If the data array has multiple components, then
    * this will return the range of only the first component (component zero).
    * The range is computend and then cached, and will not be re-computed on
@@ -540,7 +545,7 @@ public:
    * in a variety of ways. It is important to have flexibility in
    * this regard because certain keys should not be copied, while
    * others must be. NOTE: Up to the implmenter to make sure that
-   * keys not inteneded to be coppied are excluded here.
+   * keys not intended to be copied are excluded here.
    */
   int CopyInformation(vtkInformation *infoFrom, int deep=1) override;
 

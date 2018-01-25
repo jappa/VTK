@@ -74,6 +74,13 @@ class vtkDataArray;
 class vtkDataSet;
 class vtkRenderWindowInteractor;
 
+/**
+ * A unit test may return this value to tell ctest to skip the test. This can
+ * be used to abort a test when an unsupported runtime configuration is
+ * detected.
+ */
+const int VTK_SKIP_RETURN_CODE = 125;
+
 class VTKTESTINGRENDERING_EXPORT vtkTesting : public vtkObject
 {
 public:
@@ -155,9 +162,9 @@ public:
    * default use back buffer first, then try the front buffer if the
    * test fails when comparing to the back buffer.
    */
-  vtkBooleanMacro(FrontBuffer, int);
-  vtkGetMacro(FrontBuffer, int);
-  void SetFrontBuffer(int frontBuffer);
+  vtkBooleanMacro(FrontBuffer, vtkTypeBool);
+  vtkGetMacro(FrontBuffer, vtkTypeBool);
+  void SetFrontBuffer(vtkTypeBool frontBuffer);
   //@}
 
   /**
@@ -317,7 +324,7 @@ protected:
   static char* IncrementFileName(const char* fname, int count);
   static int LookForFile(const char* newFileName);
 
-  int FrontBuffer;
+  vtkTypeBool FrontBuffer;
   vtkRenderWindow* RenderWindow;
   char* ValidImageFileName;
   double ImageDifference;

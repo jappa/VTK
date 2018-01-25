@@ -53,7 +53,7 @@ public:
    * that C arrays are indexed in decreasing order, i.e. array[z][y][x].
    */
   void GetDataDimensions(int *ptr);
-  int *GetDataDimensions() {
+  int *GetDataDimensions() VTK_SIZEHINT(3) {
     this->GetDataDimensions(this->DataDimensions);
     return this->DataDimensions; }
   //@}
@@ -77,11 +77,11 @@ public:
   /**
    * Get miscellaneous additional information about the data.
    */
-  int *GetDataExtent();
+  int *GetDataExtent() VTK_SIZEHINT(6);
   void GetDataExtent(int *ptr);
-  double *GetDataSpacing();
+  double *GetDataSpacing() VTK_SIZEHINT(3);
   void GetDataSpacing(double *ptr);
-  double *GetDataOrigin();
+  double *GetDataOrigin() VTK_SIZEHINT(3);
   void GetDataOrigin(double *ptr);
   //@}
 
@@ -99,9 +99,9 @@ public:
    * WARNING: this flag is used only with the Export() method,
    * it is ignored by GetPointerToData().
    */
-  vtkBooleanMacro(ImageLowerLeft, int);
-  vtkGetMacro(ImageLowerLeft, int);
-  vtkSetMacro(ImageLowerLeft, int);
+  vtkBooleanMacro(ImageLowerLeft, vtkTypeBool);
+  vtkGetMacro(ImageLowerLeft, vtkTypeBool);
+  vtkSetMacro(ImageLowerLeft, vtkTypeBool);
   //@}
 
   //@{
@@ -194,7 +194,7 @@ protected:
   virtual int* DataExtentCallback();
   virtual void* BufferPointerCallback();
 
-  int ImageLowerLeft;
+  vtkTypeBool ImageLowerLeft;
   int DataDimensions[3];
   void *ExportVoidPointer;
 

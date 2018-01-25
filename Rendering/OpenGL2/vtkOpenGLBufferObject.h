@@ -16,6 +16,7 @@
 
 #include "vtkRenderingOpenGL2Module.h" // for export macro
 #include "vtkObject.h"
+#include <string> // used for std::string
 #include <vector> // used for method args
 
 class vtkCellArray;
@@ -55,7 +56,7 @@ public:
   /** Determine if the buffer object is ready to be used. */
   bool IsReady() const { return this->Dirty == false; }
 
-  /** Generate the the opengl buffer for this Handle */
+  /** Generate the opengl buffer for this Handle */
   bool GenerateBuffer(ObjectType type);
 
   /**

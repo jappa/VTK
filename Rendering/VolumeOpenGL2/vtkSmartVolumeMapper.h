@@ -137,17 +137,11 @@ public:
   enum
   {
     DefaultRenderMode=0,
-#if !defined(VTK_LEGACY_REMOVE)
-    RayCastAndTextureRenderMode=1,
-#endif // !VTK_LEGACY_REMOVE
-    RayCastRenderMode=2,
-#if !defined(VTK_LEGACY_REMOVE)
-    TextureRenderMode=3,
-#endif // !VTK_LEGACY_REMOVE
-    GPURenderMode=4,
-    OSPRayRenderMode=5,
-    UndefinedRenderMode=6,
-    InvalidRenderMode=7
+    RayCastRenderMode=1,
+    GPURenderMode=2,
+    OSPRayRenderMode=3,
+    UndefinedRenderMode=4,
+    InvalidRenderMode=5
   };
 
   /**
@@ -273,9 +267,9 @@ public:
    * distance based on whether the render is interactive or still.
    * By default, InteractiveAdjustSampleDistances is enabled.
    */
-  vtkSetClampMacro( InteractiveAdjustSampleDistances, int, 0, 1);
-  vtkGetMacro( InteractiveAdjustSampleDistances, int);
-  vtkBooleanMacro( InteractiveAdjustSampleDistances, int);
+  vtkSetClampMacro( InteractiveAdjustSampleDistances, vtkTypeBool, 0, 1);
+  vtkGetMacro( InteractiveAdjustSampleDistances, vtkTypeBool);
+  vtkBooleanMacro( InteractiveAdjustSampleDistances, vtkTypeBool);
   //@}
 
   //@{
@@ -288,9 +282,9 @@ public:
    * enabled. To explicitly set and use this flag, one must disable
    * InteractiveAdjustSampleDistances.
    */
-  vtkSetClampMacro( AutoAdjustSampleDistances, int, 0, 1 );
-  vtkGetMacro( AutoAdjustSampleDistances, int );
-  vtkBooleanMacro( AutoAdjustSampleDistances, int );
+  vtkSetClampMacro( AutoAdjustSampleDistances, vtkTypeBool, 0, 1 );
+  vtkGetMacro( AutoAdjustSampleDistances, vtkTypeBool );
+  vtkBooleanMacro( AutoAdjustSampleDistances, vtkTypeBool );
   //@}
 
   //@{
@@ -467,7 +461,7 @@ protected:
    * Set whether or not the sample distance should be automatically calculated
    * within the internal volume mapper
    */
-  int    AutoAdjustSampleDistances;
+  vtkTypeBool    AutoAdjustSampleDistances;
 
   /**
    * If the DesiredUpdateRate of the vtkRenderWindow causing the Render is at
@@ -483,7 +477,7 @@ protected:
    * along with InteractiveUpdateRate is useful to adjust volume mapper sample
    * distance based on whether the render is interactive or still.
    */
-  int InteractiveAdjustSampleDistances;
+  vtkTypeBool InteractiveAdjustSampleDistances;
 
   //@{
   /**
@@ -499,11 +493,20 @@ protected:
   //@}
 
 private:
+  //@{
   /**
    * Adjust the GPUMapper's parameters (ColorTable, Weights, etc.) to render
    * a single component of a dataset.
    */
   void SetupVectorMode(vtkVolume* vol);
+  /**
+   * vtkImageMagnitude is used to compute the norm of the input multi-component
+   * array. vtkImageMagnitude can only process point data, so in the case of cell
+   * data it is first transformed to points.
+   */
+  void ComputeMagnitudeCellData(vtkImageData* input, vtkDataArray* arr);
+  void ComputeMagnitudePointData(vtkImageData* input, vtkDataArray* arr);
+  //@}
 
   vtkSmartVolumeMapper(const vtkSmartVolumeMapper&) = delete;
   void operator=(const vtkSmartVolumeMapper&) = delete;

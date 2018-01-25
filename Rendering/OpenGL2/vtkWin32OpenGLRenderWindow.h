@@ -89,13 +89,13 @@ public:
    * Set the size of the window in pixels.
    */
   void SetSize(int,int) override;
-  void SetSize(int a[2]) override {vtkOpenGLRenderWindow::SetSize(a);}
+  void SetSize(int a[2]) override {vtkOpenGLRenderWindow::SetSize(a);};
   //@}
 
   /**
    * Get the current size of the window in pixels.
    */
-  int *GetSize() override;
+  int *GetSize() VTK_SIZEHINT(2) override;
 
   //@{
   /**
@@ -108,12 +108,12 @@ public:
   /**
    * Get the current size of the screen in pixels.
    */
-  int *GetScreenSize() override;
+  int *GetScreenSize() VTK_SIZEHINT(2) override;
 
   /**
    * Get the position in screen coordinates of the window.
    */
-  int *GetPosition() override;
+  int *GetPosition() VTK_SIZEHINT(2) override;
 
   /**
    * Set the name of the window. This appears at the top of the window

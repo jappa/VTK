@@ -42,9 +42,9 @@ public:
   static vtkShaderCallback *New()
     { return new vtkShaderCallback; }
   vtkRenderer *Renderer;
-  void Execute(vtkObject *, unsigned long, void*cbo) override
+  void Execute(vtkObject *, unsigned long, void* calldata) override
   {
-    vtkOpenGLHelper *cellBO = reinterpret_cast<vtkOpenGLHelper*>(cbo);
+    vtkShaderProgram *program = reinterpret_cast<vtkShaderProgram*>(calldata);
 
     float diffuseColor[3];
 
@@ -77,7 +77,7 @@ public:
     diffuseColor[0] = 0.4;
     diffuseColor[1] = 0.7;
     diffuseColor[2] = 0.6;
-    cellBO->Program->SetUniform3f("diffuseColorUniform", diffuseColor);
+    program->SetUniform3f("diffuseColorUniform", diffuseColor);
 #endif
   }
 
@@ -105,6 +105,8 @@ int TestUserShader2(int argc, char *argv[])
   reader->SetFileName(fileName);
   reader->Update();
 
+  delete [] fileName;
+
   vtkNew<vtkTriangleMeshPointNormals> norms;
   norms->SetInputConnection(reader->GetOutputPort());
   norms->Update();
@@ -119,6 +121,14 @@ int TestUserShader2(int argc, char *argv[])
   actor->GetProperty()->SetAmbient(0.5);
   actor->GetProperty()->SetSpecularPower(20.0);
   actor->GetProperty()->SetOpacity(1.0);
+
+  // Clear all custom shader tag replacements
+  // The following code is mainly for regression testing as we do not have any
+  // custom shader replacements.
+  mapper->ClearAllShaderReplacements(vtkShader::Vertex);
+  mapper->ClearAllShaderReplacements(vtkShader::Fragment);
+  mapper->ClearAllShaderReplacements(vtkShader::Geometry);
+  mapper->ClearAllShaderReplacements();
 
   // Use our own hardcoded shader code. Generally this is a bad idea in a
   // general purpose program as there are so many things VTK supports that
@@ -160,7 +170,7 @@ int TestUserShader2(int argc, char *argv[])
   // Setup a callback to change some uniforms
   VTK_CREATE(vtkShaderCallback, myCallback);
   myCallback->Renderer = renderer;
-  mapper->AddObserver(vtkCommand::UpdateShaderEvent,myCallback);
+  mapper->AddObserver(vtkCommand::UpdateShaderEvent, myCallback);
 
   renderWindow->Render();
   renderer->GetActiveCamera()->SetPosition(-0.2,0.4,1);

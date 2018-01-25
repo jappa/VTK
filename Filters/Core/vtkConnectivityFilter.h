@@ -87,9 +87,9 @@ public:
    * only if they share points AND one of the cells scalar values falls in the
    * scalar range specified.
    */
-  vtkSetMacro(ScalarConnectivity,int);
-  vtkGetMacro(ScalarConnectivity,int);
-  vtkBooleanMacro(ScalarConnectivity,int);
+  vtkSetMacro(ScalarConnectivity,vtkTypeBool);
+  vtkGetMacro(ScalarConnectivity,vtkTypeBool);
+  vtkBooleanMacro(ScalarConnectivity,vtkTypeBool);
   //@}
 
   //@{
@@ -170,9 +170,9 @@ public:
   /**
    * Turn on/off the coloring of connected regions.
    */
-  vtkSetMacro(ColorRegions,int);
-  vtkGetMacro(ColorRegions,int);
-  vtkBooleanMacro(ColorRegions,int);
+  vtkSetMacro(ColorRegions,vtkTypeBool);
+  vtkGetMacro(ColorRegions,vtkTypeBool);
+  vtkBooleanMacro(ColorRegions,vtkTypeBool);
   //@}
 
   //@{
@@ -198,7 +198,7 @@ protected:
   int FillInputPortInformation(int port, vtkInformation *info) override;
   int FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info) override;
 
-  int ColorRegions; //boolean turns on/off scalar gen for separate regions
+  vtkTypeBool ColorRegions; //boolean turns on/off scalar gen for separate regions
   int ExtractionMode; //how to extract regions
   int OutputPointsPrecision;
   vtkIdList *Seeds; //id's of points or cells used to seed regions
@@ -207,7 +207,7 @@ protected:
 
   double ClosestPoint[3];
 
-  int ScalarConnectivity;
+  vtkTypeBool ScalarConnectivity;
   double ScalarRange[2];
 
   void TraverseAndMark(vtkDataSet *input);

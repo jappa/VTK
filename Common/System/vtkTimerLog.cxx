@@ -48,7 +48,7 @@
 
 vtkStandardNewMacro(vtkTimerLog);
 
-// initialze the class variables
+// initialize the class variables
 int vtkTimerLog::Logging = 1;
 int vtkTimerLog::Indent = 0;
 int vtkTimerLog::MaxEntries = 100;
@@ -376,7 +376,7 @@ vtkTimerLogEntry::LogEntryType vtkTimerLog::GetEventType(int idx)
 
 //----------------------------------------------------------------------------
 // Write the timing table out to a file.  Calculate some helpful
-// statistics (deltas and  percentages) in the process.
+// statistics (deltas and percentages) in the process.
 void vtkTimerLog::DumpLogWithIndents(ostream *os, double threshold)
 {
 #ifndef _WIN32_WCE
@@ -503,7 +503,7 @@ void vtkTimerLog::DumpLogWithIndentsAndPercentages(std::ostream *os)
       continue;
     }
     else if (logEntryType == vtkTimerLogEntry::STANDALONE)
-    { // Skip this event if it is just to mark that an event occured
+    { // Skip this event if it is just to mark that an event occurred
       continue;
     }
 
@@ -535,7 +535,7 @@ void vtkTimerLog::DumpLogWithIndentsAndPercentages(std::ostream *os)
     float percentage =
         vtkMath::Round(elapsedTime / parent.second * 1000.) / 10.f;
 
-    *os << std::setw(8) << std::setprecision(6) << std::fixed
+    *os << std::setw(12) << std::setprecision(6) << std::fixed
         << elapsedTime
         << std::setw(0) << "s"
         << std::setw(curIndent * 2) << " "

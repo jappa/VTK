@@ -18,7 +18,7 @@
  *
  * This is a concrete implementation of vtkCommunicator which supports
  * interprocess communication using BSD style sockets.
- * It supports byte swapping for the communication of  machines
+ * It supports byte swapping for the communication of machines
  * with different endianness.
  *
  * @warning
@@ -161,9 +161,9 @@ public:
    * will try to perform a handshake when connected.
    * It is on by default.
    */
-  vtkSetClampMacro(PerformHandshake, int, 0, 1);
-  vtkBooleanMacro(PerformHandshake, int);
-  vtkGetMacro(PerformHandshake, int);
+  vtkSetClampMacro(PerformHandshake, vtkTypeBool, 0, 1);
+  vtkBooleanMacro(PerformHandshake, vtkTypeBool);
+  vtkGetMacro(PerformHandshake, vtkTypeBool);
   //@}
 
   //@{
@@ -240,7 +240,7 @@ public:
    * This flag is cleared before vtkCommand::WrongTagEvent is fired when ever a
    * message with mismatched tag is received. If the handler wants the message
    * to be buffered for later use, it should set this flag to true. In which
-   * case the vtkSocketCommunicator will  buffer the messsage and it will be
+   * case the vtkSocketCommunicator will buffer the message and it will be
    * automatically processed the next time one does a ReceiveTagged() with a
    * matching tag.
    */
@@ -257,7 +257,7 @@ protected:
   vtkClientSocket* Socket;
   int SwapBytesInReceivedData;
   int RemoteHas64BitIds;
-  int PerformHandshake;
+  vtkTypeBool PerformHandshake;
   int IsServer;
 
   int ReportErrors;

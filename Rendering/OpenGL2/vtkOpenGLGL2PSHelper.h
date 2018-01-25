@@ -29,6 +29,7 @@
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkObject.h"
+#include <string> // For string usage
 
 class vtkActor;
 class vtkImageData;
@@ -111,7 +112,7 @@ public:
   /**
    * Parse the vertex information in tfc and inject primitives into GL2PS.
    * ren is used to obtain viewport information to complete the vertex
-   * tranformation into pixel coordinates, and act/col are used to color the
+   * transformation into pixel coordinates, and act/col are used to color the
    * vertices when tfc does not contain color information.
    */
   virtual void ProcessTransformFeedback(vtkTransformFeedback *tfc,

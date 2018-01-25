@@ -24,7 +24,7 @@
  * shading parameters of a volume.
  *
  * Color, scalar opacity and gradient magnitude opacity transfer functions
- * can be set as either 3 separate 1D functions  or as a single 2D transfer
+ * can be set as either 3 separate 1D functions or as a single 2D transfer
  * function.
  *
  * - 1D Transfer functions (vtkVolumeProperty::TF_1D)
@@ -55,10 +55,12 @@
 #ifndef vtkVolumeProperty_h
 #define vtkVolumeProperty_h
 
+#include "vtkNew.h" // Needed for vtkNew
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkColorTransferFunction;
+class vtkContourValues;
 class vtkImageData;
 class vtkPiecewiseFunction;
 class vtkTimeStamp;
@@ -99,9 +101,9 @@ public:
    * fourth component. When using gradient based opacity modulation, the
    * gradients are computed off of the fourth component.
    */
-  vtkSetClampMacro(IndependentComponents, int, 0, 1);
-  vtkGetMacro(IndependentComponents, int);
-  vtkBooleanMacro(IndependentComponents, int);
+  vtkSetClampMacro(IndependentComponents, vtkTypeBool, 0, 1);
+  vtkGetMacro(IndependentComponents, vtkTypeBool);
+  vtkBooleanMacro(IndependentComponents, vtkTypeBool);
   //@}
 
   //@{
@@ -387,6 +389,12 @@ public:
   //@}
 
   /**
+   * Get contour values for isosurface blending mode.
+   * Do not affect other blending modes.
+   */
+  vtkContourValues* GetIsoSurfaceValues();
+
+  /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
    * UpdateMTimes performs a Modified() on all TimeStamps.
    * This is used by vtkVolume when the property is set, so
@@ -443,7 +451,7 @@ protected:
 
   virtual void CreateDefaultGradientOpacity(int index);
 
-  int IndependentComponents;
+  vtkTypeBool IndependentComponents;
   double ComponentWeight[VTK_MAX_VRCOMP];
 
   int InterpolationType;
@@ -475,6 +483,11 @@ protected:
   double Diffuse[VTK_MAX_VRCOMP];
   double Specular[VTK_MAX_VRCOMP];
   double SpecularPower[VTK_MAX_VRCOMP];
+
+  /**
+   * Contour values for isosurface blend mode
+   */
+  vtkNew<vtkContourValues> IsoSurfaceValues;
 
 private:
   vtkVolumeProperty(const vtkVolumeProperty&) = delete;

@@ -100,7 +100,7 @@ public:
   //@{
   /**
    * Set how text should be scaled.  If set to
-   * vtkTextActor::TEXT_SCALE_MODE_NONE, the the font size will be fixed by the
+   * vtkTextActor::TEXT_SCALE_MODE_NONE, the font size will be fixed by the
    * size given in TextProperty.  If set to vtkTextActor::TEXT_SCALE_MODE_PROP,
    * the text will be scaled to fit exactly in the prop as specified by the
    * position 1 & 2 coordinates.  If set to
@@ -130,9 +130,9 @@ public:
    * When UseBorderAlign is on, the bounding rectangle is used to align the text,
    * which is the proper behavior when using vtkTextRepresentation
    */
-  vtkSetMacro(UseBorderAlign,int);
-  vtkGetMacro(UseBorderAlign,int);
-  vtkBooleanMacro(UseBorderAlign,int);
+  vtkSetMacro(UseBorderAlign,vtkTypeBool);
+  vtkGetMacro(UseBorderAlign,vtkTypeBool);
+  vtkBooleanMacro(UseBorderAlign,vtkTypeBool);
   //@}
 
   //@{
@@ -300,7 +300,7 @@ protected:
   double  FontScaleExponent;
   int     TextScaleMode;
   float   Orientation;
-  int     UseBorderAlign;
+  vtkTypeBool     UseBorderAlign;
 
   vtkTextProperty *TextProperty;
   vtkImageData *ImageData;

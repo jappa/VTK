@@ -33,7 +33,7 @@
  * directions, as well as a domain bounds. By default the model bounds are
  * defined from the input points, but the user can also manually specify
  * them. Finally, because the radius data member limits the influence of the
- * distance calulation, some voxels may receive no contribution. These voxel
+ * distance calculation, some voxels may receive no contribution. These voxel
  * values are set to the CapValue.
  *
  * This filter has one other unusual capability: it is possible to append
@@ -111,9 +111,9 @@ public:
    * by the fraction given by AdjustDistance. This means that the model
    * bounds is expanded in each of the x-y-z directions.
    */
-  vtkSetMacro(AdjustBounds,int);
-  vtkGetMacro(AdjustBounds,int);
-  vtkBooleanMacro(AdjustBounds,int);
+  vtkSetMacro(AdjustBounds,vtkTypeBool);
+  vtkGetMacro(AdjustBounds,vtkTypeBool);
+  vtkBooleanMacro(AdjustBounds,vtkTypeBool);
   //@}
 
   //@{
@@ -151,9 +151,9 @@ public:
    * after distances are computed. This can be used to close or "cap" all
    * surfaces during isocontouring.
    */
-  vtkSetMacro(Capping,int);
-  vtkGetMacro(Capping,int);
-  vtkBooleanMacro(Capping,int);
+  vtkSetMacro(Capping,vtkTypeBool);
+  vtkGetMacro(Capping,vtkTypeBool);
+  vtkBooleanMacro(Capping,vtkTypeBool);
   //@}
 
   //@{
@@ -199,7 +199,7 @@ public:
    */
   void EndAppend();
 
-  // See the vtkAlgorithm for a desciption of what these do
+  // See the vtkAlgorithm for a description of what these do
   int ProcessRequest(vtkInformation*,
                      vtkInformationVector**,
                      vtkInformationVector*) override;
@@ -210,11 +210,11 @@ protected:
 
   int Dimensions[3];
   double Bounds[6];
-  int AdjustBounds;
+  vtkTypeBool AdjustBounds;
   double AdjustDistance;
   double Radius;
   vtkAbstractPointLocator *Locator;
-  int Capping;
+  vtkTypeBool Capping;
   double CapValue;
   int OutputScalarType;
 

@@ -43,7 +43,7 @@ statement of authorship are reproduced on all copies.
  * calls SetupOutput() which allocates arrays and some temporary variables
  * for the primitive callbacks (OutputTriangle and OutputLine which are
  * called by AddATriangle and AddALine, respectively).  Each cell is given
- * an initial tesselation, which results in one or more calls to
+ * an initial tessellation, which results in one or more calls to
  * OutputTetrahedron, OutputTriangle or OutputLine to add elements to the
  * OutputMesh. Finally, Teardown() is called to free the filter's working
  * space.
@@ -123,9 +123,9 @@ public:
    * some extents with a vtkMergeFilter.
    * By default, the filter is off and vertices will not be shared.
    */
-  vtkGetMacro(MergePoints,int);
-  vtkSetMacro(MergePoints,int);
-  vtkBooleanMacro(MergePoints,int);
+  vtkGetMacro(MergePoints,vtkTypeBool);
+  vtkSetMacro(MergePoints,vtkTypeBool);
+  vtkBooleanMacro(MergePoints,vtkTypeBool);
   //@}
 
 protected:
@@ -161,7 +161,7 @@ protected:
   vtkStreamingTessellator* Tessellator;
   vtkDataSetEdgeSubdivisionCriterion* Subdivider;
   int OutputDimension;
-  int MergePoints;
+  vtkTypeBool MergePoints;
   vtkPointLocator* Locator;
 
   //@{

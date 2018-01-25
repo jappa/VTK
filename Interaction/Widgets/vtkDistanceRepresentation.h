@@ -58,8 +58,8 @@ public:
    */
   virtual void GetPoint1WorldPosition(double pos[3]) = 0;
   virtual void GetPoint2WorldPosition(double pos[3]) = 0;
-  virtual double* GetPoint1WorldPosition() = 0;
-  virtual double* GetPoint2WorldPosition() = 0;
+  virtual double* GetPoint1WorldPosition() VTK_SIZEHINT(3) = 0;
+  virtual double* GetPoint2WorldPosition() VTK_SIZEHINT(3) = 0;
   virtual void SetPoint1DisplayPosition(double pos[3]) = 0;
   virtual void SetPoint2DisplayPosition(double pos[3]) = 0;
   virtual void GetPoint1DisplayPosition(double pos[3]) = 0;
@@ -132,9 +132,9 @@ public:
    * are separated by the amount specified by RulerDistance. Otherwise, the ivar
    * NumberOfRulerTicks is used to draw the tick marks.
    */
-  vtkSetMacro(RulerMode,int);
-  vtkGetMacro(RulerMode,int);
-  vtkBooleanMacro(RulerMode,int);
+  vtkSetMacro(RulerMode,vtkTypeBool);
+  vtkGetMacro(RulerMode,vtkTypeBool);
+  vtkBooleanMacro(RulerMode,vtkTypeBool);
   //@}
 
   //@{
@@ -203,7 +203,7 @@ protected:
   double Scale;
 
   // Ruler related stuff
-  int RulerMode;
+  vtkTypeBool RulerMode;
   double RulerDistance;
   int NumberOfRulerTicks;
 

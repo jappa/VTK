@@ -55,13 +55,13 @@ public:
   // This option uses a random mapping between pieces and scalar values.
   // The scalar values are chosen between 0 and 1.  By default, random
   // mode is off.
-  vtkSetMacro(RandomMode, int);
-  vtkGetMacro(RandomMode, int);
-  vtkBooleanMacro(RandomMode, int);
+  vtkSetMacro(RandomMode, vtkTypeBool);
+  vtkGetMacro(RandomMode, vtkTypeBool);
+  vtkBooleanMacro(RandomMode, vtkTypeBool);
 
   //@{
   /**
-   * By defualt this filter uses the global controller,
+   * By default this filter uses the global controller,
    * but this method can be used to set another instead.
    */
   virtual void SetController(vtkMultiProcessController*);
@@ -82,7 +82,7 @@ protected:
 
   vtkSetMacro(CellScalarsFlag,int);
   int CellScalarsFlag;
-  int RandomMode;
+  vtkTypeBool RandomMode;
 
   vtkMultiProcessController* Controller;
 

@@ -56,14 +56,14 @@ public:
    * a data set remain constant (when extent is changed).
    * By default, size remains constant.
    */
-  vtkSetMacro(ConstantSize, int);
-  vtkGetMacro(ConstantSize, int);
-  vtkBooleanMacro(ConstantSize, int);
+  vtkSetMacro(ConstantSize, vtkTypeBool);
+  vtkGetMacro(ConstantSize, vtkTypeBool);
+  vtkBooleanMacro(ConstantSize, vtkTypeBool);
   //@}
 
   //@{
   /**
-   * Set the projection from  the 4D space (4 parameters / 2 imaginary numbers)
+   * Set the projection from the 4D space (4 parameters / 2 imaginary numbers)
    * to the axes of the 3D Volume.
    * 0=C_Real, 1=C_Imaginary, 2=X_Real, 4=X_Imaginary
    */
@@ -100,7 +100,7 @@ public:
    * Size is ignored when a dimension i 0 (collapsed).
    */
   void SetSizeCX(double cReal, double cImag, double xReal, double xImag);
-  double *GetSizeCX();
+  double *GetSizeCX() VTK_SIZEHINT(4);
   void GetSizeCX(double s[4]);
   //@}
 
@@ -157,7 +157,7 @@ protected:
   double SizeCX[4];
 
   // A flag for keeping size constant (vs. keeping the spacing).
-  int ConstantSize;
+  vtkTypeBool ConstantSize;
 
   int SubsampleRate;
 

@@ -199,7 +199,7 @@ public:
   /**
    * Set which regions to output from this filter.
    * This can be all the regions, just the seeded regions, or the largest
-   * region (which will the the largest seeded region, if there are seeds).
+   * region (which will be the largest seeded region, if there are seeds).
    * The default is to output all the seeded regions, if there are seeds,
    * or to output all the regions, if there are no seeds.
    */
@@ -234,7 +234,7 @@ public:
   vtkIdTypeArray *GetExtractedRegionLabels() {
     return this->ExtractedRegionLabels; }
 
-  // Desciption:
+  // Description:
   // Get the size of each extracted region, as a voxel count.
   vtkIdTypeArray *GetExtractedRegionSizes() {
     return this->ExtractedRegionSizes; }
@@ -258,9 +258,9 @@ public:
   /**
    * Turn this on to request creation of the ExtractedRegionExtents array.
    */
-  vtkSetMacro(GenerateRegionExtents, int);
-  vtkBooleanMacro(GenerateRegionExtents, int);
-  vtkGetMacro(GenerateRegionExtents, int);
+  vtkSetMacro(GenerateRegionExtents, vtkTypeBool);
+  vtkBooleanMacro(GenerateRegionExtents, vtkTypeBool);
+  vtkGetMacro(GenerateRegionExtents, vtkTypeBool);
   //@}
 
   //@{
@@ -305,7 +305,7 @@ protected:
   int LabelConstantValue;
   int ActiveComponent;
   int LabelScalarType;
-  int GenerateRegionExtents;
+  vtkTypeBool GenerateRegionExtents;
 
   vtkIdTypeArray *ExtractedRegionLabels;
   vtkIdTypeArray *ExtractedRegionSizes;

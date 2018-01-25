@@ -216,8 +216,6 @@
     </node>
     <node id="vtkRungeKutta45">
     </node>
-    <node id="vtkInstantiator">
-    </node>
     <node id="vtkMath">
     </node>
     <node id="vtkMatrix4x4">
@@ -1057,8 +1055,6 @@
     <node id="vtkScalarsToColorsPainter">
     </node>
     <node id="vtkOpenGLScalarsToColorsPainter">
-    </node>
-    <node id="vtkPainterDeviceAdapter">
     </node>
     <node id="vtkOpenGLPainterDeviceAdapter">
     </node>

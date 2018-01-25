@@ -59,7 +59,7 @@ public:
    * Set/Get the position in screen coordinates of the rendering window.
    * Measured in pixels.
    */
-  virtual int *GetPosition();
+  virtual int *GetPosition() VTK_SIZEHINT(2);
   virtual void SetPosition(int,int);
   virtual void SetPosition(int a[2]);
   //@}
@@ -68,7 +68,7 @@ public:
   /**
    * Set/Get the size of the window in screen coordinates in pixels.
    */
-  virtual int *GetSize();
+  virtual int *GetSize() VTK_SIZEHINT(2);
   virtual void SetSize(int,int);
   virtual void SetSize(int a[2]);
   //@}
@@ -77,20 +77,20 @@ public:
    * GetSize() returns the size * this->TileScale, whereas this method returns
    * the size without multiplying with the tile scale. Measured in pixels.
    */
-  int *GetActualSize();
+  int *GetActualSize() VTK_SIZEHINT(2);
 
   /**
    * Get the current size of the screen in pixels.
    */
-  virtual int     *GetScreenSize() = 0;
+  virtual int     *GetScreenSize() VTK_SIZEHINT(2) = 0;
 
   //@{
   /**
    * Keep track of whether the rendering window has been mapped to screen.
    */
-  vtkSetMacro(Mapped,int);
-  vtkGetMacro(Mapped,int);
-  vtkBooleanMacro(Mapped,int);
+  vtkSetMacro(Mapped,vtkTypeBool);
+  vtkGetMacro(Mapped,vtkTypeBool);
+  vtkBooleanMacro(Mapped,vtkTypeBool);
   //@}
 
   //@{
@@ -100,18 +100,18 @@ public:
    * buffering off or make use of the SwapBuffers methods to prevent
    * you from swapping buffers between exposures.
    */
-  vtkSetMacro(Erase,int);
-  vtkGetMacro(Erase,int);
-  vtkBooleanMacro(Erase,int);
+  vtkSetMacro(Erase,vtkTypeBool);
+  vtkGetMacro(Erase,vtkTypeBool);
+  vtkBooleanMacro(Erase,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Keep track of whether double buffering is on or off
    */
-  vtkSetMacro(DoubleBuffer,int);
-  vtkGetMacro(DoubleBuffer,int);
-  vtkBooleanMacro(DoubleBuffer,int);
+  vtkSetMacro(DoubleBuffer,vtkTypeBool);
+  vtkGetMacro(DoubleBuffer,vtkTypeBool);
+  vtkBooleanMacro(DoubleBuffer,vtkTypeBool);
   //@}
 
   //@{
@@ -170,9 +170,9 @@ public:
    * supported for every type of window and on some windows you may need to
    * invoke this prior to the first render.
    */
-  vtkSetMacro(OffScreenRendering,int);
-  vtkGetMacro(OffScreenRendering,int);
-  vtkBooleanMacro(OffScreenRendering,int);
+  vtkSetMacro(OffScreenRendering,vtkTypeBool);
+  vtkGetMacro(OffScreenRendering,vtkTypeBool);
+  vtkBooleanMacro(OffScreenRendering,vtkTypeBool);
   //@}
 
   /**
@@ -196,16 +196,16 @@ public:
   //@}
 
 protected:
-  int OffScreenRendering;
+  vtkTypeBool OffScreenRendering;
   vtkWindow();
   ~vtkWindow() override;
 
   char *WindowName;
   int Size[2];
   int Position[2];
-  int Mapped;
-  int Erase;
-  int DoubleBuffer;
+  vtkTypeBool Mapped;
+  vtkTypeBool Erase;
+  vtkTypeBool DoubleBuffer;
   int DPI;
 
   double TileViewport[4];

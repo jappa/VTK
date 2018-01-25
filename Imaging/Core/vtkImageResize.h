@@ -20,7 +20,7 @@
  * antialiasing.  The resizing is done with a 5-lobe Lanczos-windowed sinc
  * filter that is bandlimited to the output sampling frequency in order to
  * avoid aliasing when the image size is reduced.  This filter utilizes a
- * O(n) algorithm to provide good effiency even though the filtering kernel
+ * O(n) algorithm to provide good efficiency even though the filtering kernel
  * is large.  The sinc interpolator can be turned off if nearest-neighbor
  * interpolation is required, or it can be replaced with a different
  * vtkImageInterpolator object.
@@ -108,9 +108,9 @@ public:
    * MagnificationFactor of two is applied to a 256x256 image, the output
    * image will be 512x512 if Border is On, or 511x511 if Border is Off.
    */
-  vtkSetMacro(Border, int);
-  vtkBooleanMacro(Border, int);
-  vtkGetMacro(Border, int);
+  vtkSetMacro(Border, vtkTypeBool);
+  vtkBooleanMacro(Border, vtkTypeBool);
+  vtkGetMacro(Border, vtkTypeBool);
   //@}
 
   //@{
@@ -118,9 +118,9 @@ public:
    * Whether to crop the input image before resizing (Off by default).  If this
    * is On, then the CroppingRegion must be set.
    */
-  vtkSetMacro(Cropping, int);
-  vtkBooleanMacro(Cropping, int);
-  vtkGetMacro(Cropping, int);
+  vtkSetMacro(Cropping, vtkTypeBool);
+  vtkBooleanMacro(Cropping, vtkTypeBool);
+  vtkGetMacro(Cropping, vtkTypeBool);
   //@}
 
   //@{
@@ -137,9 +137,9 @@ public:
   /**
    * Turn interpolation on or off (by default, interpolation is on).
    */
-  vtkSetMacro(Interpolate, int);
-  vtkBooleanMacro(Interpolate, int);
-  vtkGetMacro(Interpolate, int);
+  vtkSetMacro(Interpolate, vtkTypeBool);
+  vtkBooleanMacro(Interpolate, vtkTypeBool);
+  vtkGetMacro(Interpolate, vtkTypeBool);
   //@}
 
   //@{
@@ -177,8 +177,8 @@ protected:
   int OutputDimensions[3];
   double OutputSpacing[3];
   double MagnificationFactors[3];
-  int Border;
-  int Cropping;
+  vtkTypeBool Border;
+  vtkTypeBool Cropping;
   double CroppingRegion[6];
 
   double IndexStretch[3];
@@ -186,7 +186,7 @@ protected:
 
   vtkAbstractImageInterpolator *Interpolator;
   vtkAbstractImageInterpolator *NNInterpolator;
-  int Interpolate;
+  vtkTypeBool Interpolate;
 
 private:
   vtkImageResize(const vtkImageResize&) = delete;

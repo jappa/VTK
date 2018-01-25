@@ -27,7 +27,7 @@
 class vtkDiscretizableColorTransferFunction::vtkInternals
 {
 public:
-  std::vector<vtkTuple<double, 3> > IndexedColors;
+  std::vector<vtkTuple<double, 4> > IndexedColors;
 };
 
 vtkStandardNewMacro(vtkDiscretizableColorTransferFunction);
@@ -84,7 +84,7 @@ void vtkDiscretizableColorTransferFunction::SetNumberOfIndexedColors(
 {
   if (static_cast<unsigned int>(this->Internals->IndexedColors.size()) != count)
   {
-    this->Internals->IndexedColors.resize(count, vtkTuple<double,3>(0.0));
+    this->Internals->IndexedColors.resize(count, vtkTuple<double, 4>(0.0));
     this->Modified();
   }
 }
@@ -97,7 +97,7 @@ unsigned int vtkDiscretizableColorTransferFunction::GetNumberOfIndexedColors()
 
 //-----------------------------------------------------------------------------
 void vtkDiscretizableColorTransferFunction::SetIndexedColor(
-  unsigned int index, double r, double g, double b)
+  unsigned int index, double r, double g, double b, double a)
 {
   if (static_cast<unsigned int>(this->Internals->IndexedColors.size()) <= index)
   {
@@ -112,19 +112,22 @@ void vtkDiscretizableColorTransferFunction::SetIndexedColor(
       data[0] = r;
       data[1] = g;
       data[2] = b;
+      data[3] = a;
     }
 
     this->Modified();
   }
   else if (this->Internals->IndexedColors[index].GetData()[0] != r ||
            this->Internals->IndexedColors[index].GetData()[1] != g ||
-           this->Internals->IndexedColors[index].GetData()[2] != b )
+           this->Internals->IndexedColors[index].GetData()[2] != b ||
+           this->Internals->IndexedColors[index].GetData()[3] != a )
   {
     // color has changed, change it.
     double *data = this->Internals->IndexedColors[index].GetData();
     data[0] = r;
     data[1] = g;
     data[2] = b;
+    data[3] = a;
 
     this->Modified();
   }
@@ -196,7 +199,7 @@ void vtkDiscretizableColorTransferFunction::Build()
   rgba[3] = 1.0;
   this->LookupTable->SetAboveRangeColor(rgba);
 
-  // this  is essential since other the LookupTable doesn't update the
+  // this is essential since other the LookupTable doesn't update the
   // annotations map. That's a bug in the implementation of
   // vtkScalarsToColors::SetAnnotations(..,..);
   this->LookupTable->SetAnnotations(nullptr, nullptr);
@@ -215,7 +218,7 @@ void vtkDiscretizableColorTransferFunction::Build()
         rgba[0] = this->Internals->IndexedColors[cc].GetData()[0];
         rgba[1] = this->Internals->IndexedColors[cc].GetData()[1];
         rgba[2] = this->Internals->IndexedColors[cc].GetData()[2];
-        rgba[3] = 1.0;
+        rgba[3] = this->Internals->IndexedColors[cc].GetData()[3];
         this->LookupTable->SetTableValue(static_cast<int>(cc), rgba);
       }
     }
@@ -292,7 +295,7 @@ void vtkDiscretizableColorTransferFunction::SetNanColor(double r, double g, doub
 }
 
 //-----------------------------------------------------------------------------
-unsigned char* vtkDiscretizableColorTransferFunction::MapValue(double v)
+const unsigned char* vtkDiscretizableColorTransferFunction::MapValue(double v)
 {
   this->Build();
   if (this->Discretize || this->IndexedLookup)
@@ -410,19 +413,6 @@ void vtkDiscretizableColorTransferFunction::MapScalarsThroughTable2(void *input,
     }
   }
 }
-
-#ifndef VTK_LEGACY_REMOVE
-//-----------------------------------------------------------------------------
-double* vtkDiscretizableColorTransferFunction::GetRGBPoints()
-{
-  // This method is redundant with
-  // vtkColorTransferFunction::GetDataPointer(), so we simply call
-  // that method here.
-  VTK_LEGACY_REPLACED_BODY(vtkDiscretizableColorTransferFunction::GetRGBPoints,
-    "VTK 6.2", "vtkDiscretizableColorTransferFunction::GetDataPointer()" );
-  return this->Superclass::GetDataPointer();
-}
-#endif
 
 //----------------------------------------------------------------------------
 vtkIdType vtkDiscretizableColorTransferFunction::GetNumberOfAvailableColors()

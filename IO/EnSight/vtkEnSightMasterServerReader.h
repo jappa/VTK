@@ -14,7 +14,7 @@
 =========================================================================*/
 /**
  * @class   vtkEnSightMasterServerReader
- * @brief   reader for compund EnSight files
+ * @brief   reader for compound EnSight files
 */
 
 #ifndef vtkEnSightMasterServerReader_h
@@ -53,7 +53,7 @@ public:
   vtkGetMacro(CurrentPiece, int);
   //@}
 
-  int CanReadFile(const char *fname);
+  int CanReadFile(const char *fname) override;
 
 protected:
   vtkEnSightMasterServerReader();

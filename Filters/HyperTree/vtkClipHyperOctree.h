@@ -63,6 +63,7 @@
 #include "vtkFiltersHyperTreeModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
+#if !defined(VTK_LEGACY_REMOVE)
 class vtkImplicitFunction;
 class vtkIncrementalPointLocator;
 class vtkHyperOctreeCursor;
@@ -110,9 +111,9 @@ public:
    * value is less than or equal to the Value ivar.  InsideOut is off
    * by default.
    */
-  vtkSetMacro(InsideOut,int);
-  vtkGetMacro(InsideOut,int);
-  vtkBooleanMacro(InsideOut,int);
+  vtkSetMacro(InsideOut,vtkTypeBool);
+  vtkGetMacro(InsideOut,vtkTypeBool);
+  vtkBooleanMacro(InsideOut,vtkTypeBool);
   //@}
 
   //@{
@@ -132,9 +133,9 @@ public:
    * input scalar data. If you enable this flag but do not provide an
    * implicit function an error will be reported.
    */
-  vtkSetMacro(GenerateClipScalars,int);
-  vtkGetMacro(GenerateClipScalars,int);
-  vtkBooleanMacro(GenerateClipScalars,int);
+  vtkSetMacro(GenerateClipScalars,vtkTypeBool);
+  vtkGetMacro(GenerateClipScalars,vtkTypeBool);
+  vtkBooleanMacro(GenerateClipScalars,vtkTypeBool);
   //@}
 
   //@{
@@ -142,9 +143,9 @@ public:
    * Control whether a second output is generated. The second output
    * contains the polygonal data that's been clipped away.
    */
-  vtkSetMacro(GenerateClippedOutput,int);
-  vtkGetMacro(GenerateClippedOutput,int);
-  vtkBooleanMacro(GenerateClippedOutput,int);
+  vtkSetMacro(GenerateClippedOutput,vtkTypeBool);
+  vtkGetMacro(GenerateClippedOutput,vtkTypeBool);
+  vtkBooleanMacro(GenerateClippedOutput,vtkTypeBool);
   //@}
 
   /**
@@ -193,11 +194,11 @@ protected:
   vtkIncrementalPointLocator *Locator;
   vtkIncrementalPointLocator *Locator2; // used for the clipped output
 
-  int InsideOut;
+  vtkTypeBool InsideOut;
   double Value;
-  int GenerateClipScalars;
+  vtkTypeBool GenerateClipScalars;
 
-  int GenerateClippedOutput;
+  vtkTypeBool GenerateClippedOutput;
 
   vtkHyperOctree *Input;
   vtkUnstructuredGrid *Output;
@@ -231,5 +232,6 @@ private:
   vtkClipHyperOctree(const vtkClipHyperOctree&) = delete;
   void operator=(const vtkClipHyperOctree&) = delete;
 };
+#endif // LEGACY remove
 
 #endif

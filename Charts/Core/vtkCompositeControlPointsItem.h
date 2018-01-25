@@ -68,7 +68,7 @@ public:
   };
   //@{
   /**
-   * PointsFunction controls wether the points represent the
+   * PointsFunction controls whether the points represent the
    * ColorTransferFunction, OpacityTransferFunction or both.
    * If ColorPointsFunction, only the points of the ColorTransfer function are
    * used.
@@ -121,12 +121,6 @@ public:
 protected:
   vtkCompositeControlPointsItem();
   ~vtkCompositeControlPointsItem() override;
-
-  /**
-   * Returns true if control points are to be rendered in log-space. This is
-   * true when vtkScalarsToColors is using log-scale, for example.
-   */
-  bool UsingLogScale() override;
 
   void emitEvent(unsigned long event, void* params) override;
 

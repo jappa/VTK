@@ -67,7 +67,7 @@
 vtkStandardNewMacro(vtkDataWriter);
 
 // this undef is required on the hp. vtkMutexLock ends up including
-// /usr/inclue/dce/cma_ux.h which has the gall to #define write as cma_write
+// /usr/include/dce/cma_ux.h which has the gall to #define write as cma_write
 
 #ifdef write
 #undef write
@@ -1610,10 +1610,10 @@ int vtkDataWriter::WriteScalarData(ostream *fp, vtkDataArray *scalars, vtkIdType
     *fp << "LOOKUP_TABLE " << this->LookupTableName << " " << size << "\n";
     if ( this->FileType == VTK_ASCII )
     {
-      double *c;
+      double c[4];
       for (i=0; i<size; i++)
       {
-        c = lut->GetTableValue(i);
+        lut->GetTableValue(i, c);
         *fp << c[0] << " " << c[1] << " " << c[2] << " " << c[3] << "\n";
       }
     }
@@ -2235,12 +2235,23 @@ void vtkDataWriter::CloseVTKFile(ostream *fp)
     {
       std::ostringstream *ostr =
         static_cast<std::ostringstream*>(fp);
-
       delete [] this->OutputString;
-      this->OutputStringLength = static_cast<int>(ostr->str().size());
-      this->OutputString = new char[this->OutputStringLength+1];
-      memcpy(this->OutputString, ostr->str().c_str(),
-        this->OutputStringLength+1);
+      const size_t strlength = ostr->str().size();
+      if (strlength > static_cast<size_t>(vtkTypeTraits<vtkIdType>::Max()))
+      {
+        this->OutputString = nullptr;
+        this->OutputStringLength = 0;
+        vtkErrorMacro("OutputStringLength overflow: the length of data in the "
+                      "writer is greater than what would fit in a variable of type "
+                      "`vtkIdType`. You may have to recompile with VTK_USE_64BIT_IDS."
+                      "Presently, vtkIdType is " << sizeof(vtkIdType) * 8 << " bits.");
+      }
+      else
+      {
+        this->OutputStringLength = static_cast<vtkIdType>(strlength);
+        this->OutputString = new char[strlength + 1];
+      }
+      memcpy(this->OutputString, ostr->str().c_str(), this->OutputStringLength + 1);
     }
     delete fp;
   }

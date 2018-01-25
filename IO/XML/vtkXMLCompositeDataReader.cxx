@@ -24,9 +24,6 @@
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationVector.h"
-#ifndef VTK_LEGACY_REMOVE
-#include "vtkInstantiator.h"
-#endif
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
@@ -218,13 +215,6 @@ vtkXMLReader* vtkXMLCompositeDataReader::GetReaderOfType(const char* type)
   {
     reader = vtkXMLTableReader::New();
   }
-#ifndef VTK_LEGACY_REMOVE
-  if (!reader)
-  {
-    // If all fails, Use the instantiator to create the reader.
-    reader = vtkXMLReader::SafeDownCast(vtkInstantiator::CreateInstance(type));
-  }
-#endif
   if (reader)
   {
     if (this->GetParserErrorObserver())
@@ -325,7 +315,7 @@ void vtkXMLCompositeDataReader::ReadXMLData()
     this->Internal->HasUpdateRestriction = false;
   }
 
-  // All process create the  entire tree structure however, only each one only
+  // All processes create the entire tree structure however, but each one only
   // reads the datasets assigned to it.
   unsigned int dataSetIndex=0;
   this->ReadComposite(this->GetPrimaryElement(), composite, filePath.c_str(), dataSetIndex);
@@ -398,7 +388,7 @@ bool vtkXMLCompositeDataReader::DataSetIsValidForBlockStrategy(unsigned int idx)
   {
     // Account for earlier blocks that have an overflowed dataset:
     const unsigned int overflowOffset = blockSizeOverflow * overflowBlocks;
-    // Number of preceeding blocks that don't overflow:
+    // Number of preceding blocks that don't overflow:
     const unsigned int regularBlocks = this->Internal->Piece - overflowBlocks;
     // Offset due to regular blocks:
     const unsigned int regularOffset = blockSize * regularBlocks;
@@ -475,6 +465,7 @@ vtkDataObject* vtkXMLCompositeDataReader::ReadDataObject(vtkXMLDataElement* xmlE
   // from previous use of the reader.
   reader->GetPointDataArraySelection()->RemoveAllArrays();
   reader->GetCellDataArraySelection()->RemoveAllArrays();
+  reader->GetColumnArraySelection()->RemoveAllArrays();
   reader->Update();
   vtkDataObject* output = reader->GetOutputDataObject(0);
   if (!output)

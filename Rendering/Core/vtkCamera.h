@@ -178,9 +178,9 @@ public:
    * @note This setting is ignored when UseExplicitProjectionTransformMatrix
    * is true.
    */
-  void SetParallelProjection(int flag);
-  vtkGetMacro(ParallelProjection, int);
-  vtkBooleanMacro(ParallelProjection, int);
+  void SetParallelProjection(vtkTypeBool flag);
+  vtkGetMacro(ParallelProjection, vtkTypeBool);
+  vtkBooleanMacro(ParallelProjection, vtkTypeBool);
   //@}
 
   //@{
@@ -194,9 +194,9 @@ public:
    * @note This setting is ignored when UseExplicitProjectionTransformMatrix
    * is true.
    */
-  void SetUseHorizontalViewAngle(int flag);
-  vtkGetMacro(UseHorizontalViewAngle, int);
-  vtkBooleanMacro(UseHorizontalViewAngle, int);
+  void SetUseHorizontalViewAngle(vtkTypeBool flag);
+  vtkGetMacro(UseHorizontalViewAngle, vtkTypeBool);
+  vtkBooleanMacro(UseHorizontalViewAngle, vtkTypeBool);
   //@}
 
   //@{
@@ -352,16 +352,16 @@ public:
   //@{
   /**
    * Set/Get use offaxis frustum.
-   * OffAxis frustum is used for off-axis frustum calculations specificly
+   * OffAxis frustum is used for off-axis frustum calculations specifically
    * for stereo rendering.
    * For reference see "High Resolution Virtual Reality", in Proc.
    * SIGGRAPH '92, Computer Graphics, pages 195-202, 1992.
    * @note This setting is ignored when UseExplicitProjectionTransformMatrix
    * is true.
    */
-  vtkSetMacro(UseOffAxisProjection, int);
-  vtkGetMacro(UseOffAxisProjection, int);
-  vtkBooleanMacro(UseOffAxisProjection, int);
+  vtkSetMacro(UseOffAxisProjection, vtkTypeBool);
+  vtkGetMacro(UseOffAxisProjection, vtkTypeBool);
+  vtkBooleanMacro(UseOffAxisProjection, vtkTypeBool);
   //@}
 
   //@{
@@ -609,8 +609,8 @@ public:
   /**
    * Get the orientation of the camera.
    */
-  double *GetOrientation();
-  double *GetOrientationWXYZ();
+  double *GetOrientation() VTK_SIZEHINT(3);
+  double *GetOrientationWXYZ() VTK_SIZEHINT(4);
   //@}
 
   /**
@@ -742,7 +742,7 @@ protected:
   double ViewAngle;
   double ClippingRange[2];
   double EyeAngle;
-  int    ParallelProjection;
+  vtkTypeBool    ParallelProjection;
   double ParallelScale;
   int    Stereo;
   int    LeftEye;
@@ -751,9 +751,9 @@ protected:
   double DirectionOfProjection[3];
   double ViewPlaneNormal[3];
   double ViewShear[3];
-  int    UseHorizontalViewAngle;
+  vtkTypeBool    UseHorizontalViewAngle;
 
-  int    UseOffAxisProjection;
+  vtkTypeBool    UseOffAxisProjection;
 
   double ScreenBottomLeft[3];
   double ScreenBottomRight[3];

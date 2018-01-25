@@ -975,7 +975,7 @@ public:
   {
     return new vtkButtonWidgetMultipleViewportsCallback;
   }
-  virtual void Execute(vtkObject* caller, unsigned long, void*)
+  void Execute(vtkObject* caller, unsigned long, void*) override
   {
     vtkButtonWidget* buttonWidget = reinterpret_cast<vtkButtonWidget*>(caller);
     vtkTexturedButtonRepresentation* rep =
@@ -986,7 +986,7 @@ public:
     this->Glyph->SetScaleFactor(0.05 * (1 + state));
   }
   vtkButtonWidgetMultipleViewportsCallback()
-    : Glyph(0)
+    : Glyph(nullptr)
   {
   }
   vtkGlyph3D* Glyph;

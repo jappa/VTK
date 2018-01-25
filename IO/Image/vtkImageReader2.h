@@ -238,9 +238,9 @@ public:
   /**
    * Set/Get the byte swapping to explicitly swap the bytes of a file.
    */
-  vtkSetMacro(SwapBytes,int);
-  virtual int GetSwapBytes() {return this->SwapBytes;}
-  vtkBooleanMacro(SwapBytes,int);
+  vtkSetMacro(SwapBytes,vtkTypeBool);
+  virtual vtkTypeBool GetSwapBytes() {return this->SwapBytes;}
+  vtkBooleanMacro(SwapBytes,vtkTypeBool);
   //@}
 
   ifstream *GetFile() {return this->File;}
@@ -254,9 +254,9 @@ public:
    * Set/Get whether the data comes from the file starting in the lower left
    * corner or upper left corner.
    */
-  vtkBooleanMacro(FileLowerLeft, int);
-  vtkGetMacro(FileLowerLeft, int);
-  vtkSetMacro(FileLowerLeft, int);
+  vtkBooleanMacro(FileLowerLeft, vtkTypeBool);
+  vtkGetMacro(FileLowerLeft, vtkTypeBool);
+  vtkSetMacro(FileLowerLeft, vtkTypeBool);
   //@}
 
   //@{
@@ -311,7 +311,7 @@ protected:
   char *FilePrefix;
   char *FilePattern;
   int NumberOfScalarComponents;
-  int FileLowerLeft;
+  vtkTypeBool FileLowerLeft;
 
   void *MemoryBuffer;
   vtkIdType MemoryBufferLength;
@@ -319,7 +319,7 @@ protected:
   ifstream *File;
   unsigned long DataIncrements[4];
   int DataExtent[6];
-  int SwapBytes;
+  vtkTypeBool SwapBytes;
 
   int FileDimensionality;
   unsigned long HeaderSize;

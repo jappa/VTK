@@ -133,6 +133,7 @@ public:
    */
   double *GetPoint(vtkIdType id)
     VTK_EXPECTS(0 <= id && id < GetNumberOfPoints())
+    VTK_SIZEHINT(3)
     { return this->Data->GetTuple(id); }
 
   /**
@@ -141,6 +142,7 @@ public:
    */
   void GetPoint(vtkIdType id, double x[3])
     VTK_EXPECTS(0 <= id && id < GetNumberOfPoints())
+    VTK_SIZEHINT(3)
     { this->Data->GetTuple(id,x); }
 
   /**
@@ -225,7 +227,7 @@ public:
   /**
    * Return the bounds of the points.
    */
-  double *GetBounds();
+  double *GetBounds() VTK_SIZEHINT(6);
 
   /**
    * Return the bounds of the points.
@@ -240,7 +242,7 @@ public:
   /**
    * Update the modification time for this object and its Data.
    * As this object acts as a shell around a DataArray and
-   * forwards Set methods it needs to forward Modifed as well.
+   * forwards Set methods it needs to forward Modified as well.
    */
   void Modified() override;
 

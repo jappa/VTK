@@ -200,9 +200,9 @@ public:
    * Some subclasses use this data member to keep track of whether to render
    * or not (i.e., to minimize the total number of renders).
    */
-  vtkGetMacro( NeedToRender, int );
-  vtkSetClampMacro( NeedToRender, int, 0, 1 );
-  vtkBooleanMacro( NeedToRender, int );
+  vtkGetMacro( NeedToRender, vtkTypeBool );
+  vtkSetClampMacro( NeedToRender, vtkTypeBool, 0, 1 );
+  vtkBooleanMacro( NeedToRender, vtkTypeBool );
   //@}
 
   /**
@@ -212,7 +212,7 @@ public:
    * (i.e., not implementing the Render() methods properly) or leaking graphics resources
    * (i.e., not implementing ReleaseGraphicsResources() properly).
    */
-  double *GetBounds() override {return nullptr;}
+  double *GetBounds() VTK_SIZEHINT(6) override {return nullptr;}
   void ShallowCopy(vtkProp *prop) override;
   void GetActors(vtkPropCollection *) override {}
   void GetActors2D(vtkPropCollection *) override {}
@@ -298,7 +298,7 @@ protected:
   double SizeHandlesInPixels(double factor,double pos[3]);
 
   // Try and reduce multiple renders
-  int NeedToRender;
+  vtkTypeBool NeedToRender;
 
   // This is the time that the representation was built. This data member
   // can be used to reduce the time spent building the widget.

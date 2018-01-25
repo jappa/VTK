@@ -66,8 +66,8 @@ public:
   /**
    * Set/Get the volume property.
    */
-  void SetProperty(vtkVolumeProperty *property);
-  vtkVolumeProperty *GetProperty();
+  virtual void SetProperty(vtkVolumeProperty *property);
+  virtual vtkVolumeProperty *GetProperty();
   //@}
 
   /**
@@ -87,7 +87,7 @@ public:
    * Get the bounds - either all six at once
    * (xmin, xmax, ymin, ymax, zmin, zmax) or one at a time.
    */
-  double *GetBounds() override;
+  double *GetBounds() VTK_SIZEHINT(6) override;
   void GetBounds(double bounds[6])
     { this->vtkProp3D::GetBounds(bounds); }
   double GetMinXBound();
@@ -202,10 +202,13 @@ public:
   void UpdateScalarOpacityforSampleSize(vtkRenderer *ren,
                                         float sample_distance);
 
-  /// Used by vtkHardwareSelector to determine if the prop supports hardware
-  /// selection.
-  /// @warning INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
-  /// DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
+  /**
+   * Used by vtkHardwareSelector to determine if the prop supports hardware
+   * selection.
+   *
+   * @warning INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+   * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
+   */
   bool GetSupportsSelection() override
    { return true; }
 

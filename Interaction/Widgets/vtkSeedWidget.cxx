@@ -155,6 +155,8 @@ void vtkSeedWidget::AddPointAction(vtkAbstractWidget *w)
     return;
   }
 
+  self->InvokeEvent(vtkCommand::MouseMoveEvent, nullptr);
+
   // compute some info we need for all cases
   int X = self->Interactor->GetEventPosition()[0];
   int Y = self->Interactor->GetEventPosition()[1];
@@ -331,7 +333,7 @@ void vtkSeedWidget::DeleteAction(vtkAbstractWidget *w)
 }
 
 //----------------------------------------------------------------------
-void vtkSeedWidget::SetProcessEvents(int pe)
+void vtkSeedWidget::SetProcessEvents(vtkTypeBool pe)
 {
   this->Superclass::SetProcessEvents(pe);
 
@@ -362,7 +364,7 @@ void vtkSeedWidget::SetCurrentRenderer( vtkRenderer *ren )
   {
     if (!ren)
     {
-      // Disable widget if its being removed from the the renderer
+      // Disable widget if it's being removed from the renderer
       (*iter)->EnabledOff();
     }
     (*iter)->SetCurrentRenderer(ren);

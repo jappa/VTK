@@ -77,10 +77,9 @@ set(TestSystemInformation_ARGS ${CMAKE_BINARY_DIR})
 # Tell TestXMLFileOutputWindow where to write test file
 set(TestXMLFileOutputWindow_ARGS ${CMAKE_BINARY_DIR}/Testing/Temporary/XMLFileOutputWindow.txt)
 
-vtk_add_test_cxx(${vtk-module}CxxTests tests
+vtk_add_test_cxx(vtkCommonCoreCxxTests tests
   NO_DATA NO_VALID NO_OUTPUT
   UnitTestMath.cxx
-  TestAngularPeriodicDataArray.cxx
   TestArrayAPI.cxx
   TestArrayAPIConvenience.cxx
   TestArrayAPIDense.cxx
@@ -104,10 +103,10 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestDataArray.cxx
   TestDataArrayComponentNames.cxx
   TestDataArrayIterators.cxx
+  TestDataArraySelection.cxx
   TestGarbageCollector.cxx
   TestGenericDataArrayAPI.cxx
   TestInformationKeyLookup.cxx
-  # TestInstantiator.cxx # Have not enabled instantiators.
   TestLookupTable.cxx
   TestLookupTableThreaded.cxx
   TestMath.cxx
@@ -143,6 +142,6 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   ${data_array_tests}
   )
 
-vtk_test_cxx_executable(${vtk-module}CxxTests tests
+vtk_test_cxx_executable(vtkCommonCoreCxxTests tests
   vtkTestNewVar.cxx
   )

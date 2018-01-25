@@ -99,9 +99,9 @@ public:
    * error due to numerical imprecision.  Under most circumstances, the
    * error is not noticeable.
    */
-  vtkGetMacro(IncrementalPreIntegration, int);
-  vtkSetMacro(IncrementalPreIntegration, int);
-  vtkBooleanMacro(IncrementalPreIntegration, int);
+  vtkGetMacro(IncrementalPreIntegration, vtkTypeBool);
+  vtkSetMacro(IncrementalPreIntegration, vtkTypeBool);
+  vtkBooleanMacro(IncrementalPreIntegration, vtkTypeBool);
   //@}
 
   /**
@@ -121,7 +121,7 @@ public:
    * Get an entry (RGBA) in one of the pre-integration tables.  The tables
    * are built when Initialize is called.
    */
-  float *GetTableEntry(double scalar_front, double scalar_back, double lenth,
+  float *GetTableEntry(double scalar_front, double scalar_back, double length,
                        int component = 0);
 
   /**
@@ -152,7 +152,7 @@ protected:
   int IntegrationTableScalarResolution;
   int IntegrationTableLengthResolution;
 
-  int IncrementalPreIntegration;
+  vtkTypeBool IncrementalPreIntegration;
 
   virtual void BuildPreIntegrationTables(vtkDataArray *scalars);
 

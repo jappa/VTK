@@ -71,11 +71,13 @@ public:
    * \a SetIndexedColor() will automatically call
    * SetNumberOfIndexedColors(index+1) if the current number of indexed colors
    * is not sufficient for the specified index and all will be initialized to
-   * the RGB values passed to this call.
+   * the RGBA/RGB values passed to this call.
    */
-  void SetIndexedColor(unsigned int index, const double rgb[3])
+  void SetIndexedColorRGB(unsigned int index, const double rgb[3])
     { this->SetIndexedColor(index, rgb[0], rgb[1], rgb[2]); }
-  void SetIndexedColor(unsigned int index, double r, double g, double b);
+  void SetIndexedColorRGBA(unsigned int index, const double rgba[4])
+    { this->SetIndexedColor(index, rgba[0], rgba[1], rgba[2], rgba[3]); }
+  void SetIndexedColor(unsigned int index, double r, double g, double b, double a = 1.0);
 
   /**
    * Get the "indexed color" assigned to an index.
@@ -84,7 +86,7 @@ public:
    * the annotations were set).
    * Subclasses must implement this and interpret how to treat the index.
    * vtkLookupTable simply returns GetTableValue(\a index % \a this->GetNumberOfTableValues()).
-   * vtkColorTransferFunction returns the color assocated with node \a index % \a this->GetSize().
+   * vtkColorTransferFunction returns the color associated with node \a index % \a this->GetSize().
 
    * Note that implementations *must* set the opacity (alpha) component of the color, even if they
    * do not provide opacity values in their colormaps. In that case, alpha = 1 should be used.
@@ -116,9 +118,9 @@ public:
    * Not set by default, i.e. color value is determined by
    * interpolating at the scalar value.
    */
-  vtkSetMacro(Discretize, int);
-  vtkGetMacro(Discretize, int);
-  vtkBooleanMacro(Discretize, int);
+  vtkSetMacro(Discretize, vtkTypeBool);
+  vtkGetMacro(Discretize, vtkTypeBool);
+  vtkBooleanMacro(Discretize, vtkTypeBool);
   //@}
 
   //@{
@@ -144,7 +146,7 @@ public:
    * Map one value through the lookup table and return a color defined
    * as a RGBA unsigned char tuple (4 bytes).
    */
-  unsigned char *MapValue(double v) override;
+  const unsigned char *MapValue(double v) override;
 
   /**
    * Map one value through the lookup table and return the color as
@@ -164,15 +166,7 @@ public:
    */
   void MapScalarsThroughTable2(void *input, unsigned char *output,
     int inputDataType, int numberOfValues,
-    int inputIncrement, int outputFormat) VTK_OVERRIDE;
-
-  /**
-   * Returns the (x, r, g, b) values as an array.
-   * vtkColorTransferFunction::GetDataPointer(). Retained for
-   * backwards compatibility.
-   * \deprecated Use GetDataPointer() instead.
-   */
-  VTK_LEGACY(double* GetRGBPoints());
+    int inputIncrement, int outputFormat) override;
 
   /**
    * Specify an additional opacity (alpha) value to blend with. Values
@@ -236,7 +230,7 @@ protected:
   /**
    * Flag indicating whether transfer function is discretized.
    */
-  int Discretize;
+  vtkTypeBool Discretize;
 
   /**
    * Flag indicating whether log scaling is to be used.

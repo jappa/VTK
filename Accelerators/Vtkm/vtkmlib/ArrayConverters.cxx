@@ -283,6 +283,8 @@ struct ArrayConverter
 {
   mutable vtkDataArray* Data;
 
+  ArrayConverter() : Data(nullptr) {}
+
   template <typename T, typename S>
   void operator()(const vtkm::cont::ArrayHandle<T, S>& handle) const
   {
@@ -374,7 +376,8 @@ vtkDataArray* Convert(const vtkm::cont::Field& input)
 
   try
   {
-    vtkm::filter::ApplyPolicy(input, policy).CastAndCall(aConverter);
+    vtkm::cont::CastAndCall(vtkm::filter::ApplyPolicy(input, policy),
+                            aConverter);
     data = aConverter.Data;
     if (data)
     {
@@ -397,7 +400,8 @@ vtkPoints* Convert(const vtkm::cont::CoordinateSystem& input)
   vtkPoints* points = nullptr;
   try
   {
-    vtkm::filter::ApplyPolicy(input, policy).CastAndCall(aConverter);
+    vtkm::cont::CastAndCall(vtkm::filter::ApplyPolicy(input, policy),
+                            aConverter);
     vtkDataArray* pdata = aConverter.Data;
     points = vtkPoints::New();
     points->SetData(pdata);

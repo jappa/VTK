@@ -66,9 +66,9 @@ public:
   /**
    * Enable writing to an OutputString instead of the default, a file.
    */
-  vtkSetMacro(WriteToOutputString,int);
-  vtkGetMacro(WriteToOutputString,int);
-  vtkBooleanMacro(WriteToOutputString,int);
+  vtkSetMacro(WriteToOutputString,vtkTypeBool);
+  vtkGetMacro(WriteToOutputString,vtkTypeBool);
+  vtkBooleanMacro(WriteToOutputString,vtkTypeBool);
   //@}
 
   //@{
@@ -77,7 +77,7 @@ public:
    * and can be retrieved with these methods.  The string is deleted during
    * the next call to write ...
    */
-  vtkGetMacro(OutputStringLength, int);
+  vtkGetMacro(OutputStringLength, vtkIdType);
   vtkGetStringMacro(OutputString);
   unsigned char *GetBinaryOutputString()
   {
@@ -292,9 +292,9 @@ protected:
   vtkDataWriter();
   ~vtkDataWriter() override;
 
-  int WriteToOutputString;
+  vtkTypeBool WriteToOutputString;
   char *OutputString;
-  int OutputStringLength;
+  vtkIdType OutputStringLength;
 
   void WriteData() override; //dummy method to allow this class to be instantiated and delegated to
 

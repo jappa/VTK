@@ -31,8 +31,8 @@
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 #include <list>
+#include <unordered_map>
 #include <vector>
-#include <vtksys/hash_map.hxx>
 
 //-----------------------------------------------------------------------------
 // Stores internal members that cannot or should not be exposed in the header
@@ -40,8 +40,8 @@
 class vtkMultiProcessController::vtkInternal
 {
 public:
-  vtksys::hash_map<int, vtkProcessFunctionType> MultipleMethod;
-  vtksys::hash_map<int, void *> MultipleData;
+  std::unordered_map<int, vtkProcessFunctionType> MultipleMethod;
+  std::unordered_map<int, void *> MultipleData;
 
   class vtkRMICallback
   {
@@ -54,7 +54,7 @@ public:
   typedef std::vector<vtkRMICallback> RMICallbackVector;
 
   // key == tag, value == vector of vtkRMICallback instances.
-  typedef vtksys::hash_map<int, RMICallbackVector> RMICallbackMap;
+  typedef std::unordered_map<int, RMICallbackVector> RMICallbackMap;
   RMICallbackMap RMICallbacks;
 };
 
@@ -521,7 +521,7 @@ int vtkMultiProcessController::BroadcastProcessRMIs(
     this->RMICommunicator->Broadcast(triggerMessage,128,0);
 
 #ifdef VTK_WORDS_BIGENDIAN
-    // Header is sent in little-endian form. We need to convert it to  big
+    // Header is sent in little-endian form. We need to convert it to big
     // endian.
     vtkByteSwap::SwapLERange(triggerMessage, 2);
 #endif
@@ -669,7 +669,7 @@ int vtkMultiProcessController::ProcessRMIs(int reportErrors, int dont_loop)
       break;
     }
 #ifdef VTK_WORDS_BIGENDIAN
-    // Header is sent in little-endian form. We need to convert it to  big
+    // Header is sent in little-endian form. We need to convert it to big
     // endian.
     vtkByteSwap::SwapLERange(triggerMessage, 4);
 #endif

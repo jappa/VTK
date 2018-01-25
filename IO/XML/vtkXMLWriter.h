@@ -20,6 +20,11 @@
  * functionality needed to write VTK XML file formats.  Concrete
  * subclasses provide actual writer implementations calling upon this
  * functionality.
+ *
+ * @par Thanks
+ * CompressionLevel getters/setters exposed by Quincy Wofford
+ * (qwofford@lanl.gov) and John Patchett (patchett@lanl.gov),
+ * Los Alamos National Laboratory (2017)
 */
 
 #ifndef vtkXMLWriter_h
@@ -128,9 +133,9 @@ public:
   /**
    * Enable writing to an OutputString instead of the default, a file.
    */
-  vtkSetMacro(WriteToOutputString, int);
-  vtkGetMacro(WriteToOutputString, int);
-  vtkBooleanMacro(WriteToOutputString, int);
+  vtkSetMacro(WriteToOutputString, vtkTypeBool);
+  vtkGetMacro(WriteToOutputString, vtkTypeBool);
+  vtkBooleanMacro(WriteToOutputString, vtkTypeBool);
   std::string GetOutputString() { return this->OutputString; }
   //@}
 
@@ -147,7 +152,8 @@ public:
   {
     NONE,
     ZLIB,
-    LZ4
+    LZ4,
+    LZMA
   };
 
   //@{
@@ -167,6 +173,13 @@ public:
   {
     this->SetCompressorType(ZLIB);
   }
+  void SetCompressorTypeToLZMA()
+  {
+    this->SetCompressorType(LZMA);
+  }
+
+  void SetCompressionLevel(int compressorLevel);
+  vtkGetMacro(CompressionLevel, int);
   //@}
 
   //@{
@@ -201,9 +214,9 @@ public:
    * specification will be violated, but reading and writing will be
    * fast.  The default is to do the encoding.
    */
-  vtkSetMacro(EncodeAppendedData, int);
-  vtkGetMacro(EncodeAppendedData, int);
-  vtkBooleanMacro(EncodeAppendedData, int);
+  vtkSetMacro(EncodeAppendedData, vtkTypeBool);
+  vtkGetMacro(EncodeAppendedData, vtkTypeBool);
+  vtkBooleanMacro(EncodeAppendedData, vtkTypeBool);
   //@}
 
   //@{
@@ -271,7 +284,7 @@ protected:
 
   // Whether this object is writing to a string or a file.
   // Default is 0: write to file.
-  int WriteToOutputString;
+  vtkTypeBool WriteToOutputString;
 
   // The output string.
   std::string OutputString;
@@ -290,7 +303,7 @@ protected:
   int DataMode;
 
   // Whether to base64-encode the appended data section.
-  int EncodeAppendedData;
+  vtkTypeBool EncodeAppendedData;
 
   // The stream position at which appended data starts.
   vtkTypeInt64 AppendedDataPosition;
@@ -323,6 +336,9 @@ protected:
   size_t CompressionBlockNumber;
   vtkXMLDataHeader* CompressionHeader;
   vtkTypeInt64 CompressionHeaderPosition;
+  // Compression Level for vtkDataCompressor objects
+  // 1 (worst compression, fastest) ... 9 (best compression, slowest)
+  int CompressionLevel = 5;
 
   // The output stream used to write binary and appended data.  May
   // transparently encode the data.

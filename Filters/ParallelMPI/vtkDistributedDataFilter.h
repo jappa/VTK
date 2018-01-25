@@ -220,6 +220,12 @@ public:
   vtkGetMacro(UseMinimalMemory, int);
   vtkSetMacro(UseMinimalMemory, int);
 
+  /**
+   * The minimum number of ghost levels to add to each processor's output. If
+   * the pipeline also requests ghost levels, the larger value will be used.
+   */
+  vtkGetMacro(MinimumGhostLevel, int)
+  vtkSetMacro(MinimumGhostLevel, int)
 
   /**
    * Turn on collection of timing data
@@ -466,8 +472,8 @@ private:
   /**
    * ?
    */
-  char *MarshallDataSet(vtkUnstructuredGrid *extractedGrid, int &size);
-  vtkUnstructuredGrid *UnMarshallDataSet(char *buf, int size);
+  char* MarshallDataSet(vtkUnstructuredGrid* extractedGrid, vtkIdType& size);
+  vtkUnstructuredGrid* UnMarshallDataSet(char* buf, vtkIdType size);
   //@}
 
   //@{
@@ -610,6 +616,10 @@ private:
   int NumConvexSubRegions;
   double *ConvexSubRegionBounds;
 
+  // User-adjustable minimum number of ghost levels.
+  int MinimumGhostLevel;
+
+  // Actual number of ghost levels used during execution.
   int GhostLevel;
 
   int RetainKdtree;

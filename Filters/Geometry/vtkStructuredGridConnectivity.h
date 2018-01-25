@@ -137,7 +137,7 @@ public:
   vtkIdList* GetNeighbors( const int gridID, int *extents );
 
   /**
-   * Filles the mesh property arrays, nodes and cells, for the grid
+   * Fills the mesh property arrays, nodes and cells, for the grid
    * corresponding to the given grid ID.
    * NOTE: this method assumes that ComputeNeighbors() has been called.
    */
@@ -205,7 +205,7 @@ protected:
   //@}
 
   /**
-   * Fills the the ghost array for the nodes
+   * Fills the ghost array for the nodes
    */
   void FillNodesGhostArray(
       const int gridID, const int dataDescription,
@@ -436,7 +436,7 @@ protected:
   /**
    * Checks if the block corresponding to the given grid ID has a block
    * adjacent to it in the given block direction.
-   * NOTE: The block direction is essentially one of the 6 faces  of the
+   * NOTE: The block direction is essentially one of the 6 faces of the
    * block defined as follows:
    * <ul>
    * <li> FRONT  = 0 (+k diretion)  </li>
@@ -452,7 +452,7 @@ protected:
   /**
    * Removes a block connection along the given direction for the block
    * corresponding to the given gridID.
-   * NOTE: The block direction is essentially one of the 6 faces  of the
+   * NOTE: The block direction is essentially one of the 6 faces of the
    * block defined as follows:
    * <ul>
    * <li> FRONT  = 0 (+k diretion)  </li>
@@ -468,7 +468,7 @@ protected:
   /**
    * Adds a block connection along the given direction for the block
    * corresponding to the given gridID.
-   * NOTE: The block direction is essentially one of the 6 faces  of the
+   * NOTE: The block direction is essentially one of the 6 faces of the
    * block defined as follows:
    * <ul>
    * <li> FRONT  = 0 (+k diretion)  </li>
@@ -482,7 +482,7 @@ protected:
   void AddBlockConnection( const int gridID, const int blockDirection );
 
   /**
-   * Clears all block connections for the  block corresponding to the given
+   * Clears all block connections for the block corresponding to the given
    * grid ID.
    */
   void ClearBlockConnections( const int gridID );
@@ -596,7 +596,7 @@ protected:
   /**
    * Loops through all arrays in the source and for each array, it copies the
    * tuples from sourceIdx to the target at targetIdx. This method assumes
-   * that the source and target have a one-to-one array correspondance, that
+   * that the source and target have a one-to-one array correspondence, that
    * is array i in the source corresponds to array i in the target.
    */
   void CopyFieldData(

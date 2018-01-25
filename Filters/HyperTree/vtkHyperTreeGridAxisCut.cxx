@@ -34,10 +34,10 @@ vtkStandardNewMacro(vtkHyperTreeGridAxisCut);
 //-----------------------------------------------------------------------------
 vtkHyperTreeGridAxisCut::vtkHyperTreeGridAxisCut()
 {
-  // Defaut normal axis is Z
+  // Default normal axis is Z
   this->PlaneNormalAxis = 0;
 
-  // Defaut place intercept is 0
+  // Default place intercept is 0
   this->PlanePosition = 0.;
 
   // Default mask is empty
@@ -162,7 +162,7 @@ int vtkHyperTreeGridAxisCut::ProcessTrees( vtkHyperTreeGrid* input,
 
   // Retrieve material mask
   vtkBitArray* mask
-    = this->MaterialMask ? input->GetMaterialMask() : 0;
+    = this->MaterialMask ? input->GetMaterialMask() : nullptr;
 
   // Storage for root cell Cartesian coordinates
   unsigned int i,j,k;

@@ -130,7 +130,7 @@ vtkStandardNewMacro(vtkLSDynaReader);
 #define LS_ARRAYNAME_DOMINANT_GROUP     "DominantGroup"
 #define LS_ARRAYNAME_SPECIES_MASS_FMT   "SpeciesMass%02d"
 
-// Possible material  options
+// Possible material options
 #define LS_MDLOPT_NONE 0
 #define LS_MDLOPT_POINT 1
 #define LS_MDLOPT_CELL 2
@@ -3249,7 +3249,7 @@ int vtkLSDynaReader::ReadInputDeckXML( ifstream& deck )
   // We must be able to parse the file and end up with 1 part per material ID
   if ( ! parser->Parse() || this->P->GetTotalMaterialCount() != (int)this->P->PartNames.size() )
   {
-    // We had a problem identifying a part, give up and start over by reseting the parts
+    // We had a problem identifying a part, give up and start over by resetting the parts
     this->ResetPartInfo();
   }
   parser->Delete();
@@ -3773,7 +3773,7 @@ int vtkLSDynaReader::ReadPartSizes()
 }
 
 //-----------------------------------------------------------------------------
-void vtkLSDynaReader::SetDeformedMesh(int deformed)
+void vtkLSDynaReader::SetDeformedMesh(vtkTypeBool deformed)
 {
   if (this->DeformedMesh != deformed)
   {

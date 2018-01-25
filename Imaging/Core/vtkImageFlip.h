@@ -61,9 +61,9 @@ public:
    * it does not refer to the Origin ivar that is associated with a
    * vtkImageData.
    */
-  vtkSetMacro(FlipAboutOrigin, int);
-  vtkGetMacro(FlipAboutOrigin, int);
-  vtkBooleanMacro(FlipAboutOrigin, int);
+  vtkSetMacro(FlipAboutOrigin, vtkTypeBool);
+  vtkGetMacro(FlipAboutOrigin, vtkTypeBool);
+  vtkBooleanMacro(FlipAboutOrigin, vtkTypeBool);
   //@}
 
   /**
@@ -79,9 +79,9 @@ public:
    * implementation was broken.  It is deprecated now and it has
    * no effect (i.e. the ImageExtent is always preserved).
    */
-  vtkSetMacro(PreserveImageExtent, int);
-  vtkGetMacro(PreserveImageExtent, int);
-  vtkBooleanMacro(PreserveImageExtent, int);
+  vtkSetMacro(PreserveImageExtent, vtkTypeBool);
+  vtkGetMacro(PreserveImageExtent, vtkTypeBool);
+  vtkBooleanMacro(PreserveImageExtent, vtkTypeBool);
   //@}
 
 protected:
@@ -93,8 +93,8 @@ protected:
                                  vtkInformationVector *) override;
 
   int FilteredAxis;
-  int FlipAboutOrigin;
-  int PreserveImageExtent;
+  vtkTypeBool FlipAboutOrigin;
+  vtkTypeBool PreserveImageExtent;
 
 private:
   vtkImageFlip(const vtkImageFlip&) = delete;
