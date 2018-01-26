@@ -493,16 +493,14 @@ int vtkSocketCommunicator::ServerSideHandshake()
                           1, static_cast<int>(sizeof(myHash)),
                           vtkSocketController::HASH_TAG, nullptr))
     {
-      vtkWarningMacro("Version hash handshake mismatch detected.  ");
-      //vtkSocketCommunicatorErrorMacro("Version hash handshake failed.  "
-      //                                "Perhaps there is a client/server version mismatch.");
-      //return 0;
+      vtkSocketCommunicatorErrorMacro("Version hash handshake failed.  "
+                                      "Perhaps there is a client/server version mismatch.");
+      return 0;
     }
     if (strncmp(myHash, clientHash, sizeof(myHash)-1) != 0)
     {
-      vtkWarningMacro("Client/server version hash mismatch detected.");
-      //vtkSocketCommunicatorErrorMacro("Client/server version hash mismatch.");
-      //return 0;
+      vtkSocketCommunicatorErrorMacro("Client/server version hash mismatch.");
+      return 0;
     }
 
     // Handshake to determine if remote has 64 bit ids.
@@ -604,16 +602,14 @@ int vtkSocketCommunicator::ClientSideHandshake()
                            1, static_cast<int>(sizeof(serverHash)),
                            vtkSocketController::HASH_TAG, nullptr))
   {
-    vtkWarningMacro("Version hash handshake mismatch detected.  ");
-    //vtkSocketCommunicatorErrorMacro("Version hash handshake failed.  "
-    //                "Perhaps there is a client/server version mismatch.");
-    //return 0;
+    vtkSocketCommunicatorErrorMacro("Version hash handshake failed.  "
+                    "Perhaps there is a client/server version mismatch.");
+    return 0;
   }
   if (strncmp(myHash, serverHash, sizeof(myHash)-1) != 0)
   {
-    vtkWarningMacro("Client/server version hash mismatch detected.");
-    //vtkSocketCommunicatorErrorMacro("Client/server version hash mismatch.");
-    //return 0;
+    vtkSocketCommunicatorErrorMacro("Client/server version hash mismatch.");
+    return 0;
   }
 
   // Handshake to determine if remote has 64 bit ids.
