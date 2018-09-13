@@ -37,8 +37,8 @@
 #if defined(_WIN32)
 # define VTK_STAT_STRUCT struct _stat64
 # define VTK_STAT_FUNC _stat64
-#elif defined _DARWIN_FEATURE_64_BIT_INODE && !defined __FreeBSD__
-// FreeBSD and OSX now deprecate stat64
+#elif defined _DARWIN_FEATURE_64_BIT_INODE || defined __FreeBSD__
+// FreeBSD and OSX use stat
 # define VTK_STAT_STRUCT struct stat
 # define VTK_STAT_FUNC stat
 #else
@@ -1446,11 +1446,25 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(
     realId = this->InsertNewPartId(partId);
     output = this->GetDataSetFromBlock(compositeOutput, realId);
     numPts = output->GetNumberOfPoints();
-    // If the part has no points, then only the part number is listed in
-    // the variable file.
-    if (numPts)
+    // If the part has points, part number is followed by "coordinates" or
+    // "block" and list of values.
+    // If the part has no points, only part number is given, which may be
+    // optionally followed by "coordinates" or "block", without any values.
+
+    lineRead = this->ReadLine(line); // "coordinates", "block" or next part
+
+    if (!numPts)
     {
-      this->ReadLine(line); // "coordinates" or "block"
+      if (lineRead && strncmp(line, "part", 4) == 0)
+      {
+        // Part number was not followed by "coordinates" or "block"; we are
+        // at the start of another part, skip to next iteration to avoid
+        // reading anything more.
+        continue;
+      }
+    }
+    else
+    {
       if (component == 0)
       {
         scalars = vtkFloatArray::New();
@@ -1640,15 +1654,31 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(
   lineRead = this->ReadLine(line);
   while (lineRead && strncmp(line, "part", 4) == 0)
   {
-    vectors = vtkFloatArray::New();
     this->ReadPartId(&partId);
     partId--; // EnSight starts #ing with 1.
     realId = this->InsertNewPartId(partId);
     output = this->GetDataSetFromBlock(compositeOutput, realId);
     numPts = output->GetNumberOfPoints();
-    if (numPts)
+    // If the part has points, part number is followed by "coordinates" or
+    // "block" and list of values.
+    // If the part has no points, only part number is given, which may be
+    // optionally followed by "coordinates" or "block", without any values.
+
+    lineRead = this->ReadLine(line); // "coordinates", "block" or next part
+
+    if (!numPts)
     {
-      this->ReadLine(line); // "coordinates" or "block"
+      if (lineRead && strncmp(line, "part", 4) == 0)
+      {
+        // Part number was not followed by "coordinates" or "block"; we are
+        // at the start of another part, skip to next iteration to avoid
+        // reading anything more.
+        continue;
+      }
+    }
+    else
+    {
+      vectors = vtkFloatArray::New();
       vectors->SetNumberOfComponents(3);
       vectors->SetNumberOfTuples(numPts);
       comp1 = new float[numPts];
@@ -3999,10 +4029,10 @@ int vtkEnSightGoldBinaryReader::ReadLine(char result[80])
   if (!this->GoldIFile->read(result, 80))
   {
     // The read fails when reading the last part/array when there are no points.
-    // I took out the error macro as a tempory fix.
+    // I took out the error macro as a temporary fix.
     // We need to determine what EnSight does when the part with zero point
     // is not the last, and change the read array method.
-    //int fixme; // I do not a file to test with yet.
+    //int fixme; // I do not have a file to test with yet.
     vtkDebugMacro("Read failed");
     return 0;
   }
@@ -4011,7 +4041,16 @@ int vtkEnSightGoldBinaryReader::ReadLine(char result[80])
 
   if (this->Fortran)
   {
-    strncpy(result, &result[4], 76);
+    // strncpy cannot be used for overlapping buffers
+    int i = 0;
+    for ( ; i < 76 && result[i+4] != '\0'; ++i)
+    {
+      result[i] = result[i+4];
+    }
+    for ( ; i < 76; ++i)
+    {
+      result[i] = '\0';
+    }
     result[76] = 0;
     // better read an extra 8 bytes to prevent error next time
     char dummy[8];

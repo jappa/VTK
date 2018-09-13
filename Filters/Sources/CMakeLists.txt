@@ -23,6 +23,7 @@ set(Module_SRCS
   vtkPolyLineSource.cxx
   vtkProgrammableDataObjectSource.cxx
   vtkProgrammableSource.cxx
+  vtkRandomHyperTreeGridSource.cxx
   vtkRectangularButtonSource.cxx
   vtkRegularPolygonSource.cxx
   #vtkRRandomTableSource.cxx # Should be in R kit
@@ -36,11 +37,5 @@ set(Module_SRCS
   vtkGraphToPolyData.cxx
   vtkDiagonalMatrixSource.cxx
   )
-
-if (NOT VTK_LEGACY_REMOVE)
-  list(APPEND Module_SRCS
-    vtkHyperOctreeFractalSource.cxx
-  )
-endif()
 
 vtk_module_library(vtkFiltersSources ${Module_SRCS})

@@ -217,7 +217,7 @@ function(vtk_python_module name)
         COMMAND ${CMAKE_COMMAND} -E touch "${CMAKE_CURRENT_BINARY_DIR}/${_name_we}.build-complete"
         DEPENDS ${_module}
         OUTPUT  "${CMAKE_CURRENT_BINARY_DIR}/${_name_we}.build-complete"
-        COMMENT "Copying and compiling Python module'${_name_we}'")
+        COMMENT "Copying and compiling Python module '${_name_we}'")
 
       # save the output file so we can add a target for the module with proper
       # dependency.
@@ -225,7 +225,7 @@ function(vtk_python_module name)
 
       # add install rules.
       if (NOT _no_install AND NOT VTK_INSTALL_NO_RUNTIME)
-        if(VTK_PYTHON_VERSION VERSION_LESS 3)
+        if(PYTHON_VERSION_STRING VERSION_LESS 3)
           install(FILES "${VTK_BUILD_PYTHON_MODULES_DIR}/${_name}"
                         "${VTK_BUILD_PYTHON_MODULES_DIR}/${_name_we}.pyc"
                         "${VTK_BUILD_PYTHON_MODULES_DIR}/${_name_we}.pyo"

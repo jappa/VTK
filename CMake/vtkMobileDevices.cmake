@@ -1,16 +1,4 @@
-option(VTK_IOS_BUILD "Build vtk.framework for iOS" OFF)
-if (VTK_IOS_BUILD)
-  include(vtkiOS)
-  return()
-endif()
-
-option(VTK_ANDROID_BUILD "Build VTK for Android" OFF)
-if (VTK_ANDROID_BUILD)
-  include(vtkAndroid)
-  return()
-endif()
-
-# some specific defaults for Andriod to give folks
+# some specific defaults for Android to give folks
 # a reasonable starting point
 if (ANDROID OR APPLE_IOS)
   set(CMAKE_REQUIRE_LARGE_FILE_SUPPORT 2 CACHE STRING "Result from TRY_RUN" FORCE)

@@ -23,6 +23,7 @@
 #include "vtkCellData.h"
 #include "vtkCommand.h"
 #include "vtkDataArray.h"
+#include "vtkDoubleArray.h"
 #include "vtkDataSet.h"
 #include "vtkErrorCode.h"
 #include "vtkInformation.h"
@@ -53,12 +54,12 @@
 #define vtkXMLDataHeaderPrivate_DoNotInclude
 #include "vtkXMLDataHeaderPrivate.h"
 #undef vtkXMLDataHeaderPrivate_DoNotInclude
+#include "vtkInformationQuadratureSchemeDefinitionVectorKey.h"
+#include "vtkInformationStringKey.h"
+#include "vtkNumberToString.h"
+#include "vtkQuadratureSchemeDefinition.h"
 #include "vtkXMLDataElement.h"
 #include "vtkXMLReaderVersion.h"
-#include "vtkInformationQuadratureSchemeDefinitionVectorKey.h"
-#include "vtkQuadratureSchemeDefinition.h"
-#include "vtkInformationStringKey.h"
-
 #include <memory>
 
 #include <cassert>
@@ -1862,13 +1863,14 @@ template <class T>
 int vtkXMLWriterWriteVectorAttribute(ostream& os, const char* name,
                                      int length, T* data)
 {
+  vtkNumberToString convert;
   os << " " << name << "=\"";
   if (length)
   {
-    os << data[0];
+    os << convert(data[0]);
     for (int i = 1; i < length; ++i)
     {
-      os << " " << data[i];
+      os << " " << convert(data[i]);
     }
   }
   os << "\"";
@@ -2174,7 +2176,8 @@ bool vtkXMLWriter::WriteInformation(vtkInformation *info, vtkIndent indent)
 template <class T>
 inline ostream& vtkXMLWriteAsciiValue(ostream& os, const T& value)
 {
-  os << value;
+  vtkNumberToString convert;
+  os << convert(value);
   return os;
 }
 
@@ -2478,22 +2481,48 @@ void vtkXMLWriter::WriteArrayInline(
 }
 
 //----------------------------------------------------------------------------
+void vtkXMLWriter::UpdateFieldData(vtkFieldData* fieldDataCopy)
+{
+  vtkDataObject* input = this->GetInput();
+  vtkFieldData* fieldData = input->GetFieldData();
+  vtkInformation* meta = input->GetInformation();
+  bool hasTime = meta->Has(vtkDataObject::DATA_TIME_STEP()) ? true : false;
+  if ((!fieldData || !fieldData->GetNumberOfArrays()) && !hasTime)
+  {
+    fieldDataCopy->Initialize();
+    return;
+  }
+
+  fieldDataCopy->ShallowCopy(fieldData);
+  if (hasTime)
+  {
+    vtkNew<vtkDoubleArray> time;
+    time->SetNumberOfTuples(1);
+    time->SetTypedComponent(0, 0, meta->Get(vtkDataObject::DATA_TIME_STEP()));
+    time->SetName("TimeValue");
+    fieldDataCopy->AddArray(time);
+  }
+}
+
+//----------------------------------------------------------------------------
 void vtkXMLWriter::WriteFieldData(vtkIndent indent)
 {
-  vtkFieldData *fieldData = this->GetInput()->GetFieldData();
-  if (!fieldData || !fieldData->GetNumberOfArrays())
+  vtkNew<vtkFieldData> fieldDataCopy;
+  this->UpdateFieldData(fieldDataCopy);
+
+  if (!fieldDataCopy->GetNumberOfArrays())
   {
     return;
   }
 
   if (this->DataMode == vtkXMLWriter::Appended)
   {
-    this->WriteFieldDataAppended(fieldData, indent, this->FieldDataOM);
+    this->WriteFieldDataAppended(fieldDataCopy, indent, this->FieldDataOM);
   }
   else
   {
     // Write the point data arrays.
-    this->WriteFieldDataInline(fieldData, indent);
+    this->WriteFieldDataInline(fieldDataCopy, indent);
   }
 }
 
@@ -2747,7 +2776,7 @@ void vtkXMLWriter::WritePointDataAppendedData(vtkPointData* pd, int timestep,
     // Only write pd if MTime has changed
     vtkMTimeType &pdMTime = pdManager->GetElement(i).GetLastMTime();
     vtkAbstractArray* a = pd->GetAbstractArray(i);
-    if ( pdMTime != mtime )
+    if ( pdMTime != mtime || timestep == 0 )
     {
       pdMTime = mtime;
       this->WriteArrayAppendedData(a,

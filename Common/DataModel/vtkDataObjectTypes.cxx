@@ -28,13 +28,12 @@ PURPOSE.  See the above copyright notice for more information.
 #include  "vtkHierarchicalBoxDataSet.h"
 #include  "vtkOverlappingAMR.h"
 #include  "vtkNonOverlappingAMR.h"
-#if !defined(VTK_LEGACY_REMOVE)
-#include  "vtkHyperOctree.h"
-#endif // LEGACY remove
 #include  "vtkHyperTreeGrid.h"
 #include  "vtkImageData.h"
 #include  "vtkMultiBlockDataSet.h"
 #include  "vtkMultiPieceDataSet.h"
+#include  "vtkPartitionedDataSet.h"
+#include  "vtkPartitionedDataSetCollection.h"
 #include  "vtkPath.h"
 #include  "vtkPiecewiseFunction.h"
 #include  "vtkPointSet.h"
@@ -96,6 +95,8 @@ static const char* vtkDataObjectTypesStrings[] = {
   "vtkPistonDataObject", // OBSOLETE
   "vtkPath",
   "vtkUnstructuredGridBase",
+  "vtkPartitionedDataSet",
+  "vtkPartitionedDataSetCollection",
   nullptr
 };
 
@@ -215,12 +216,6 @@ vtkDataObject* vtkDataObjectTypes::NewDataObject(const char* type)
   {
     return vtkNonOverlappingAMR::New();
   }
-#if !defined(VTK_LEGACY_REMOVE)
-  else if(strcmp(type, "vtkHyperOctree") == 0)
-  {
-    return vtkHyperOctree::New();
-  }
-#endif // LEGACY remove
   else if(strcmp(type, "vtkHyperTreeGrid") == 0)
   {
     return vtkHyperTreeGrid::New();
@@ -276,6 +271,14 @@ vtkDataObject* vtkDataObjectTypes::NewDataObject(const char* type)
   else if(strcmp(type, "vtkPath") == 0)
   {
     return vtkPath::New();
+  }
+  else if(strcmp(type, "vtkPartitionedDataSet") == 0)
+  {
+    return vtkPartitionedDataSet::New();
+  }
+  else if(strcmp(type, "vtkPartitionedDataSetCollection") == 0)
+  {
+    return vtkPartitionedDataSetCollection::New();
   }
 
   vtkGenericWarningMacro("NewDataObject(): You are trying to instantiate DataObjectType \"" << type

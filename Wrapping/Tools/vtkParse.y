@@ -2706,6 +2706,7 @@ mem_initializer_list:
 
 mem_initializer:
     id_expression ignored_parentheses opt_ellipsis
+  | id_expression ignored_braces opt_ellipsis
 
 /*
  * Parameters
@@ -4555,9 +4556,9 @@ int count_from_dimensions(ValueInfo *val)
       cp = val->Dimensions[i];
       if (cp[0] != '\0')
       {
-        while (*cp != '\0' && *cp >= '0' && *cp <= '9') { cp++; }
-        while (*cp != '\0' && (*cp == 'u' || *cp == 'l' ||
-                               *cp == 'U' || *cp == 'L')) { cp++; }
+        while (*cp >= '0' && *cp <= '9') { cp++; }
+        while (*cp == 'u' || *cp == 'l' ||
+               *cp == 'U' || *cp == 'L') { cp++; }
         if (*cp == '\0')
         {
           n = (int)strtol(val->Dimensions[i], NULL, 0);
@@ -4915,6 +4916,8 @@ void output_function()
       (currentFunction->Parameters[0]->Type & VTK_PARSE_UNQUALIFIED_TYPE) ==
       VTK_PARSE_VOID)
   {
+    vtkParse_FreeValue(currentFunction->Parameters[0]);
+    free(currentFunction->Parameters);
     currentFunction->NumberOfParameters = 0;
   }
 

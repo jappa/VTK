@@ -51,12 +51,12 @@ namespace
     testIterator& operator=(const vtkUnicodeString::value_type) override
       {return *this;}
 
-    testIterator() {}
-    ~testIterator() override {}
+    testIterator() = default;
+    ~testIterator() override = default;
 
   private:
     testIterator(const testIterator&) = delete;
-    const testIterator& operator=(const testIterator&) = delete;
+    testIterator& operator=(const testIterator&) = delete;
   };
 
 
@@ -149,9 +149,7 @@ vtkUTF8TextCodec::vtkUTF8TextCodec() : vtkTextCodec()
 }
 
 
-vtkUTF8TextCodec::~vtkUTF8TextCodec()
-{
-}
+vtkUTF8TextCodec::~vtkUTF8TextCodec() = default;
 
 
 void vtkUTF8TextCodec::PrintSelf(ostream& os, vtkIndent indent)

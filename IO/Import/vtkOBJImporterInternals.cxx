@@ -13,6 +13,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkOBJImporter.h"
 #include "vtkOBJImporterInternals.h"
+#include "vtkBMPReader.h"
 #include "vtkJPEGReader.h"
 #include "vtkPNGReader.h"
 #include "vtkTIFFReader.h"
@@ -20,6 +21,7 @@
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
+#include "vtkTexture.h"
 #include "vtksys/SystemTools.hxx"
 #include "vtkTransform.h"
 
@@ -165,7 +167,7 @@ bool tokenGetVector(size_t &t, std::vector<Token> &tokens,
     vtkGenericWarningMacro("bad syntax");
     return false;
   }
-  // parse the folloing numbers
+  // parse the following numbers
   size_t count = 0;
   while (tokens.size() > t + 2 &&
     tokens[t+1].Type == Token::Space &&
@@ -418,8 +420,10 @@ void  bindTexturedPolydataToRenderWindow( vtkRenderWindow* renderWindow,
     if (kti == knownTextures.end())
     {
       vtkSmartPointer<vtkTIFFReader> tex_tiff_Loader = vtkSmartPointer<vtkTIFFReader>::New();
+      vtkSmartPointer<vtkBMPReader> tex_bmp_Loader = vtkSmartPointer<vtkBMPReader>::New();
       vtkSmartPointer<vtkJPEGReader> tex_jpg_Loader = vtkSmartPointer<vtkJPEGReader>::New();
       vtkSmartPointer<vtkPNGReader>  tex_png_Loader = vtkSmartPointer<vtkPNGReader>::New();
+      int bIsReadableBMP = tex_bmp_Loader->CanReadFile( textureFilename.c_str() );
       int bIsReadableJPEG = tex_jpg_Loader->CanReadFile( textureFilename.c_str() );
       int bIsReadablePNG  = tex_png_Loader->CanReadFile( textureFilename.c_str() );
       int bIsReadableTIFF  = tex_tiff_Loader->CanReadFile( textureFilename.c_str() );
@@ -443,6 +447,16 @@ void  bindTexturedPolydataToRenderWindow( vtkRenderWindow* renderWindow,
           vtkSmartPointer<vtkTexture> vtk_texture =
             vtkSmartPointer<vtkTexture>::New();
           vtk_texture->AddInputConnection( tex_png_Loader->GetOutputPort() );
+          actor->SetTexture(vtk_texture);
+          knownTextures[textureFilename] = vtk_texture;
+        }
+        else if( bIsReadableBMP )
+        {
+          tex_bmp_Loader->SetFileName( textureFilename.c_str() );
+          tex_bmp_Loader->Update();
+          vtkSmartPointer<vtkTexture> vtk_texture =
+            vtkSmartPointer<vtkTexture>::New();
+          vtk_texture->AddInputConnection( tex_bmp_Loader->GetOutputPort() );
           actor->SetTexture(vtk_texture);
           knownTextures[textureFilename] = vtk_texture;
         }

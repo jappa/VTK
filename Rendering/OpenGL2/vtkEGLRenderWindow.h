@@ -17,11 +17,17 @@
  * @brief   OpenGL rendering window
  *
  * vtkEGLRenderWindow is a concrete implementation of the abstract class
- * vtkRenderWindow. This class creates a window on Android platform and for client API OpenGL ES and
- * an offscreen pbuffer for OpenGL.
+ * vtkRenderWindow. This class creates a window on Android platform and
+ * for client API OpenGL ES and an offscreen pbuffer for OpenGL.
  * vtkOpenGLRenderer interfaces to the OpenGL graphics library.
- * Application programmers should normally use vtkRenderWindow instead of the OpenGL specific version.
-*/
+ * Application programmers should normally use vtkRenderWindow instead of
+ * the OpenGL specific version.
+ *
+ * If the VTK_DEFAULT_EGL_DEVICE_INDEX environment variable is present at
+ * the time of construction, it's value will be used to initialize the
+ * DeviceIndex, falling back to the VTK_DEFAULT_EGL_DEVICE_INDEX
+ * preprocessor definition otherwise.
+ */
 
 #ifndef vtkEGLRenderWindow_h
 #define vtkEGLRenderWindow_h
@@ -59,7 +65,7 @@ public:
    * should be possible to call them multiple times, even changing WindowId
    * in-between.  This is what WindowRemap does.
    */
-  virtual void Initialize(void);
+  void Initialize(void) override;
 
   /**
    * "Deinitialize" the rendering window.  This will shutdown all system-specific
@@ -135,9 +141,9 @@ public:
   virtual void *GetGenericParentId() {return NULL;}
   virtual void *GetGenericContext();
   virtual void *GetGenericDrawable() {return NULL;}
-  virtual void SetWindowInfo(char *);
-  virtual void SetNextWindowInfo(char *) {}
-  virtual void SetParentInfo(char *) {}
+  virtual void SetWindowInfo(const char *);
+  virtual void SetNextWindowInfo(const char *) {}
+  virtual void SetParentInfo(const char *) {}
   //@}
 
   void     SetWindowName(const char *);
@@ -197,7 +203,7 @@ public:
    * because point sprites don't work correctly (gl_PointCoord is undefined) unless
    * glEnable(GL_POINT_SPRITE)
    */
-  virtual bool IsPointSpriteBugPresent();
+  bool IsPointSpriteBugPresent() override;
 
 protected:
   vtkEGLRenderWindow();
@@ -210,8 +216,8 @@ protected:
   class vtkInternals;
   vtkInternals* Internals;
 
-  void CreateAWindow();
-  void DestroyWindow();
+  void CreateAWindow() override;
+  void DestroyWindow() override;
   void ResizeWindow(int width, int height);
 
   /**

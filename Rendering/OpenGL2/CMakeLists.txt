@@ -49,6 +49,7 @@ set(Module_SRCS
   vtkOpenGLPolyDataMapper.cxx
   vtkOpenGLPolyDataMapper2D.cxx
   vtkOpenGLProperty.cxx
+  vtkOpenGLQuadHelper.cxx
   vtkOpenGLRenderPass.cxx
   vtkOpenGLRenderTimer.cxx
   vtkOpenGLRenderTimerLog.cxx
@@ -58,6 +59,7 @@ set(Module_SRCS
   vtkOpenGLShaderCache.cxx
   vtkOpenGLSkybox.cxx
   vtkOpenGLSphereMapper.cxx
+  vtkOpenGLState.cxx
   vtkOpenGLStickMapper.cxx
   vtkOpenGLTextActor.cxx
   vtkOpenGLTextActor3D.cxx
@@ -67,6 +69,7 @@ set(Module_SRCS
   vtkOpenGLVertexBufferObject.cxx
   vtkOpenGLVertexBufferObjectCache.cxx
   vtkOpenGLVertexBufferObjectGroup.cxx
+  vtkOrderIndependentTranslucentPass.cxx
   vtkOverlayPass.cxx
   vtkPixelBufferObject.cxx
   vtkPointFillPass.cxx
@@ -83,6 +86,7 @@ set(Module_SRCS
   vtkSobelGradientMagnitudePass.cxx
   vtkTextureObject.cxx
   vtkTextureUnitManager.cxx
+  vtkToneMappingPass.cxx
   vtkTransformFeedback.cxx
   vtkTranslucentPass.cxx
   vtkValuePass.cxx
@@ -97,6 +101,7 @@ endif()
 
 set(${vtk-module}_HDRS
   vtkOpenGL.h
+  vtkStateStorage.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkTDxConfigure.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkOpenGLError.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkRenderingOpenGLConfigure.h
@@ -113,7 +118,9 @@ set(shader_files
   glsl/vtkGaussianBlurPassFS.glsl
   glsl/vtkGaussianBlurPassVS.glsl
   glsl/vtkGlyph3DVS.glsl
+  glsl/vtkOrderIndependentTranslucentPassFinalFS.glsl
   glsl/vtkPointGaussianVS.glsl
+  glsl/vtkPointGaussianGS.glsl
   glsl/vtkPointFillPassFS.glsl
   glsl/vtkPolyData2DFS.glsl
   glsl/vtkPolyData2DVS.glsl
@@ -124,8 +131,8 @@ set(shader_files
   glsl/vtkSimpleMotionBlurPassFS.glsl
   glsl/vtkSobelGradientMagnitudePass1FS.glsl
   glsl/vtkSobelGradientMagnitudePass2FS.glsl
-  glsl/vtkSphereMapperVS.glsl
-  glsl/vtkStickMapperVS.glsl
+  glsl/vtkSphereMapperGS.glsl
+  glsl/vtkStickMapperGS.glsl
   glsl/vtkTextureObjectFS.glsl
   glsl/vtkTextureObjectVS.glsl
   )
@@ -285,6 +292,14 @@ configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/vtkOpenGLError.h.in
     ${CMAKE_CURRENT_BINARY_DIR}/vtkOpenGLError.h)
 
+# Add OpenGL command stream annotations via
+# vtkOpenGLRenderUtilities::MarkDebugEvent when enabled:
+option(VTK_OPENGL_ENABLE_STREAM_ANNOTATIONS
+  "Enable debugging annotations in the OpenGL command stream."
+  OFF
+)
+mark_as_advanced(VTK_OPENGL_ENABLE_STREAM_ANNOTATIONS)
+
 # Configure the module specific settings into a module configured header.
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vtkRenderingOpenGLConfigure.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/vtkRenderingOpenGLConfigure.h)
@@ -300,6 +315,10 @@ elseif(VTK_USE_COCOA)
   vtk_module_link_libraries(${vtk-module} LINK_PUBLIC "-framework Cocoa")
 endif()
 
+if (WIN32 AND MSVC)
+  vtk_module_link_libraries(${vtk-module} LINK_PRIVATE dbghelp)
+endif()
+
 if(ANDROID)
   target_link_libraries(${vtk-module}
     LINK_PUBLIC ${OPENGL_egl_LIBRARY}
@@ -311,7 +330,8 @@ if (APPLE_IOS)
   vtk_module_link_libraries(${vtk-module} LINK_PUBLIC "-framework UIKit")
 endif()
 
-if (NOT ANDROID AND NOT APPLE_IOS)
+if (NOT ANDROID AND NOT APPLE_IOS AND NOT CMAKE_SYSTEM_NAME STREQUAL
+    "Emscripten" AND NOT VTK_OPENGL_USE_GLES)
   VTK_ADD_EXECUTABLE(vtkProbeOpenGLVersion vtkProbeOpenGLVersion.cxx)
   target_link_libraries(vtkProbeOpenGLVersion ${vtk-module})
 endif()

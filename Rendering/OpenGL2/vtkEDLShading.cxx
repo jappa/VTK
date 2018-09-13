@@ -43,8 +43,10 @@ Ph.D. thesis of Christian BOUCHENY.
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLError.h"
+#include "vtkOpenGLRenderUtilities.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
+#include "vtkOpenGLState.h"
 #include "vtkPropCollection.h"
 #include "vtkRenderState.h"
 #include "vtkRenderer.h"
@@ -63,25 +65,13 @@ Ph.D. thesis of Christian BOUCHENY.
 
 //#define VTK_EDL_SHADING_DEBUG
 
-// Define to print debug statements to the OpenGL CS stream (useful for e.g.
-// apitrace debugging):
-// #define ANNOTATE_STREAM
 namespace
 {
 void annotate(const std::string &str)
 {
-#ifdef ANNOTATE_STREAM
-  vtkOpenGLStaticCheckErrorMacro("Error before glDebug.")
-  glDebugMessageInsert(GL_DEBUG_SOURCE_APPLICATION, GL_DEBUG_TYPE_OTHER,
-                       GL_DEBUG_SEVERITY_NOTIFICATION,
-                       0, str.size(), str.c_str());
-  vtkOpenGLClearErrorMacro();
-#else // ANNOTATE_STREAM
-  (void)str;
-#endif // ANNOTATE_STREAM
+  vtkOpenGLRenderUtilities::MarkDebugEvent(str);
 }
 }
-
 
 vtkStandardNewMacro(vtkEDLShading);
 
@@ -606,6 +596,8 @@ bool vtkEDLShading::EDLCompose(const vtkRenderState *,
   // ACTIVATE SHADER
   //
   renWin->GetShaderCache()->ReadyShaderProgram(this->EDLComposeProgram.Program);
+  vtkOpenGLState *ostate = renWin->GetState();
+
   // DEPTH TEXTURE PARAMETERS
   vtkShaderProgram *prog = this->EDLComposeProgram.Program;
 
@@ -631,31 +623,27 @@ bool vtkEDLShading::EDLCompose(const vtkRenderState *,
   this->ProjectionColorTexture->Activate();
   prog->SetUniformi("s2_C", this->ProjectionColorTexture->GetTextureUnit());
 
-  //  initial depth texture
-  this->ProjectionDepthTexture->Activate();
-  prog->SetUniformi("s2_Z", this->ProjectionDepthTexture->GetTextureUnit());
-
   //  DRAW CONTEXT - prepare blitting
   //
   // Prepare blitting
-  glClearColor(1., 1., 1., 1.);
-#if GL_ES_VERSION_3_0 == 1
-  glClearDepthf(static_cast<GLclampf>(1.0));
-#else
-  glClearDepth(static_cast<GLclampf>(1.0));
-#endif
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  ostate->vtkglClearColor(1., 1., 1., 1.);
+  ostate->vtkglClearDepth(1.0);
+  ostate->vtkglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   // IMPORTANT since we enable depth writing hereafter
-  glDisable(GL_BLEND);
-  glEnable(GL_DEPTH_TEST);
+  ostate->vtkglDisable(GL_BLEND);
+  ostate->vtkglEnable(GL_DEPTH_TEST);
   // IMPORTANT : so that depth information is propagated
-  glDisable(GL_SCISSOR_TEST);
+  ostate->vtkglDisable(GL_SCISSOR_TEST);
 
-  this->EDLHighShadeTexture->CopyToFrameBuffer( 0,  0,
-      this->W - 1 - 2 * this->ExtraPixels,
-      this->H - 1 - 2 * this->ExtraPixels, 0, 0,
-      this->Width, this->Height,
-      prog, this->EDLComposeProgram.VAO );
+  int blitSize[2] = { this->W - 1 - 2 * this->ExtraPixels,
+                      this->H - 1 - 2 * this->ExtraPixels };
+
+  this->EDLHighShadeTexture->CopyToFrameBuffer(
+      this->ExtraPixels,  this->ExtraPixels,
+      blitSize[0], blitSize[1],
+      this->Origin[0], this->Origin[1],
+      this->Origin[0] + blitSize[0], this->Origin[1] + blitSize[1],
+      prog, this->EDLComposeProgram.VAO);
 
   //  FREE ALL
   //
@@ -669,7 +657,6 @@ bool vtkEDLShading::EDLCompose(const vtkRenderState *,
   }
   this->EDLHighShadeTexture->Deactivate();
   this->ProjectionColorTexture->Deactivate();
-  this->ProjectionDepthTexture->Deactivate();
 
   return true;
 }
@@ -709,10 +696,12 @@ void vtkEDLShading::Render(const vtkRenderState *s)
     //
     //  FBOs
     //
+    annotate("Start vtkEDLShading Initialization");
     this->EDLInitializeFramebuffers(s2);
     //  Shaders
     //
     this->EDLInitializeShaders(renWin);
+    annotate("End vtkEDLShading Initialization");
 
     if (this->EDLShadeProgram.Program == nullptr ||
         this->EDLComposeProgram.Program == nullptr ||
@@ -748,10 +737,12 @@ void vtkEDLShading::Render(const vtkRenderState *s)
     // 5. EDL SHADING PASS - FULL RESOLUTION
     //
 #if EDL_HIGH_RESOLUTION_ON
+    annotate("Start vtkEDLShading::ShadeHigh");
     if(! this->EDLShadeHigh(s2,renWin) )
     {
       this->ProjectionFBO->RestorePreviousBindingsAndBuffers();
     }
+    annotate("End vtkEDLShading::ShadeHigh");
 #endif // EDL_HIGH_RESOLUTION_ON
 
     //////////////////////////////////////////////////////
@@ -759,13 +750,17 @@ void vtkEDLShading::Render(const vtkRenderState *s)
     // 6. EDL SHADING PASS - LOW RESOLUTION + blur pass
     //
 #if EDL_LOW_RESOLUTION_ON
+    annotate("Start vtkEDLShading::ShadeLow");
     if(! this->EDLShadeLow(s2, renWin) )
     {
       this->ProjectionFBO->RestorePreviousBindingsAndBuffers();
     }
+    annotate("End vtkEDLShading::ShadeLow");
     if (this->EDLIsFiltered)
     {
+      annotate("Start vtkEDLShading::BlurLow");
       this->EDLBlurLow(s2, renWin);
+      annotate("End vtkEDLShading::BlurLow");
     }
 #endif // EDL_LOW_RESOLUTION_ON
 
@@ -779,10 +774,12 @@ void vtkEDLShading::Render(const vtkRenderState *s)
     }
     this->ProjectionFBO->RestorePreviousBindingsAndBuffers();
 
+    annotate("Start vtkEDLShading::Compose");
     if( ! this->EDLCompose(s, renWin))
     {
       return;
     }
+    annotate("End vtkEDLShading::Compose");
   }
   else
   {

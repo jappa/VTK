@@ -40,8 +40,12 @@ namespace
 {
   vtkOStreamWrapper& operator<<(vtkOStreamWrapper& os, const Json::Value& root)
   {
-    Json::StyledStreamWriter writer;
-    writer.write(os,root);
+    Json::StreamWriterBuilder builder;
+    builder["commentStyle"] = "All";
+    builder["indentation"] = "  ";
+    std::unique_ptr<Json::StreamWriter> writer(builder.newStreamWriter());
+
+    writer->write(root, &os.GetOStream());
     return os;
   }
 }
@@ -458,7 +462,7 @@ bool vtkGeoJSONFeature::IsLineString(const Json::Value& root)
 
   if ( root.size() < 1 )
   {
-    vtkErrorMacro (<< "Expected atleast 1 value at " << root);
+    vtkErrorMacro (<< "Expected at least 1 value at " << root);
     return false;
   }
 
@@ -485,7 +489,7 @@ bool vtkGeoJSONFeature::IsMultiLineString(const Json::Value& root)
 
   if ( root.size() < 1 )
   {
-    vtkErrorMacro (<< "Expected atleast 1 value at " << root);
+    vtkErrorMacro (<< "Expected at least 1 value at " << root);
     return false;
   }
 
@@ -540,7 +544,7 @@ bool vtkGeoJSONFeature::IsMultiPoint(const Json::Value& root)
 
   if( root.size() < 1 )
   {
-      vtkErrorMacro (<< "Expected atleast 1 value at " << root << " for multipoint");
+      vtkErrorMacro (<< "Expected at least 1 value at " << root << " for multipoint");
     return false;
   }
 
@@ -567,7 +571,7 @@ bool vtkGeoJSONFeature::IsPolygon(const Json::Value& root)
 
   if ( root.size() < 1 )
   {
-    vtkErrorMacro (<< "Expected atleast 1 value at " << root << "for polygon");
+    vtkErrorMacro (<< "Expected at least 1 value at " << root << "for polygon");
     return false;
   }
 
@@ -596,7 +600,7 @@ bool vtkGeoJSONFeature::IsMultiPolygon(const Json::Value& root)
 
   if ( root.size() < 1 )
   {
-      vtkErrorMacro (<< "Expected atleast 1 value at " << root << " for multi polygon");
+      vtkErrorMacro (<< "Expected at least 1 value at " << root << " for multi polygon");
     return false;
   }
 
@@ -618,6 +622,11 @@ void vtkGeoJSONFeature::PrintSelf(ostream &os, vtkIndent indent)
     Superclass::PrintSelf(os, indent);
     os << indent << "vtkGeoJSONFeature" << std::endl;
     os << indent << "Root: ";
-    Json::StyledStreamWriter writer;
-    writer.write(os,this->featureRoot);
+
+    Json::StreamWriterBuilder builder;
+    builder["commentStyle"] = "All";
+    builder["indentation"] = "  ";
+    std::unique_ptr<Json::StreamWriter> writer(builder.newStreamWriter());
+
+    writer->write(this->featureRoot, &os);
 }

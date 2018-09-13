@@ -28,33 +28,29 @@ class vtkTestPoints : public vtkPoints
 {
 public:
   // Methods from vtkObject
-  ~vtkTestPoints() override
-  {
-  }
+  ~vtkTestPoints() override = default;
 
   vtkTypeMacro(vtkTestPoints,vtkPoints);
   static vtkTestPoints* New() { VTK_STANDARD_NEW_BODY(vtkTestPoints) }
-  vtkTestPoints() {  }
+  vtkTestPoints() = default;
 private:
-  vtkTestPoints(const vtkTestPoints&);
-  void operator=(const vtkTestPoints&);
+  vtkTestPoints(const vtkTestPoints&) = delete;
+  vtkTestPoints& operator=(const vtkTestPoints&) = delete;
 };
 
 
 class vtkTestPoints2 : public vtkPoints
 {
 public:
-  ~vtkTestPoints2() override
-  {
-  }
+  ~vtkTestPoints2() override = default;
 
   // Methods from vtkObject
   vtkTypeMacro(vtkTestPoints2,vtkPoints);
   static vtkTestPoints2* New() { VTK_STANDARD_NEW_BODY(vtkTestPoints2) }
-  vtkTestPoints2() { }
+  vtkTestPoints2() = default;
 private:
-  vtkTestPoints2(const vtkTestPoints2&);
-  void operator=(const vtkTestPoints2&);
+  vtkTestPoints2(const vtkTestPoints2&) = delete;
+  vtkTestPoints2& operator=(const vtkTestPoints2&) = delete;
 };
 
 
@@ -75,8 +71,8 @@ public:
   const char* GetDescription() override { return "A fine Test Factory"; }
 
 protected:
-  TestFactory(const TestFactory&);
-  void operator=(const TestFactory&);
+  TestFactory(const TestFactory&) = delete;
+  TestFactory& operator=(const TestFactory&) = delete;
 };
 
 TestFactory::TestFactory()

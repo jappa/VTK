@@ -296,12 +296,26 @@ int vtkGradientFilter::RequestData(vtkInformation *vtkNotUsed(request),
     = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkDataSet *output
     = vtkDataSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
-
   vtkDataArray *array = this->GetInputArrayToProcess(0, inputVector);
+
+  if (input->GetNumberOfCells() == 0)
+  {
+    // need cells to compute the gradient so if we don't have cells. we can't compute anything.
+    // if we have points and an array with values provide a warning letting the user know that
+    // no gradient will be computed because of the lack of cells. otherwise the dataset is
+    // assumed empty and we can skip providing a warning message to the user.
+    if (input->GetNumberOfPoints() && array && array->GetNumberOfTuples())
+    {
+      vtkWarningMacro("Cannot compute gradient for datasets without cells");
+    }
+    output->ShallowCopy(input);
+    return 1;
+  }
 
   if (array == nullptr)
   {
-    vtkErrorMacro("No input array.");
+    vtkErrorMacro("No input array. If this dataset is part of a composite dataset"
+                  << " check to make sure that all non-empty blocks have this array.");
     return 0;
   }
   if (array->GetNumberOfComponents() == 0)
@@ -398,7 +412,7 @@ int vtkGradientFilter::ComputeUnstructuredGridGradient(
     divergence->SetNumberOfTuples(array->GetNumberOfTuples());
     switch (arrayType)
     {
-      vtkFloatingPointTemplateMacro(Fill(gradients, static_cast<VTK_TT>(0), this->ReplacementValueOption));
+      vtkFloatingPointTemplateMacro(Fill(divergence, static_cast<VTK_TT>(0), this->ReplacementValueOption));
     }
     if (this->DivergenceArrayName)
     {
@@ -417,7 +431,7 @@ int vtkGradientFilter::ComputeUnstructuredGridGradient(
     vorticity->SetNumberOfTuples(array->GetNumberOfTuples());
     switch (arrayType)
     {
-      vtkFloatingPointTemplateMacro(Fill(gradients, static_cast<VTK_TT>(0), this->ReplacementValueOption));
+      vtkFloatingPointTemplateMacro(Fill(vorticity, static_cast<VTK_TT>(0), this->ReplacementValueOption));
     }
     if (this->VorticityArrayName)
     {
@@ -435,7 +449,7 @@ int vtkGradientFilter::ComputeUnstructuredGridGradient(
     qCriterion->SetNumberOfTuples(array->GetNumberOfTuples());
     switch (arrayType)
     {
-      vtkFloatingPointTemplateMacro(Fill(gradients, static_cast<VTK_TT>(0), this->ReplacementValueOption));
+      vtkFloatingPointTemplateMacro(Fill(qCriterion, static_cast<VTK_TT>(0), this->ReplacementValueOption));
     }
     if (this->QCriterionArrayName)
     {
@@ -603,7 +617,7 @@ int vtkGradientFilter::ComputeUnstructuredGridGradient(
       }
     }
   }
-  else  // fieldAssocation == vtkDataObject::FIELD_ASSOCIATION_CELLS
+  else  // fieldAssociation == vtkDataObject::FIELD_ASSOCIATION_CELLS
   {
     // We need to convert cell Array to points Array.
     vtkSmartPointer<vtkDataSet> dummy;

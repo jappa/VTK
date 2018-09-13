@@ -17,7 +17,6 @@
 #include "vtkAlgorithmOutput.h"
 #include "vtkCallbackCommand.h"
 #include "vtkDataSet.h"
-#include "vtkHyperOctree.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
@@ -26,7 +25,6 @@
 #include "vtkSmartPointer.h"
 #include "vtkStructuredGrid.h"
 #include "vtkUnstructuredGrid.h"
-#include "vtkXMLHyperOctreeWriter.h"
 #include "vtkXMLImageDataWriter.h"
 #include "vtkXMLPolyDataWriter.h"
 #include "vtkXMLRectilinearGridWriter.h"
@@ -36,14 +34,10 @@
 vtkStandardNewMacro(vtkXMLDataSetWriter);
 
 //----------------------------------------------------------------------------
-vtkXMLDataSetWriter::vtkXMLDataSetWriter()
-{
-}
+vtkXMLDataSetWriter::vtkXMLDataSetWriter() = default;
 
 //----------------------------------------------------------------------------
-vtkXMLDataSetWriter::~vtkXMLDataSetWriter()
-{
-}
+vtkXMLDataSetWriter::~vtkXMLDataSetWriter() = default;
 
 //----------------------------------------------------------------------------
 int vtkXMLDataSetWriter::FillInputPortInformation(

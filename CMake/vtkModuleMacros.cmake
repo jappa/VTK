@@ -658,6 +658,12 @@ function(vtk_module_library name)
     unset(${vtk-module}_LIB_DEPENDS CACHE)
   endif()
   vtk_add_library(${vtk-module}${force_object} ${ARGN} ${_hdrs})
+  if (_vtk_build_as_kit AND NOT BUILD_SHARED_LIBS)
+    string(TOUPPER "${vtk-module}" _upper_module_name)
+    target_compile_definitions("${vtk-module}${target_suffix}"
+      PUBLIC
+        "${_upper_module_name}_STATIC_DEFINE")
+  endif ()
 
   if(_vtk_build_as_kit)
     # Make an interface library to link with for libraries.
@@ -897,18 +903,6 @@ macro(vtk_module_third_party _pkg)
       set(vtk${_lower}_LIBRARIES "${${_pkg_name}_LIBRARIES}")
     else()
       set(vtk${_lower}_LIBRARIES "${${_upper_pkg_name}_LIBRARIES}")
-    endif()
-
-    #a workaround for bad FindHDF5 behavior in which deb or opt can
-    #end up empty. cmake >= 2.8.12.2 makes this unnecessary
-    string(REGEX MATCH "debug;.*optimized;.*"
-           _remove_deb_opt "${vtk${_lower}_LIBRARIES}")
-    if (_remove_deb_opt)
-      set(_tmp ${vtk${_lower}_LIBRARIES})
-      list(REMOVE_ITEM _tmp "debug")
-      list(REMOVE_ITEM _tmp "optimized")
-      list(REMOVE_DUPLICATES _tmp)
-      set(vtk${_lower}_LIBRARIES ${_tmp})
     endif()
 
     set(vtk${_lower}_INCLUDE_DIRS "")

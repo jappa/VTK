@@ -37,7 +37,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkOpenVRCamera.h"
 #include "vtkOpenVRControlsHelper.h"
 #include "vtkOpenVRHardwarePicker.h"
-#include "vtkOpenVRPropPicker.h"
 #include "vtkOpenVRRenderWindow.h"
 #include "vtkOpenVRRenderWindowInteractor.h"
 #include "vtkOpenVRModel.h"
@@ -46,6 +45,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
+#include "vtkPropPicker.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkSelection.h"
@@ -65,10 +65,6 @@ vtkStandardNewMacro(vtkOpenVRInteractorStyle);
 //----------------------------------------------------------------------------
 vtkOpenVRInteractorStyle::vtkOpenVRInteractorStyle()
 {
-  // override the base class picker
-  this->InteractionPicker->Delete();
-  this->InteractionPicker = vtkOpenVRPropPicker::New();
-
   for (int d = 0; d < vtkEventDataNumberOfDevices; ++d)
   {
     this->InteractionState[d] = VTKIS_NONE;
@@ -336,7 +332,7 @@ void vtkOpenVRInteractorStyle::StartPositionProp(vtkEventDataDevice3D *edata)
   this->InteractionState[static_cast<int>(edata->GetDevice())] = VTKIS_POSITION_PROP;
   this->InteractionProps[static_cast<int>(edata->GetDevice())] = this->InteractionProp;
 
-  //Don't start action if a controller is already positionning the prop
+  //Don't start action if a controller is already positioning the prop
   int rc = static_cast<int>(vtkEventDataDevice::RightController);
   int lc = static_cast<int>(vtkEventDataDevice::LeftController);
   if (this->InteractionProps[rc] == this->InteractionProps[lc])
@@ -547,6 +543,11 @@ void vtkOpenVRInteractorStyle::ProbeData(vtkEventDataDevice controller)
 
 void vtkOpenVRInteractorStyle::EndPickCallback(vtkSelection *sel)
 {
+  if (!sel)
+  {
+    return;
+  }
+
   vtkSelectionNode *node = sel->GetNode(0);
   if (!node || !node->GetProperties()->Has(vtkSelectionNode::PROP()))
   {
@@ -912,9 +913,7 @@ void vtkOpenVRInteractorStyle::UpdateRay(vtkEventDataDevice controller)
 
   //Compute ray length.
   double p1[3];
-  vtkOpenVRPropPicker* picker =
-    static_cast< vtkOpenVRPropPicker* >(this->InteractionPicker);
-  picker->PickProp3DRay(p0, wxyz, ren, ren->GetViewProps());
+  this->InteractionPicker->PickProp3DRay(p0, wxyz, ren, ren->GetViewProps());
 
   //If something is picked, set the length accordingly
   if (this->InteractionPicker->GetProp3D())

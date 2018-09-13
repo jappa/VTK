@@ -41,9 +41,7 @@ vtkImageBSplineCoefficients::vtkImageBSplineCoefficients()
 }
 
 //----------------------------------------------------------------------------
-vtkImageBSplineCoefficients::~vtkImageBSplineCoefficients()
-{
-}
+vtkImageBSplineCoefficients::~vtkImageBSplineCoefficients() = default;
 
 //----------------------------------------------------------------------------
 void vtkImageBSplineCoefficients::AllocateOutputData(
@@ -96,7 +94,7 @@ int vtkImageBSplineCoefficients::RequestData(
   if (outData->GetScalarType() != VTK_FLOAT &&
       outData->GetScalarType() != VTK_DOUBLE)
   {
-    vtkErrorMacro(<< "Execute: output data must be be type float or double.");
+    vtkErrorMacro(<< "Execute: output data must be type float or double.");
     return 0;
   }
 
@@ -128,7 +126,7 @@ int vtkImageBSplineCoefficients::RequestData(
 
   // We are about to call superclass' RequestData which allocates output
   // based on the update extent. However, we want the output to be the
-  // whole extent. So we temprarily override the update extent to be
+  // whole extent. So we temporarily override the update extent to be
   // the whole extent.
   int extentcache[6];
   memcpy(extentcache, outInfo->Get(

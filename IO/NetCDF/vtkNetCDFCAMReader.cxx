@@ -186,10 +186,10 @@ void vtkNetCDFCAMReader::SetFileName(const char* fileName)
     }
     while ( --n );
   }
-   else
-   {
+  else
+  {
     this->FileName = nullptr;
-   }
+  }
   this->Modified();
 }
 
@@ -222,10 +222,10 @@ void vtkNetCDFCAMReader::SetConnectivityFileName(const char* fileName)
     }
     while ( --n );
   }
-   else
-   {
+  else
+  {
     this->ConnectivityFileName = nullptr;
-   }
+  }
   this->Modified();
 }
 
@@ -557,7 +557,7 @@ int vtkNetCDFCAMReader::RequestData(
   // boundaryPoint is duplicate of.
   std::vector<vtkIdType> boundaryPoints;
 
-  // To avoid creating multiple duplicates, we we a
+  // To avoid creating multiple duplicates, we create a
   // vtkIncrementalOctreePointLocator.
   vtkSmartPointer<vtkIncrementalOctreePointLocator> locator =
     vtkSmartPointer<vtkIncrementalOctreePointLocator>::New();

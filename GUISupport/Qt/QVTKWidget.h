@@ -29,7 +29,7 @@
  * @brief - display a vtkRenderWindow in a Qt's QWidget.
  *
  * QVTKWidget provides a way to display VTK data in a Qt widget.
- * @deprecated Please use QVTKOpenGLWidget instead.
+ * @deprecated Please use QVTKOpenGLNativeWidget instead.
  */
 
 #ifndef Q_VTK_WIDGET_H
@@ -282,10 +282,8 @@ protected:
 
 
 private:
-  //! unimplemented operator=
-  QVTKWidget const& operator=(QVTKWidget const&);
-  //! unimplemented copy
-  QVTKWidget(const QVTKWidget&);
+  QVTKWidget & operator=(QVTKWidget const&) = delete;
+  QVTKWidget(const QVTKWidget&) = delete;
 
   unsigned long renderEventCallbackObserverId;
 

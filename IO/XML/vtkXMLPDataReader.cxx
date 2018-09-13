@@ -224,6 +224,10 @@ int vtkXMLPDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
     {
       this->PCellDataElement = eNested;
     }
+    else if (strcmp(eNested->GetName(), "FieldData") == 0)
+    {
+      this->FieldDataElement = eNested;
+    }
   }
   this->SetupPieces(numPieces);
   int piece = 0;
@@ -330,21 +334,19 @@ int vtkXMLPDataReader::ReadPieceData()
   // copy any field data
   if (input->GetFieldData())
   {
-    int i;
-    for (i = 0; i < input->GetFieldData()->GetNumberOfArrays(); i++)
+    for (int i = 0; i < input->GetFieldData()->GetNumberOfArrays(); i++)
     {
-      output->GetFieldData()->AddArray(input->GetFieldData()->GetArray(i));
+      output->GetFieldData()->AddArray(input->GetFieldData()->GetAbstractArray(i));
     }
   }
 
   // Copy point data and cell data for this piece.
-  int i;
-  for (i = 0; i < output->GetPointData()->GetNumberOfArrays(); ++i)
+  for (int i = 0; i < output->GetPointData()->GetNumberOfArrays(); ++i)
   {
     this->CopyArrayForPoints(
       input->GetPointData()->GetArray(i), output->GetPointData()->GetArray(i));
   }
-  for (i = 0; i < output->GetCellData()->GetNumberOfArrays(); ++i)
+  for (int i = 0; i < output->GetCellData()->GetNumberOfArrays(); ++i)
   {
     this->CopyArrayForCells(input->GetCellData()->GetArray(i), output->GetCellData()->GetArray(i));
   }

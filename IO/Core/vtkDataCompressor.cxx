@@ -17,14 +17,10 @@
 
 
 //----------------------------------------------------------------------------
-vtkDataCompressor::vtkDataCompressor()
-{
-}
+vtkDataCompressor::vtkDataCompressor() = default;
 
 //----------------------------------------------------------------------------
-vtkDataCompressor::~vtkDataCompressor()
-{
-}
+vtkDataCompressor::~vtkDataCompressor() = default;
 
 //----------------------------------------------------------------------------
 void vtkDataCompressor::PrintSelf(ostream& os, vtkIndent indent)
@@ -41,18 +37,6 @@ vtkDataCompressor::Compress(unsigned char const* uncompressedData,
 {
   return this->CompressBuffer(uncompressedData, uncompressedSize,
                               compressedData, compressionSpace);
-}
-//----------------------------------------------------------------------------
-void
-vtkDataCompressor::SetCompressionLevel(int compressionLevel)
-{
-  return this->SetCompressionLevel(compressionLevel);
-}
-//----------------------------------------------------------------------------
-int
-vtkDataCompressor::GetCompressionLevel()
-{
-  return this->GetCompressionLevel();
 }
 
 //----------------------------------------------------------------------------

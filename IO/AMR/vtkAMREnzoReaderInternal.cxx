@@ -391,13 +391,13 @@ void vtkEnzoReaderInternal::ReleaseDataArray()
 
 //------------------------------------------------------------------------------
 int vtkEnzoReaderInternal::GetBlockAttribute(
-    const char *atribute, int blockIdx, vtkDataSet *pDataSet )
+    const char *attribute, int blockIdx, vtkDataSet *pDataSet )
 {
 
   // this function must be called by GetBlock( ... )
   this->ReadMetaData();
 
-  if ( atribute == nullptr || blockIdx < 0  ||
+  if ( attribute == nullptr || blockIdx < 0  ||
        pDataSet == nullptr || blockIdx >= this->NumberOfBlocks )
   {
     return 0;
@@ -411,28 +411,28 @@ int vtkEnzoReaderInternal::GetBlockAttribute(
   // blocks with particles (e.g., the reference one with the fewest cells)
   // contain it as a block attribute, whereas others without particles just
   // do not contain this block attribute.
-  int   succeded = 0;
-  if (  this->LoadAttribute( atribute, blockIdx ) &&
+  int   succeeded = 0;
+  if (  this->LoadAttribute( attribute, blockIdx ) &&
         ( pDataSet->GetNumberOfCells() ==
           this->DataArray->GetNumberOfTuples() )
      )
   {
-    succeded = 1;
+    succeeded = 1;
     pDataSet->GetCellData()->AddArray( this->DataArray );
     this->ReleaseDataArray();
   }
 
-  return succeded;
+  return succeeded;
 }
 
 //------------------------------------------------------------------------------
-int vtkEnzoReaderInternal::LoadAttribute( const char *atribute, int blockIdx )
+int vtkEnzoReaderInternal::LoadAttribute( const char *attribute, int blockIdx )
 {
   // TODO: implement this
   // called by GetBlockAttribute( ... ) or GetParticlesAttribute()
   this->ReadMetaData();
 
-  if ( atribute == nullptr || blockIdx < 0  ||
+  if ( attribute == nullptr || blockIdx < 0  ||
        blockIdx >= this->NumberOfBlocks )
   {
     return 0;
@@ -481,7 +481,7 @@ int vtkEnzoReaderInternal::LoadAttribute( const char *atribute, int blockIdx )
   H5Eget_auto( &erorFunc, &pContext );
   H5Eset_auto( nullptr, nullptr );
 
-  hid_t        attrIndx = H5Dopen( rootIndx, atribute );
+  hid_t        attrIndx = H5Dopen( rootIndx, attribute );
 
   H5Eset_auto( erorFunc, pContext );
   pContext = nullptr;
@@ -490,7 +490,7 @@ int vtkEnzoReaderInternal::LoadAttribute( const char *atribute, int blockIdx )
   if ( attrIndx < 0 )
   {
     vtkGenericWarningMacro(
-     "Attribute (" << atribute << ") data does not exist in file "
+     "Attribute (" << attribute << ") data does not exist in file "
      << blckFile.c_str() );
     H5Gclose( rootIndx );
     H5Fclose( fileIndx );
@@ -542,8 +542,7 @@ int vtkEnzoReaderInternal::LoadAttribute( const char *atribute, int blockIdx )
     H5Dread( attrIndx, dataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, arrayPtr );
     arrayPtr = nullptr;
   }
-  else
-  if (  H5Tequal( dataType, H5T_NATIVE_DOUBLE )  )
+  else if (  H5Tequal( dataType, H5T_NATIVE_DOUBLE )  )
   {
     this->DataArray = vtkDoubleArray::New();
     this->DataArray->SetNumberOfTuples( numTupls );
@@ -552,8 +551,7 @@ int vtkEnzoReaderInternal::LoadAttribute( const char *atribute, int blockIdx )
     H5Dread( attrIndx, dataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, arrayPtr );
     arrayPtr = nullptr;
   }
-  else
-  if (  H5Tequal( dataType, H5T_NATIVE_INT )  )
+  else if (  H5Tequal( dataType, H5T_NATIVE_INT )  )
   {
     this->DataArray = vtkIntArray::New();
     this->DataArray->SetNumberOfTuples( numTupls );
@@ -562,8 +560,7 @@ int vtkEnzoReaderInternal::LoadAttribute( const char *atribute, int blockIdx )
     H5Dread( attrIndx, dataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, arrayPtr );
     arrayPtr = nullptr;
   }
-  else
-  if (  H5Tequal( dataType, H5T_NATIVE_UINT )  )
+  else if (  H5Tequal( dataType, H5T_NATIVE_UINT )  )
   {
     this->DataArray = vtkUnsignedIntArray::New();
     this->DataArray->SetNumberOfTuples( numTupls );
@@ -572,8 +569,7 @@ int vtkEnzoReaderInternal::LoadAttribute( const char *atribute, int blockIdx )
     H5Dread( attrIndx, dataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, arrayPtr );
     arrayPtr = nullptr;
   }
-  else
-  if (  H5Tequal( dataType, H5T_NATIVE_SHORT )  )
+  else if (  H5Tequal( dataType, H5T_NATIVE_SHORT )  )
   {
     this->DataArray = vtkShortArray::New();
     this->DataArray->SetNumberOfTuples( numTupls );
@@ -582,8 +578,7 @@ int vtkEnzoReaderInternal::LoadAttribute( const char *atribute, int blockIdx )
     H5Dread( attrIndx, dataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, arrayPtr );
     arrayPtr = nullptr;
   }
-  else
-  if (  H5Tequal( dataType, H5T_NATIVE_USHORT )  )
+  else if (  H5Tequal( dataType, H5T_NATIVE_USHORT )  )
   {
     this->DataArray = vtkUnsignedShortArray::New();
     this->DataArray->SetNumberOfTuples( numTupls );
@@ -592,8 +587,7 @@ int vtkEnzoReaderInternal::LoadAttribute( const char *atribute, int blockIdx )
     H5Dread( attrIndx, dataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, arrayPtr );
     arrayPtr = nullptr;
   }
-  else
-  if (  H5Tequal( dataType, H5T_NATIVE_UCHAR )  )
+  else if (  H5Tequal( dataType, H5T_NATIVE_UCHAR )  )
   {
 
     this->DataArray = vtkUnsignedCharArray::New();
@@ -603,8 +597,7 @@ int vtkEnzoReaderInternal::LoadAttribute( const char *atribute, int blockIdx )
     H5Dread( attrIndx, dataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, arrayPtr );
     arrayPtr = nullptr;
   }
-  else
-  if (  H5Tequal( dataType, H5T_NATIVE_LONG )  )
+  else if (  H5Tequal( dataType, H5T_NATIVE_LONG )  )
   {
     this->DataArray = vtkLongArray::New();
     this->DataArray->SetNumberOfTuples( numTupls );
@@ -613,8 +606,7 @@ int vtkEnzoReaderInternal::LoadAttribute( const char *atribute, int blockIdx )
     H5Dread( attrIndx, dataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, arrayPtr );
     arrayPtr = nullptr;
   }
-  else
-  if (  H5Tequal( dataType, H5T_NATIVE_LLONG )  )
+  else if (  H5Tequal( dataType, H5T_NATIVE_LLONG )  )
   {
     this->DataArray = vtkLongLongArray::New();
     this->DataArray->SetNumberOfTuples( numTupls );
@@ -639,7 +631,7 @@ int vtkEnzoReaderInternal::LoadAttribute( const char *atribute, int blockIdx )
 
 
   // do not forget to provide a name for the array
-  this->DataArray->SetName( atribute );
+  this->DataArray->SetName( attribute );
 
 // These close statements cause a crash!
 //  H5Tclose( dataType );
@@ -841,8 +833,7 @@ void vtkEnzoReaderInternal::ReadBlockStructures()
       this->Blocks[parent].ChildrenIds.push_back( tmpBlk.Index );
       this->NumberOfBlocks = static_cast < int > ( this->Blocks.size() ) - 1;
     }
-    else
-    if ( theStr == "Pointer:" )
+    else if ( theStr == "Pointer:" )
     {
       theStr = "";
       int    tmpInt;
@@ -872,8 +863,7 @@ void vtkEnzoReaderInternal::ReadBlockStructures()
         stream >> tmpInt;
       }
     }
-    else
-    if ( theStr == "Time" )
+    else if ( theStr == "Time" )
     {
       stream >> theStr; // '='
       stream >> this->DataTime;
@@ -914,14 +904,12 @@ void vtkEnzoReaderInternal::ReadGeneralParameters()
       stream >> tmpStr; // '='
       stream >> this->CycleIndex;
     }
-    else
-    if ( tmpStr == "InitialTime" )
+    else if ( tmpStr == "InitialTime" )
     {
       stream >> tmpStr; // '='
       stream >> this->DataTime;
     }
-    else
-    if ( tmpStr == "TopGridRank" )
+    else if ( tmpStr == "TopGridRank" )
     {
       stream >> tmpStr; // '='
       stream >> this->NumberOfDimensions;
@@ -1061,10 +1049,9 @@ void vtkEnzoReaderInternal::GetAttributeNames()
           this->ParticleAttributeNames.push_back( tempName );
         }
       }
-      else
-      if (   (  strlen( tempName )  >  16  ) &&
-             (  strncmp( tempName, "tracer_particles", 16 )  ==  0  )
-         )
+      else if (   (  strlen( tempName )  >  16  ) &&
+                  (  strncmp( tempName, "tracer_particles", 16 )  ==  0  )
+              )
       {
         // it's a tracer_particle variable and skip over coordinate arrays
         if (  strncmp( tempName, "tracer_particle_position_", 25 ) != 0  )

@@ -25,7 +25,7 @@
  *  implementation see vtkPStructuredAMRGridConnectivity.
  *
  * @sa
- *  vtkGhostArray vtkPStructuredAMRGridConnectivity vtkAbstractGridConnectivity
+ *  vtkPStructuredAMRGridConnectivity vtkAbstractGridConnectivity
 */
 
 #ifndef vtkStructuredAMRGridConnectivity_h
@@ -111,7 +111,7 @@ public:
 
   //@{
   /**
-   * Get/Set macor NodeCentered property which indicates if the data is
+   * Get/Set macro NodeCentered property which indicates if the data is
    * node-centered or cell-centered. By default, node-centered is set to false
    * since AMR datasets are primarily cell-centered.
    */
@@ -175,7 +175,7 @@ protected:
       const int gridIdx, int fromLevel, int toLevel, int ext[6]);
 
   /**
-   * Gets the refined extent fro the grid with the given grid index.
+   * Gets the refined extent for the grid with the given grid index.
    */
   void GetRefinedExtent(
       const int gridIdx, int fromLevel, int toLevel, int ext[6]);

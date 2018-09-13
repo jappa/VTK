@@ -18,6 +18,7 @@
 #include "vtkCompositeDataPipeline.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkDataObjectTreeIterator.h"
+#include "vtkDoubleArray.h"
 #include "vtkErrorCode.h"
 #include "vtkExecutive.h"
 #include "vtkFieldData.h"
@@ -327,19 +328,32 @@ int vtkXMLCompositeDataWriter::WriteData()
     this->Internal->Root->PrintXML(os, indent);
   }
 
+  // We want to avoid using appended data mode as it
+  // is not supported in meta formats.
   int dataMode = this->DataMode;
-  if (dataMode == vtkXMLWriter::Ascii)
-  {
-    this->DataMode = vtkXMLWriter::Ascii;
-  }
-  else
+  if (dataMode == vtkXMLWriter::Appended)
   {
     this->DataMode = vtkXMLWriter::Binary;
   }
-  vtkFieldData *fieldData = this->GetInput()->GetFieldData();
-  if (fieldData && fieldData->GetNumberOfArrays())
+
+  vtkDataObject* input = this->GetInput();
+  vtkFieldData *fieldData = input->GetFieldData();
+
+  vtkInformation* meta = input->GetInformation();
+  bool hasTime = meta->Has(vtkDataObject::DATA_TIME_STEP()) ? true : false;
+  if ((fieldData && fieldData->GetNumberOfArrays()) || hasTime)
   {
-    this->WriteFieldDataInline(fieldData, indent);
+    vtkNew<vtkFieldData> fieldDataCopy;
+    fieldDataCopy->ShallowCopy(fieldData);
+    if (hasTime)
+    {
+      vtkNew<vtkDoubleArray> time;
+      time->SetNumberOfTuples(1);
+      time->SetTypedComponent(0, 0, meta->Get(vtkDataObject::DATA_TIME_STEP()));
+      time->SetName("TimeValue");
+      fieldDataCopy->AddArray(time);
+    }
+    this->WriteFieldDataInline(fieldDataCopy, indent);
   }
   this->DataMode = dataMode;
 

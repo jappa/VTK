@@ -16,12 +16,12 @@
 
 //-----------------------------------------------------------------------------
 void vtkFlashReaderInternal::GetBlockAttribute(
-    const char *atribute, int blockIdx, vtkDataSet *pDataSet )
+    const char *attribute, int blockIdx, vtkDataSet *pDataSet )
 {
  // this function must be called by GetBlock( ... )
  this->ReadMetaData();
 
- if ( atribute == nullptr || blockIdx < 0  ||
+ if ( attribute == nullptr || blockIdx < 0  ||
       pDataSet == nullptr || blockIdx >= this->NumberOfBlocks )
  {
 //   vtkDebugMacro( "Data attribute name or vtkDataSet nullptr, or " <<
@@ -30,7 +30,7 @@ void vtkFlashReaderInternal::GetBlockAttribute(
  }
  // remove the prefix ("mesh_blockandlevel/" or "mesh_blockandproc/") to get
  // the actual attribute name
- std::string  tempName = atribute;
+ std::string  tempName = attribute;
  size_t          slashPos = tempName.find( '/' );
  std::string  attrName = tempName.substr ( slashPos + 1 );
  hid_t           dataIndx = H5Dopen
@@ -97,7 +97,7 @@ void vtkFlashReaderInternal::GetBlockAttribute(
                        stridVec, countVec,       nullptr );
 
  vtkDoubleArray   * dataAray = vtkDoubleArray::New();
- dataAray->SetName( atribute );
+ dataAray->SetName( attribute );
  dataAray->SetNumberOfTuples( numTupls );
  double           * arrayPtr = static_cast < double * >
                                (  dataAray->GetPointer( 0 )  );
@@ -508,23 +508,19 @@ void vtkFlashReaderInternal::ReadIntegerScalars( hid_t fileIndx )
     {
       this->SimulationParameters.NumberOfXDivisions = is[i].Value;
     }
-    else
-    if (  strncmp( is[i].Name, "nyb", 3 ) == 0  )
+    else if (  strncmp( is[i].Name, "nyb", 3 ) == 0  )
     {
       this->SimulationParameters.NumberOfYDivisions = is[i].Value;
     }
-    else
-    if (  strncmp( is[i].Name, "nzb", 3 ) == 0  )
+    else if (  strncmp( is[i].Name, "nzb", 3 ) == 0  )
     {
       this->SimulationParameters.NumberOfZDivisions = is[i].Value;
     }
-    else
-    if (  strncmp( is[i].Name, "globalnumblocks", 15 ) == 0  )
+    else if (  strncmp( is[i].Name, "globalnumblocks", 15 ) == 0  )
     {
       this->SimulationParameters.NumberOfBlocks = is[i].Value;
     }
-    else
-    if (  strncmp( is[i].Name, "nstep", 5 ) == 0  )
+    else if (  strncmp( is[i].Name, "nstep", 5 ) == 0  )
     {
       this->SimulationParameters.NumberOfTimeSteps = is[i].Value;
     }
@@ -940,8 +936,7 @@ void vtkFlashReaderInternal::ReadBlockBounds()
     delete[] bbox_array;
     bbox_array = nullptr;
   }
-  else
-  if ( this->FileFormatVersion == FLASH_READER_FLASH3_FFV9 )
+  else if ( this->FileFormatVersion == FLASH_READER_FLASH3_FFV9 )
   {
     if (  static_cast<int> ( bbox_ndims   ) != 3 ||
           static_cast<int> ( bbox_dims[0] ) != this->NumberOfBlocks  ||
@@ -1058,15 +1053,13 @@ void vtkFlashReaderInternal::ReadBlockCenters()
         this->Blocks[b].Center[1] = 0.0;
         this->Blocks[b].Center[2] = 0.0;
       }
-      else
-      if ( this->NumberOfDimensions == 2 )
+      else if ( this->NumberOfDimensions == 2 )
       {
         this->Blocks[b].Center[0] = coords[0];
         this->Blocks[b].Center[1] = coords[1];
         this->Blocks[b].Center[2] = 0.0;
       }
-      else
-      if ( this->NumberOfDimensions == 3 )
+      else if ( this->NumberOfDimensions == 3 )
       {
         this->Blocks[b].Center[0] = coords[0];
         this->Blocks[b].Center[1] = coords[1];
@@ -1079,8 +1072,7 @@ void vtkFlashReaderInternal::ReadBlockCenters()
     delete [] coordinates_array;
     coordinates_array = nullptr;
   }
-  else
-  if ( this->FileFormatVersion == FLASH_READER_FLASH3_FFV9 )
+  else if ( this->FileFormatVersion == FLASH_READER_FLASH3_FFV9 )
   {
     if (  static_cast<int> ( coordinates_ndims   ) != 2 ||
           static_cast<int> ( coordinates_dims[0] ) != this->NumberOfBlocks ||
@@ -1412,8 +1404,7 @@ void vtkFlashReaderInternal::ReadParticleAttributes()
         this->ParticleAttributeNames.push_back( member_name );
         this->ParticleAttributeNamesToIds[ nice_name ] = index;
       }
-      else
-      if (  H5Tequal( member_type, H5T_NATIVE_INT ) > 0  )
+      else if (  H5Tequal( member_type, H5T_NATIVE_INT ) > 0  )
       {
         this->ParticleAttributeTypes.push_back( H5T_NATIVE_INT );
         this->ParticleAttributeNames.push_back( member_name );

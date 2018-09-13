@@ -25,15 +25,12 @@
 #include "vtkRenderingOSPRayModule.h" // For export macro
 #include "vtkVolumeMapperNode.h"
 
+#include "ospray/ospray.h" // for ospray handle types
+
 class vtkAbstractArray;
 class vtkDataSet;
 class vtkVolume;
-
-namespace osp
-{
-  struct TransferFunction;
-  struct Volume;
-}
+class vtkOSPRayVolumeCache;
 
 class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayVolumeMapperNode :
   public vtkVolumeMapperNode
@@ -63,19 +60,25 @@ protected:
   /**
    * updates internal OSPRay transfer function for volume
    */
-  void UpdateTransferFunction(vtkVolume* vol);
+  void UpdateTransferFunction(vtkVolume* vol, double *dataRange=nullptr);
 
   //TODO: SetAndGetters?
   int NumColors;
   double SamplingRate;
+  double SamplingStep;  //base sampling step of each voxel
+  bool UseSharedBuffers;
+  OSPData SharedData;
 
   vtkTimeStamp BuildTime;
   vtkTimeStamp PropertyTime;
 
-  osp::Volume* OSPRayVolume;
-  osp::TransferFunction* TransferFunction;
+  OSPGeometry OSPRayIsosurface;
+  OSPVolume OSPRayVolume;
+  OSPTransferFunction TransferFunction;
   std::vector<float> TFVals;
   std::vector<float> TFOVals;
+
+  vtkOSPRayVolumeCache *Cache;
 
 private:
   vtkOSPRayVolumeMapperNode(const vtkOSPRayVolumeMapperNode&) = delete;

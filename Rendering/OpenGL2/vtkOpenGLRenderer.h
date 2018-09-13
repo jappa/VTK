@@ -26,12 +26,16 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkRenderer.h"
 #include <vector>  // STL Header
+#include <string> // Ivars
 
 class vtkOpenGLFXAAFilter;
 class vtkRenderPass;
+class vtkOpenGLState;
 class vtkOpenGLTexture;
+class vtkOrderIndependentTranslucentPass;
 class vtkTextureObject;
 class vtkDepthPeelingPass;
+class vtkShaderProgram;
 class vtkShadowMapPass;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLRenderer : public vtkRenderer
@@ -75,8 +79,10 @@ public:
   int GetDepthPeelingHigherLayer();
 
   /**
-   * Indicate if this system is subject to the apple/amd bug
-   * of not having a working glPrimitiveId
+   * Indicate if this system is subject to the Apple/AMD bug
+   * of not having a working glPrimitiveId <rdar://20747550>.
+   * The bug is fixed on macOS 10.11 and later, and this method
+   * will return false when the OS is new enough.
    */
   bool HaveApplePrimitiveIdBug();
 
@@ -92,6 +98,34 @@ public:
    * of vtkDepthPeelingPass.
    */
   bool IsDualDepthPeelingSupported();
+
+  // Get the state object used to keep track of
+  // OpenGL state
+  vtkOpenGLState *GetState();
+
+  // get the standard lighting uniform declarations
+  // for the current set of lights
+  const char *GetLightingUniforms();
+
+  // update the lighting uniforms for this shader if they
+  // are out of date
+  void UpdateLightingUniforms(vtkShaderProgram *prog);
+
+  // get the complexity of the current lights as a int
+  // 0 = no lighting
+  // 1 = headlight
+  // 2 = directional lights
+  // 3 = positional lights
+  enum LightingComplexityEnum {
+    NoLighting = 0,
+    Headlight = 1,
+    Directional = 2,
+    Positional = 3
+  };
+  vtkGetMacro(LightingComplexity, int);
+
+  // get the number of lights turned on
+  vtkGetMacro(LightingCount, int);
 
 protected:
   vtkOpenGLRenderer();
@@ -112,21 +146,6 @@ protected:
    */
   int UpdateGeometry() override;
 
-  // Picking functions to be implemented by sub-classes
-  void DevicePickRender() override;
-  void StartPick(unsigned int pickFromSize) override;
-  void UpdatePickId() override;
-  void DonePick() override;
-  unsigned int GetPickedId() override;
-  unsigned int GetNumPickedIds() override;
-  int GetPickedIds(unsigned int atMost, unsigned int *callerBuffer) override;
-  double GetPickedZ() override;
-
-  // Ivars used in picking
-  class vtkGLPickInfo* PickInfo;
-
-  double PickedZ;
-
   friend class vtkOpenGLProperty;
   friend class vtkOpenGLTexture;
   friend class vtkOpenGLImageSliceMapper;
@@ -143,6 +162,11 @@ protected:
   vtkDepthPeelingPass *DepthPeelingPass;
 
   /**
+   * Fallback for transparency
+   */
+  vtkOrderIndependentTranslucentPass *TranslucentPass;
+
+  /**
    * Shadows are delegated to an instance of vtkShadowMapPass
    */
   vtkShadowMapPass *ShadowMapPass;
@@ -157,6 +181,11 @@ protected:
 
   bool HaveApplePrimitiveIdBugValue;
   bool HaveApplePrimitiveIdBugChecked;
+
+  std::string LightingDeclaration;
+  int LightingComplexity;
+  int LightingCount;
+  vtkMTimeType LightingUpdateTime;
 
 private:
   vtkOpenGLRenderer(const vtkOpenGLRenderer&) = delete;

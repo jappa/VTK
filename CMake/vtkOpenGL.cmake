@@ -1,8 +1,21 @@
 include(CMakeDependentOption)
 
+if(POLICY CMP0072)
+  cmake_policy(PUSH)
+  cmake_policy(SET CMP0072 NEW) # prefer GLVND
+endif()
+
 # Logic to figure out what system libraries will be used by rendering, and
 # whether VTK can use OSMesa for rendering.
 set(default_use_x OFF)
+
+#-----------------------------------------------------------------------------
+# GLES variables
+#-----------------------------------------------------------------------------
+# OpenGLES implementation
+option(VTK_OPENGL_USE_GLES
+  "Use the OpenGL ES API" OFF)
+mark_as_advanced(VTK_OPENGL_USE_GLES)
 
 # For each platform specific API, we define VTK_USE_<API> options.
 if(APPLE AND NOT APPLE_IOS)
@@ -116,6 +129,12 @@ if(VTK_OPENGL_HAS_OSMESA)
   include_directories(SYSTEM ${OSMESA_INCLUDE_DIR})
 endif()
 
+if(VTK_OPENGL_USE_GLES)
+  find_path(OPENGL_INCLUDE_DIR GLES3/gl3.h)
+  find_library(OPENGL_gl_LIBRARY NAMES GLESv3)
+  find_library(OPENGL_egl_LIBRARY NAMES EGL)
+endif()
+
 if(VTK_OPENGL_HAS_EGL)
   find_package(EGL REQUIRED)
 endif()
@@ -143,6 +162,12 @@ if(VTK_CAN_DO_ONSCREEN)
   endif()
 endif()
 
+# windows  opengl delayed loading option
+if(WIN32)
+  option(VTK_USE_OPENGL_DELAYED_LOAD "Use delayed loading for the opengl dll" FALSE)
+  mark_as_advanced(VTK_USE_OPENGL_DELAYED_LOAD)
+endif()
+
 # Function to link a VTK target to the necessary OpenGL libraries.
 function(vtk_opengl_link target)
   if(VTK_OPENGL_HAS_OSMESA)
@@ -154,4 +179,12 @@ function(vtk_opengl_link target)
   if(VTK_CAN_DO_ONSCREEN)
     vtk_module_link_libraries(${target} LINK_PRIVATE ${OPENGL_LIBRARIES})
   endif()
+  if (VTK_USE_OPENGL_DELAYED_LOAD)
+    vtk_module_link_libraries(${target} LINK_PRIVATE delayimp.lib)
+    set_property(TARGET ${target} APPEND_STRING PROPERTY LINK_FLAGS "/DELAYLOAD:opengl32.dll")
+  endif()
 endfunction()
+
+if(POLICY CMP0072)
+  cmake_policy(POP)
+endif()

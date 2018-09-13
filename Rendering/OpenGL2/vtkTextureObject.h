@@ -292,7 +292,7 @@ public:
     unsigned int const depth, int const numComps, int const dataType);
 
   /**
-   * This is used to download raw data from the texture into a pixel bufer. The
+   * This is used to download raw data from the texture into a pixel buffer. The
    * pixel buffer API can then be used to download the pixel buffer data to CPU
    * arrays. The caller takes on the responsibility of deleting the returns
    * vtkPixelBufferObject once it done with it.
@@ -646,20 +646,20 @@ public:
 
   /**
    * Returns if the context supports the required extensions. If flags
-   * for optional extenisons are set then the test fails when support
+   * for optional extensions are set then the test fails when support
    * for them is not found.
    */
   static bool IsSupported(
-        vtkOpenGLRenderWindow* renWin,
-        bool requireTexFloat,
-        bool requireDepthFloat,
-        bool requireTexInt);
+        vtkOpenGLRenderWindow* ,
+        bool /* requireTexFloat */,
+        bool /* requireDepthFloat */,
+        bool /* requireTexInt */) { return true; }
 
   /**
    * Check for feature support, without any optional features.
    */
-  static bool IsSupported(vtkOpenGLRenderWindow* renWin)
-    { return vtkTextureObject::IsSupported(renWin, false, false, false); }
+  static bool IsSupported(vtkOpenGLRenderWindow*)
+    { return true; }
 
   //@{
   /**
@@ -748,11 +748,6 @@ protected:
   ~vtkTextureObject() override;
 
   vtkGenericOpenGLResourceFreeCallback *ResourceCallback;
-
-  /**
-   * Load all necessary extensions.
-   */
-  bool LoadRequiredExtensions(vtkOpenGLRenderWindow *renWin);
 
   /**
    * Creates a texture handle if not already created.

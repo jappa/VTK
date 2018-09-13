@@ -140,11 +140,31 @@ vtkEGLRenderWindow::vtkEGLRenderWindow()
   this->OwnWindow = 1;
   this->ScreenSize[0] = 1920;
   this->ScreenSize[1] = 1080;
+
   // this is initialized in vtkRenderWindow
   // so we don't need to initialize on else
 #ifdef VTK_USE_OFFSCREEN_EGL
   this->DeviceIndex = VTK_DEFAULT_EGL_DEVICE_INDEX;
 #endif
+
+  // Use an environment variable to set the default device index
+  char *EGLDefaultDeviceIndexEnv = std::getenv("VTK_DEFAULT_EGL_DEVICE_INDEX");
+  if (EGLDefaultDeviceIndexEnv)
+  {
+    // If parsing the environment variable fails and throws an exception we
+    // can safely ignore it since a default is already set above.
+    try
+    {
+      this->DeviceIndex = atoi(EGLDefaultDeviceIndexEnv);
+    }
+    catch(const std::out_of_range&)
+    {
+    }
+    catch(const std::invalid_argument&)
+    {
+    }
+  }
+
 
 #ifdef ANDROID
   this->OffScreenRendering = false;
@@ -603,7 +623,7 @@ void vtkEGLRenderWindow::SetPosition(int x, int y)
 }
 
 // Set this RenderWindow to a pre-existing window.
-void vtkEGLRenderWindow::SetWindowInfo(char *)
+void vtkEGLRenderWindow::SetWindowInfo(const char *)
 {
   this->OwnWindow = 0;
   this->Mapped = 1;

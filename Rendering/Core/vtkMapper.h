@@ -51,6 +51,7 @@
 #include "vtkAbstractMapper3D.h"
 #include "vtkSystemIncludes.h" // For VTK_COLOR_MODE_DEFAULT and _MAP_SCALARS
 #include "vtkSmartPointer.h" // needed for vtkSmartPointer.
+#include <vector> // for method args
 
 #define VTK_RESOLVE_OFF 0
 #define VTK_RESOLVE_POLYGON_OFFSET 1
@@ -64,15 +65,17 @@
 #define VTK_MATERIALMODE_DIFFUSE  2
 #define VTK_MATERIALMODE_AMBIENT_AND_DIFFUSE  3
 
-class vtkWindow;
-class vtkRenderer;
 class vtkActor;
 class vtkDataSet;
 class vtkDataObject;
 class vtkFloatArray;
+class vtkHardwareSelector;
 class vtkImageData;
+class vtkProp;
+class vtkRenderer;
 class vtkScalarsToColors;
 class vtkUnsignedCharArray;
+class vtkWindow;
 
 class VTKRENDERINGCORE_EXPORT vtkMapper : public vtkAbstractMapper3D
 {
@@ -295,13 +298,11 @@ public:
    * Set/Get a global flag that controls whether coincident topology (e.g., a
    * line on top of a polygon) is shifted to avoid z-buffer resolution (and
    * hence rendering problems). If not off, there are two methods to choose
-   * from. PolygonOffset uses graphics systems calls to shift polygons, but
-   * does not distinguish vertices and lines from one another. ShiftZBuffer
-   * remaps the z-buffer to distinguish vertices, lines, and polygons, but
-   * does not always produce acceptable results. If you use the ShiftZBuffer
-   * approach, you may also want to set the ResolveCoincidentTopologyZShift
-   * value. (Note: not all mappers/graphics systems implement this
-   * functionality.)
+   * from. PolygonOffset uses graphics systems calls to shift polygons, lines
+   * and points from each other. ShiftZBuffer is a legacy method that used to
+   * remap the z-buffer to distinguish vertices, lines, and polygons, but
+   * does not always produce acceptable results. You should only use the
+   * PolygonOffset method (or none) at this point.
    */
   static void SetResolveCoincidentTopology(int val);
   static int  GetResolveCoincidentTopology();
@@ -481,6 +482,14 @@ public:
    */
   virtual bool GetSupportsSelection()
     { return false; }
+
+  /**
+   * allows a mapper to update a selections color buffers
+   * Called from a prop which in turn is called from the selector
+   */
+  virtual void ProcessSelectorPixelBuffers(vtkHardwareSelector * /* sel */,
+    std::vector<unsigned int> & /* pixeloffsets */,
+    vtkProp * /* prop */) { };
 
   /**
    * Returns if we can use texture maps for scalar coloring. Note this doesn't

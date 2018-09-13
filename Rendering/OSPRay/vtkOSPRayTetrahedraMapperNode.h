@@ -27,21 +27,9 @@
 #include "vtkRenderingOSPRayModule.h" // For export macro
 #include "vtkVolumeMapperNode.h"
 
-class vtkFloatArray;
-class vtkPoints;
-class vtkUnsignedCharArray;
-class vtkVisibilitySort;
-class vtkVolumeProperty;
-class vtkRenderWindow;
-class vtkAbstractArray;
-class vtkDataSet;
+#include "ospray/ospray.h" // for ospray handle types
 
-namespace osp
-{
-  struct TransferFunction;
-  struct Volume;
-  struct vec3f;
-}
+class vtkOSPRayVolumeCache;
 
 class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayTetrahedraMapperNode : public vtkVolumeMapperNode
 
@@ -67,8 +55,8 @@ protected:
   vtkTimeStamp BuildTime;
   vtkTimeStamp PropertyTime;
 
-  osp::Volume* OSPRayVolume;
-  osp::TransferFunction* TransferFunction;
+  OSPVolume OSPRayVolume;
+  OSPTransferFunction TransferFunction;
   std::vector<float> TFVals;
   std::vector<float> TFOVals;
 
@@ -76,6 +64,7 @@ protected:
   std::vector<osp::vec3f> Vertices;
   std::vector<float> Field;
 
+  vtkOSPRayVolumeCache *Cache;
 private:
   vtkOSPRayTetrahedraMapperNode(const vtkOSPRayTetrahedraMapperNode&) = delete;
   void operator=(const vtkOSPRayTetrahedraMapperNode &) = delete;

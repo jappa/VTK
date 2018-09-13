@@ -22,7 +22,6 @@
 #include "vtkCommand.h"
 #include "vtkConeSource.h"
 #include "vtkGPUVolumeRayCastMapper.h"
-#include "vtkOpenGLGPUVolumeRayCastMapper.h"
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkXMLImageDataReader.h"
 #include "vtkVolume16Reader.h"
@@ -184,7 +183,7 @@ int TestGPURayCastMultiVolumeAddRemove(int argc, char* argv[])
   mapper->SetUseJittering(0);
   overlappingVol->SetMapper(mapper);
 
-  // Paramters that are global to all of the inputs are currently
+  // Parameters that are global to all of the inputs are currently
   // set through the vtkVolumeProperty corresponding to the required
   // input port (port 0)
   vol->GetProperty()->SetInterpolationType(VTK_LINEAR_INTERPOLATION);
