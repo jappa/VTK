@@ -17,6 +17,9 @@ vtk_add_test_python(
   QuadricDecimation2.py
   StreamPolyData.py
   TestCalculatorDataTypes.py,NO_VALID
+  TestContour3DLinearGrid.py
+  TestContour3DLinearGrid2.py
+  TestContour3DLinearGridScalarTree.py
   TestDecimatePolylineMaximumError.py
   TestElevationFilter.py
   TestFlyingEdges2D.py

@@ -78,42 +78,6 @@ vtkMathInternal::~vtkMathInternal()
 
 vtkSmartPointer<vtkMathInternal> vtkMath::Internal = vtkSmartPointer<vtkMathInternal>::New();
 
-#ifdef VTK_HAS_STD_NUMERIC_LIMITS
-
-#include <limits>
-
-#else // VTK_HAS_STD_NUMERIC_LIMITS
-
-// Avoid aliasing optimization problems by using a union:
-union vtkIEEE754Bits {
-  vtkTypeUInt64 i64v;
-  double d;
-};
-
-#if defined(__BORLANDC__) && (__BORLANDC__ < 0x660)
-// Borland C++ union initializers are broken.
-// Use an otherwise-discouraged aliasing trick:
-static vtkTypeUInt64 vtkMathNanBits    = 0x7FF8000000000000i64;
-static vtkTypeUInt64 vtkMathInfBits    = 0x7FF0000000000000i64;
-static vtkTypeUInt64 vtkMathNegInfBits = 0xFFF0000000000000i64;
-#else
-static union vtkIEEE754Bits vtkMathNanBits    = { 0x7FF8000000000000LL };
-static union vtkIEEE754Bits vtkMathInfBits    = { 0x7FF0000000000000LL };
-static union vtkIEEE754Bits vtkMathNegInfBits = { 0xFFF0000000000000LL };
-#endif
-
-#endif //VTK_HAS_STD_NUMERIC_LIMITS
-
-#if defined(VTK_NON_FINITE_CAUSES_EXCEPTIONS)
-#if defined(__BORLANDC__) && (__BORLANDC__ < 0x660)
-const vtkTypeInt64 vtkMathDoubleExponent = 0x7FF0000000000000i64;
-const vtkTypeInt64 vtkMathDoubleMantissa = 0x000FFFFFFFFFFFFFi64;
-#else
-const vtkTypeInt64 vtkMathDoubleExponent = 0x7FF0000000000000LL;
-const vtkTypeInt64 vtkMathDoubleMantissa = 0x000FFFFFFFFFFFFFLL;
-#endif
-#endif
-
 //
 // Some useful macros and functions
 //
@@ -2534,14 +2498,14 @@ void vtkMath::RGBToHSV(float r, float g, float b,
 #ifndef VTK_LEGACY_REMOVE
 double* vtkMath::RGBToHSV(const double rgb[3])
 {
-  VTK_LEGACY_BODY(vtkMath::RGBToHSV, "VTK 9.0");
+  VTK_LEGACY_BODY(vtkMath::RGBToHSV, "VTK 8.2");
   return vtkMath::RGBToHSV(rgb[0], rgb[1], rgb[2]);
 }
 
 //----------------------------------------------------------------------------
 double* vtkMath::RGBToHSV(double r, double g, double b)
 {
-  VTK_LEGACY_BODY(vtkMath::RGBToHSV, "VTK 9.0");
+  VTK_LEGACY_BODY(vtkMath::RGBToHSV, "VTK 8.2");
   static double hsv[3];
   vtkMath::RGBToHSV(r, g, b, hsv, hsv + 1, hsv + 2);
   return hsv;
@@ -2624,14 +2588,14 @@ void vtkMath::HSVToRGB(float h, float s, float v,
 #ifndef VTK_LEGACY_REMOVE
 double* vtkMath::HSVToRGB(const double hsv[3])
 {
-  VTK_LEGACY_BODY(vtkMath::HSVToRGB, "VTK 9.0");
+  VTK_LEGACY_BODY(vtkMath::HSVToRGB, "VTK 8.2");
   return vtkMath::HSVToRGB(hsv[0], hsv[1], hsv[2]);
 }
 
 //----------------------------------------------------------------------------
 double* vtkMath::HSVToRGB(double h, double s, double v)
 {
-  VTK_LEGACY_BODY(vtkMath::HSVToRGB, "VTK 9.0");
+  VTK_LEGACY_BODY(vtkMath::HSVToRGB, "VTK 8.2");
   static double rgb[3];
   vtkMath::HSVToRGB(h, s, v, rgb, rgb + 1, rgb + 2);
   return rgb;
@@ -2724,7 +2688,7 @@ void vtkMath::LabToXYZ(double L, double a, double b,
 #ifndef VTK_LEGACY_REMOVE
 double *vtkMath::LabToXYZ(const double lab[3])
 {
-  VTK_LEGACY_BODY(vtkMath::LabToXYZ, "VTK 9.0");
+  VTK_LEGACY_BODY(vtkMath::LabToXYZ, "VTK 8.2");
   static double xyz[3];
   vtkMath::LabToXYZ(lab[0], lab[1], lab[2], xyz+0, xyz+1, xyz+2);
   return xyz;
@@ -2758,7 +2722,7 @@ void vtkMath::XYZToLab(double x, double y, double z,
 #ifndef VTK_LEGACY_REMOVE
 double *vtkMath::XYZToLab(const double xyz[3])
 {
-  VTK_LEGACY_BODY(vtkMath::XYZToLab, "VTK 9.0");
+  VTK_LEGACY_BODY(vtkMath::XYZToLab, "VTK 8.2");
   static double lab[3];
   vtkMath::XYZToLab(xyz[0], xyz[1], xyz[2], lab+0, lab+1, lab+2);
   return lab;
@@ -2814,7 +2778,7 @@ void vtkMath::XYZToRGB(double x, double y, double z,
 #ifndef VTK_LEGACY_REMOVE
 double *vtkMath::XYZToRGB(const double xyz[3])
 {
-  VTK_LEGACY_BODY(vtkMath::XYZToRGB, "VTK 9.0");
+  VTK_LEGACY_BODY(vtkMath::XYZToRGB, "VTK 8.2");
   static double rgb[3];
   vtkMath::XYZToRGB(xyz[0], xyz[1], xyz[2], rgb+0, rgb+1, rgb+2);
   return rgb;
@@ -2850,7 +2814,7 @@ void vtkMath::RGBToXYZ(double r, double g, double b,
 #ifndef VTK_LEGACY_REMOVE
 double *vtkMath::RGBToXYZ(const double rgb[3])
 {
-  VTK_LEGACY_BODY(vtkMath::RGBToXYZ, "VTK 9.0");
+  VTK_LEGACY_BODY(vtkMath::RGBToXYZ, "VTK 8.2");
   static double xyz[3];
   vtkMath::RGBToXYZ(rgb[0], rgb[1], rgb[2], xyz+0, xyz+1, xyz+2);
   return xyz;
@@ -2870,7 +2834,7 @@ void vtkMath::RGBToLab(double red, double green, double blue,
 #ifndef VTK_LEGACY_REMOVE
 double *vtkMath::RGBToLab(const double rgb[3])
 {
-  VTK_LEGACY_BODY(vtkMath::RGBToLab, "VTK 9.0");
+  VTK_LEGACY_BODY(vtkMath::RGBToLab, "VTK 8.2");
 
   double x, y, z;
   vtkMath::RGBToXYZ(rgb[0], rgb[1], rgb[2], &x, &y, &z);
@@ -2895,7 +2859,7 @@ void vtkMath::LabToRGB(double L, double a, double b,
 #ifndef VTK_LEGACY_REMOVE
 double *vtkMath::LabToRGB(const double lab[3])
 {
-  VTK_LEGACY_BODY(vtkMath::LabToRGB, "VTK 9.0");
+  VTK_LEGACY_BODY(vtkMath::LabToRGB, "VTK 8.2");
 
   double x, y, z;
   vtkMath::LabToXYZ(lab[0], lab[1], lab[2], &x, &y, &z);
@@ -3274,55 +3238,27 @@ void vtkMath::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 double vtkMath::Inf()
 {
-#if defined(VTK_HAS_STD_NUMERIC_LIMITS)
   return std::numeric_limits<double>::infinity();
-#elif defined(__BORLANDC__) && (__BORLANDC__ < 0x660)
-  return *reinterpret_cast<double*>(&vtkMathInfBits);
-#else
-  return vtkMathInfBits.d;
-#endif
 }
 
 //----------------------------------------------------------------------------
 double vtkMath::NegInf()
 {
-#if defined(VTK_HAS_STD_NUMERIC_LIMITS)
   return -std::numeric_limits<double>::infinity();
-#elif defined(__BORLANDC__) && (__BORLANDC__ < 0x660)
-  return *reinterpret_cast<double*>(&vtkMathNegInfBits);
-#else
-  return vtkMathNegInfBits.d;
-#endif
 }
 
 //----------------------------------------------------------------------------
 double vtkMath::Nan()
 {
-#if defined(VTK_HAS_STD_NUMERIC_LIMITS)
   return std::numeric_limits<double>::quiet_NaN();
-#elif defined(__BORLANDC__) && (__BORLANDC__ < 0x660)
-  return *reinterpret_cast<double*>(&vtkMathNanBits);
-#else
-  return vtkMathNanBits.d;
-#endif
 }
 
 //-----------------------------------------------------------------------------
 #ifndef VTK_MATH_ISINF_IS_INLINE
 vtkTypeBool vtkMath::IsInf(double x)
 {
-#if defined(VTK_NON_FINITE_CAUSES_EXCEPTIONS)
-  // If we cannot do comparisons to non-finite numbers without causing floating
-  // point exceptions, we better fall back to IEEE-754 bit comparisons.
-  // IEEE-754 infinites have all of their exponent set and none of their
-  // mantissa set.
-  vtkTypeInt64 xbits = *reinterpret_cast<vtkTypeInt64*>(&x);
-  return (   ((xbits & vtkMathDoubleExponent) == vtkMathDoubleExponent)
-          && ((xbits & vtkMathDoubleMantissa) == 0) );
-#else
   return (   !vtkMath::IsNan(x)
           && !((x < vtkMath::Inf()) && (x > vtkMath::NegInf())) );
-#endif
 }
 #endif
 
@@ -3330,17 +3266,7 @@ vtkTypeBool vtkMath::IsInf(double x)
 #ifndef VTK_MATH_ISNAN_IS_INLINE
 vtkTypeBool vtkMath::IsNan(double x)
 {
-#if defined(VTK_NON_FINITE_CAUSES_EXCEPTIONS)
-  // If we cannot do comparisons to non-finite numbers without causing floating
-  // point exceptions, we better fall back to IEEE-754 bit comparisons.
-  // IEEE-754 NaNs have all of their exponent set and at least one bit in
-  // their mantissa set.
-  vtkTypeInt64 xbits = *reinterpret_cast<vtkTypeInt64*>(&x);
-  return (   ((xbits & vtkMathDoubleExponent) == vtkMathDoubleExponent)
-          && ((xbits & vtkMathDoubleMantissa) != 0) );
-#else
   return !((x <= 0.0) || (x >= 0.0));
-#endif
 }
 #endif
 

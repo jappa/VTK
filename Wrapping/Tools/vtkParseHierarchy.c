@@ -298,6 +298,7 @@ static int vtkParseHierarchy_ReadFileIntoInfo(
   unsigned int bits, pointers;
   static const char *delims = ">,=";
   int success = 1;
+  int lineno;
 
   fp = fopen(filename, "r");
 
@@ -309,7 +310,7 @@ static int vtkParseHierarchy_ReadFileIntoInfo(
 
   line = (char *)malloc(maxlen);
 
-  while (fgets(line, (int)maxlen, fp))
+  for (lineno = 1; fgets(line, (int)maxlen, fp); lineno++)
   {
     n = strlen(line);
 
@@ -648,6 +649,7 @@ static int vtkParseHierarchy_ReadFileIntoInfo(
 
   if (!feof(fp))
   {
+    fprintf(stderr, "%s:%d: error: <unspecified>.\n", filename, lineno);
     success = 0;
   }
 
@@ -961,6 +963,21 @@ const char *vtkParseHierarchy_GetProperty(
   }
 
   return NULL;
+}
+
+/* Check whether the header was named after the type */
+int vtkParseHierarchy_IsPrimary(const HierarchyEntry *entry)
+{
+  size_t n = strlen(entry->Name);
+
+  if (entry->HeaderFile &&
+      strncmp(entry->HeaderFile, entry->Name, n) == 0 &&
+      entry->HeaderFile[n] == '.')
+  {
+    return 1;
+  }
+
+  return 0;
 }
 
 /* Expand all unrecognized types in the template args of a type

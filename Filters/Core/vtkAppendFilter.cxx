@@ -39,6 +39,7 @@ vtkAppendFilter::vtkAppendFilter()
   this->InputList = nullptr;
   this->MergePoints = 0;
   this->OutputPointsPrecision = DEFAULT_PRECISION;
+  this->Tolerance = 0.0;
 }
 
 //----------------------------------------------------------------------------
@@ -247,7 +248,7 @@ int vtkAppendFilter::RequestData(
     outputBB.GetBounds(outputBounds);
 
     ptInserter = vtkSmartPointer<vtkIncrementalOctreePointLocator>::New();
-    ptInserter->SetTolerance(0.0);
+    ptInserter->SetTolerance(this->Tolerance);
     ptInserter->InitPointInsertion(newPts, outputBounds);
   }
 
@@ -331,6 +332,14 @@ int vtkAppendFilter::RequestData(
     ptOffset += dataSetNumPts;
   }
 
+  // this filter can copy global ids except for global point ids when merging
+  // points (see paraview/paraview#18666).
+  // Note, not copying global ids is the default behavior.
+  if (reallyMergePoints == false)
+  {
+    output->GetPointData()->CopyAllOn(vtkDataSetAttributes::COPYTUPLE);
+  }
+  output->GetCellData()->CopyAllOn(vtkDataSetAttributes::COPYTUPLE);
 
   // Now copy the array data
   this->AppendArrays(
@@ -416,7 +425,7 @@ void vtkAppendFilter::AppendArrays(int attributesType,
       {
         for (vtkIdType id=0; id < numberOfInputTuples; ++id)
         {
-          fieldList.CopyData(inputIndex, inputData, id, outputData, offset + id);
+          fieldList.CopyData(inputIndex, inputData, id, outputData, globalIds[offset + id]);
         }
       }
       else
@@ -467,4 +476,5 @@ void vtkAppendFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "MergePoints:" << (this->MergePoints?"On":"Off") << "\n";
   os << indent << "OutputPointsPrecision: "
      << this->OutputPointsPrecision << "\n";
+  os << indent << "Tolerance: " << this->Tolerance << "\n";
 }

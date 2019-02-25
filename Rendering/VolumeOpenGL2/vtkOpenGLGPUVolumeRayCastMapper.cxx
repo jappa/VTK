@@ -61,6 +61,7 @@
 #include <vtkOpenGLShaderCache.h>
 #include "vtkOpenGLState.h"
 #include <vtkOpenGLVertexArrayObject.h>
+#include "vtkOpenGLUniforms.h"
 #include <vtkMultiVolume.h>
 #include <vtkPixelBufferObject.h>
 #include <vtkPixelExtent.h>
@@ -815,7 +816,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::CaptureDepthTexture(
       this->WindowSize[0], this->WindowSize[1], 4);
   }
 
-#if GL_ES_VERSION_3_0 != 1
+#ifndef GL_ES_VERSION_3_0
   // currently broken on ES
   this->DepthTextureObject->CopyFromFrameBuffer(this->WindowLowerLeft[0],
     this->WindowLowerLeft[1],
@@ -1687,8 +1688,7 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::InitializeImageSampleFBO(
     auto num = static_cast<unsigned int>(this->NumImageSampleDrawBuffers);
     for (unsigned int i = 0; i < num; i++)
     {
-      this->ImageSampleFBO->AddColorAttachment(
-        GL_FRAMEBUFFER, i, this->ImageSampleTexture[i]);
+      this->ImageSampleFBO->AddColorAttachment(i, this->ImageSampleTexture[i]);
     }
 
     // Verify completeness
@@ -1933,12 +1933,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetupRenderToTexture(
     }
 
     this->FBO->Bind(GL_FRAMEBUFFER);
-    this->FBO->AddDepthAttachment(
-      GL_FRAMEBUFFER, this->RTTDepthBufferTextureObject);
-    this->FBO->AddColorAttachment(
-      GL_FRAMEBUFFER, 0U, this->RTTColorTextureObject);
-    this->FBO->AddColorAttachment(
-      GL_FRAMEBUFFER, 1U, this->RTTDepthTextureObject);
+    this->FBO->AddDepthAttachment(this->RTTDepthBufferTextureObject);
+    this->FBO->AddColorAttachment(0U, this->RTTColorTextureObject);
+    this->FBO->AddColorAttachment(1U, this->RTTDepthTextureObject);
     this->FBO->ActivateDrawBuffers(2);
 
     this->FBO->CheckFrameBufferStatus(GL_FRAMEBUFFER);
@@ -1954,9 +1951,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ExitRenderToTexture(
 {
   if (this->Parent->RenderToImage && this->Parent->CurrentPass == RenderPass)
   {
-    this->FBO->RemoveTexDepthAttachment(GL_FRAMEBUFFER);
-    this->FBO->RemoveTexColorAttachment(GL_FRAMEBUFFER, 0U);
-    this->FBO->RemoveTexColorAttachment(GL_FRAMEBUFFER, 1U);
+    this->FBO->RemoveDepthAttachment();
+    this->FBO->RemoveColorAttachment(0U);
+    this->FBO->RemoveColorAttachment(1U);
     this->FBO->DeactivateDrawBuffers();
     this->FBO->RestorePreviousBindingsAndBuffers();
 
@@ -2024,11 +2021,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetupDepthPass(
       vtkTextureObject::Nearest);
     this->DPColorTextureObject->SetAutoParameters(0);
 
-    this->DPFBO->AddDepthAttachment(
-      GL_FRAMEBUFFER, this->DPDepthBufferTextureObject);
+    this->DPFBO->AddDepthAttachment(this->DPDepthBufferTextureObject);
 
-    this->DPFBO->AddColorAttachment(
-      GL_FRAMEBUFFER, 0U, this->DPColorTextureObject);
+    this->DPFBO->AddColorAttachment(0U, this->DPColorTextureObject);
   }
 
   this->DPFBO->ActivateDrawBuffers(1);
@@ -2426,6 +2421,21 @@ void vtkOpenGLGPUVolumeRayCastMapper::GetShaderTemplate(
   {
     shaders[vtkShader::Geometry]->SetSource("");
   }
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLGPUVolumeRayCastMapper::ReplaceShaderCustomUniforms(
+  std::map<vtkShader::Type, vtkShader*>& shaders )
+{
+    vtkShader* vertexShader = shaders[vtkShader::Vertex];
+    vtkShaderProgram::Substitute(vertexShader,
+      "//VTK::CustomUniforms::Dec",
+      this->VertexCustomUniforms->GetDeclarations());
+
+    vtkShader* fragmentShader = shaders[vtkShader::Fragment];
+    vtkShaderProgram::Substitute(fragmentShader,
+      "//VTK::CustomUniforms::Dec",
+      this->FragmentCustomUniforms->GetDeclarations());
 }
 
 //-----------------------------------------------------------------------------
@@ -2894,6 +2904,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReplaceShaderValues(
   // Render pass pre replacements
   //---------------------------------------------------------------------------
   this->ReplaceShaderRenderPass(shaders, vol, true);
+
+  // Custom uniform variables replacements
+  //---------------------------------------------------------------------------
+  this->ReplaceShaderCustomUniforms(shaders);
 
   // Base methods replacements
   //---------------------------------------------------------------------------
@@ -3375,6 +3389,8 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ShaderRebuildNeeded(vtkCamera
   return (this->NeedToInitializeResources ||
       this->VolumePropertyChanged ||
       this->Parent->GetMTime() > this->ShaderBuildTime.GetMTime() ||
+      this->Parent->GetFragmentCustomUniforms()->GetUniformListMTime() > this->ShaderBuildTime.GetMTime() ||
+      this->Parent->GetVertexCustomUniforms()->GetUniformListMTime() > this->ShaderBuildTime.GetMTime() ||
       cam->GetParallelProjection() != this->LastProjectionParallel ||
       this->SelectionStateTime.GetMTime() > this->ShaderBuildTime.GetMTime() ||
       renderPassTime > this->ShaderBuildTime ||
@@ -3631,7 +3647,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetVolumeShaderParameters(
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetMapperShaderParameters(
   vtkShaderProgram* prog, vtkRenderer *ren, int independent, int numComp)
 {
-#if GL_ES_VERSION_3_0 != 1
+#ifndef GL_ES_VERSION_3_0
   // currently broken on ES
   if (!this->SharedDepthTextureObject)
   {
@@ -3646,6 +3662,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetMapperShaderParameters(
     vtkOpenGLRenderWindow* win =
       static_cast<vtkOpenGLRenderWindow *>(ren->GetRenderWindow());
     prog->SetUniformi("in_noiseSampler", win->GetNoiseTextureUnit());
+  }
+  else
+  {
+    prog->SetUniformi("in_noiseSampler", 0);
   }
 
   prog->SetUniformi("in_useJittering", this->Parent->UseJittering);
@@ -3823,7 +3843,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::FinishRendering(
     input.DeactivateTransferFunction(this->Parent->BlendMode);
   }
 
-#if GL_ES_VERSION_3_0 != 1
+#ifndef GL_ES_VERSION_3_0
   if (this->DepthTextureObject && !this->SharedDepthTextureObject)
   {
     this->DepthTextureObject->Deactivate();
@@ -3857,6 +3877,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::DoGPURender(vtkRenderer* ren,
   {
     return;
   }
+
+  // Upload the value of user-defined uniforms in the program
+  this->VertexCustomUniforms->SetUniforms( prog );
+  this->FragmentCustomUniforms->SetUniforms( prog );
 
   this->SetShaderParametersRenderPass();
   if (!this->Impl->MultiVolume)

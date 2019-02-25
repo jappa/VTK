@@ -128,6 +128,7 @@ namespace vtkosp {
          mapper->GetArrayId(), mapper->GetArrayName(), cflag2);
     }
     int numColors = vColors->GetNumberOfTuples();
+    int width = vColors->GetNumberOfComponents();
     for (int i = 0; i < numColors; i++)
     {
       bool found = false;
@@ -158,6 +159,11 @@ namespace vtkosp {
         static_cast<float>(color[1])/(255.0f),
         static_cast<float>(color[2])/(255.0f)
         };
+        float localOpacity = 1.f;
+        if (width >= 4)
+        {
+          localOpacity = static_cast<float>(color[3])/(255.0f);
+        }
         ospSet3fv(oMaterial,"Kd",diffusef);
         float specAdjust = 2.0f/(2.0f+specPower);
         float specularf[] = {
@@ -167,7 +173,7 @@ namespace vtkosp {
         };
         ospSet3fv(oMaterial,"Ks",specularf);
         ospSet1f(oMaterial,"Ns",specPower);
-        ospSet1f(oMaterial,"d", opacity);
+        ospSet1f(oMaterial,"d", opacity * localOpacity);
         ospCommit(oMaterial);
         ospMaterials.push_back(oMaterial);
       }
@@ -961,7 +967,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
         pointColors[i] = osp::vec4f{color[0] / 255.0f,
                                     color[1] / 255.0f,
                                     color[2] / 255.0f,
-                                    1.f};
+                                    (color[3] / 255.0f) * static_cast<float>(opacity)};
       }
     }
 
@@ -1328,14 +1334,15 @@ void vtkOSPRayPolyDataMapperNode::Render(bool prepass)
         this->GetFirstAncestorOfType("vtkOSPRayRendererNode"));
 
     //if there are no changes, just reuse last result
-    bool enable_cache = true; //turn off to force rebuilds for debugging
     vtkMTimeType inTime = aNode->GetMTime();
-    if (enable_cache && this->RenderTime >= inTime)
+#if 1 //turn off to force rebuilds for debugging
+    if (this->RenderTime >= inTime)
     {
       OSPModel oModel = static_cast<OSPModel>(orn->GetOModel());
       this->AddMeshesToModel(oModel);
       return;
     }
+#endif
     this->RenderTime = inTime;
 
     //something changed so make new meshes

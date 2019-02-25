@@ -45,14 +45,12 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   /**
-   * Begin the rendering process.
-   */
-  virtual void Start(void);
-
-  /**
    * End the rendering process and display the image.
    */
   virtual void Frame(void);
+
+  // override as some EGL systems cannot show the window
+  void SetShowWindow(bool) override;
 
   /**
    * Initialize the window for rendering.
@@ -77,7 +75,7 @@ public:
   /**
    * Change the window to fill the entire screen.
    */
-  virtual void SetFullScreen(int);
+  virtual void SetFullScreen(vtkTypeBool);
 
   /**
    * Resize the window.
@@ -101,7 +99,7 @@ public:
    * overrides the superclass method since this class can actually check
    * whether the window has been realized yet.
    */
-  virtual void SetStereoCapableWindow(int capable);
+  virtual void SetStereoCapableWindow(vtkTypeBool capable);
 
   /**
    * Make this window the current OpenGL context.
@@ -180,13 +178,6 @@ public:
   virtual int GetEventPending() { return 0;};
 
   int GetOwnWindow() { return this->OwnWindow; };
-  //@{
-  /**
-   * Render without displaying the window.
-   */
-  virtual void SetOffScreenRendering (int value);
-  virtual int GetOffScreenRendering ();
-  //@}
 
   /**
    * Returns the width and height of the allocated EGL surface.

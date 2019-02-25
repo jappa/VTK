@@ -78,7 +78,8 @@ vtkRenderWindow::vtkRenderWindow()
   this->UseSRGBColorSpace = false;
 
 #ifdef VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN
-  this->OffScreenRendering = 1;
+  this->ShowWindow = false;
+  this->UseOffScreenBuffers = true;
 #endif
   this->DeviceIndex = 0;
   this->SharedRenderWindow = nullptr;
@@ -469,14 +470,14 @@ void vtkRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 // Update the system, if needed, due to stereo rendering. For some stereo
 // methods, subclasses might need to switch some hardware settings here.
-void vtkRenderWindow::StereoUpdate(void)
+void vtkRenderWindow::StereoUpdate()
 {
 }
 
 //----------------------------------------------------------------------------
 // Intermediate method performs operations required between the rendering
 // of the left and right eye.
-void vtkRenderWindow::StereoMidpoint(void)
+void vtkRenderWindow::StereoMidpoint()
 {
   vtkRenderer * aren;
   /* For IceT stereo */
@@ -502,7 +503,7 @@ void vtkRenderWindow::StereoMidpoint(void)
 //----------------------------------------------------------------------------
 // Handles work required once both views have been rendered when using
 // stereo rendering.
-void vtkRenderWindow::StereoRenderComplete(void)
+void vtkRenderWindow::StereoRenderComplete()
 {
   switch (this->StereoType)
   {
@@ -878,7 +879,7 @@ void vtkRenderWindow::StereoRenderComplete(void)
 }
 
 //----------------------------------------------------------------------------
-void vtkRenderWindow::CopyResultFrame(void)
+void vtkRenderWindow::CopyResultFrame()
 {
   if (this->ResultFrame)
   {

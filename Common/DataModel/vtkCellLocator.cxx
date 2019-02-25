@@ -1141,7 +1141,7 @@ void vtkCellLocator::GetOverlappingBuckets(const double x[3], int vtkNotUsed(ijk
 
 //----------------------------------------------------------------------------
 // number of buckets available
-int vtkCellLocator::GetNumberOfBuckets(void)
+int vtkCellLocator::GetNumberOfBuckets()
 {
   if (this->Tree)
   {
@@ -1575,7 +1575,7 @@ void vtkCellLocator::ClearCellHasBeenVisited()
 }
 
 //----------------------------------------------------------------------------
-void vtkCellLocator::ClearCellHasBeenVisited(int id)
+void vtkCellLocator::ClearCellHasBeenVisited(vtkIdType id)
 {
   if (this->CellHasBeenVisited
       && this->DataSet && id < this->DataSet->GetNumberOfCells())

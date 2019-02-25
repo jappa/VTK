@@ -36,16 +36,13 @@ vtkStandardNewMacro(vtkPLYReader);
 // Construct object with merging set to true.
 vtkPLYReader::vtkPLYReader()
 {
-  this->FileName = nullptr;
   this->Comments = vtkStringArray::New();
-
-  this->SetNumberOfInputPorts(0);
 }
 
 vtkPLYReader::~vtkPLYReader()
 {
-  delete [] this->FileName;
   this->Comments->Delete();
+  this->Comments = nullptr;
 }
 
 namespace { //required so we don't violate ODR
@@ -197,18 +194,18 @@ int vtkPLYReader::RequestData(
 
   bool RGBPointsAvailable = false;
   bool RGBPointsHaveAlpha = false;
-  vtkSmartPointer<vtkUnsignedCharArray> RGBPoints = NULL;
-  if ((elem = vtkPLY::find_element(ply, "vertex")) != NULL)
+  vtkSmartPointer<vtkUnsignedCharArray> RGBPoints = nullptr;
+  if ((elem = vtkPLY::find_element(ply, "vertex")) != nullptr)
   {
-    if (vtkPLY::find_property(elem, "red", &index) != NULL &&
-        vtkPLY::find_property(elem, "green", &index) != NULL &&
-        vtkPLY::find_property(elem, "blue", &index) != NULL)
+    if (vtkPLY::find_property(elem, "red", &index) != nullptr &&
+        vtkPLY::find_property(elem, "green", &index) != nullptr &&
+        vtkPLY::find_property(elem, "blue", &index) != nullptr)
     {
       RGBPointsAvailable = true;
     }
-    else if (vtkPLY::find_property(elem, "diffuse_red", &index) != NULL &&
-             vtkPLY::find_property(elem, "diffuse_green", &index) != NULL &&
-             vtkPLY::find_property(elem, "diffuse_blue", &index) != NULL)
+    else if (vtkPLY::find_property(elem, "diffuse_red", &index) != nullptr &&
+             vtkPLY::find_property(elem, "diffuse_green", &index) != nullptr &&
+             vtkPLY::find_property(elem, "diffuse_blue", &index) != nullptr)
     {
       RGBPointsAvailable = true;
       vertProps[8].name = "diffuse_red";
@@ -274,9 +271,9 @@ int vtkPLYReader::RequestData(
   }
 
   bool TexCoordsPointsAvailableFace = false;
-  if ((elem = vtkPLY::find_element(ply, "face")) != NULL && !TexCoordsPointsAvailable)
+  if ((elem = vtkPLY::find_element(ply, "face")) != nullptr && !TexCoordsPointsAvailable)
   {
-    if (vtkPLY::find_property(elem, "texcoord", &index) != NULL)
+    if (vtkPLY::find_property(elem, "texcoord", &index) != nullptr)
     {
       TexCoordsPointsAvailableFace = true;
       TexCoordsPoints = vtkSmartPointer<vtkFloatArray>::New();
@@ -476,6 +473,10 @@ void vtkPLYReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "File Name: "
-     << (this->FileName ? this->FileName : "(none)") << "\n";
+  os << indent << "Comments:\n";
+  indent = indent.GetNextIndent();
+  for(int i = 0; i < this->Comments->GetNumberOfValues(); ++i)
+  {
+    os << indent << this->Comments->GetValue(i) << "\n";
+  }
 }

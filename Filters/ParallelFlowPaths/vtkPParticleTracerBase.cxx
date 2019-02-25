@@ -144,10 +144,10 @@ void vtkPParticleTracerBase::AssignSeedsToProcessors(
   //
   // take points from the source object and create a particle list
   //
-  int numSeeds = source->GetNumberOfPoints();
+  vtkIdType numSeeds = source->GetNumberOfPoints();
   candidates.resize(numSeeds);
   //
-  for (int i=0; i<numSeeds; i++)
+  for (vtkIdType i=0; i<numSeeds; i++)
   {
     ParticleInformation &info = candidates[i];
     memcpy(info.CurrentPosition.x, source->GetPoint(i), sizeof(double)*3);
@@ -222,7 +222,7 @@ void vtkPParticleTracerBase::AssignUniqueIds(
   }
 
   vtkIdType particleCountOffset = 0;
-  vtkIdType numParticles = localSeedPoints.size();
+  vtkIdType numParticles = static_cast<vtkIdType>(localSeedPoints.size());
 
   if (this->Controller->GetNumberOfProcesses()>1)
   {
@@ -453,7 +453,7 @@ bool vtkPParticleTracerBase::UpdateParticleListFromOtherProcesses()
     info.Current.CachedCellId[0] = info.Current.CachedCellId[1] = -1;
     info.Previous.CachedDataSetId[0] = info.Previous.CachedDataSetId[1] = -1;
     info.Previous.CachedCellId[0] = info.Previous.CachedCellId[1] = -1;
-    info.Current.TailPointId = info.Previous.TailPointId = this->Tail.size();
+    info.Current.TailPointId = info.Previous.TailPointId = static_cast<vtkIdType>(this->Tail.size());
     this->Tail.push_back(info);
     this->ParticleHistories.push_back(info.Current);
   }

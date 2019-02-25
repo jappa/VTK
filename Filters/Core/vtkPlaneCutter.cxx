@@ -17,9 +17,10 @@
 #include "vtkCell.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
-#include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
+#include "vtkCompositeDataSetRange.h"
 #include "vtkDataSet.h"
+#include "vtkDataObjectTreeRange.h"
 #include "vtkDoubleArray.h"
 #include "vtkElevationFilter.h"
 #include "vtkFloatArray.h"
@@ -372,11 +373,6 @@ struct PointSetFunctor : public CuttingFunctor
         ++outIter;
       }
     }
-  }
-
-  bool IsCellSlicedByPlane(vtkIdType cellId)
-  {
-    return CuttingFunctor::IsCellSlicedByPlane(cellId);
   }
 };
 
@@ -1213,7 +1209,7 @@ void CutStructuredGrid(T* pts,
   const double* planeNormal,
   bool generatePolygons)
 {
-  static int CASE_MASK[8] = { 1, 2, 4, 8, 16, 32, 64, 128 };
+  static const int CASE_MASK[8] = { 1, 2, 4, 8, 16, 32, 64, 128 };
   EDGE_LIST* edge;
   int i, j, index, *vert;
 
@@ -1747,14 +1743,15 @@ int vtkPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request),
   else if(hdInput)
   {
     mb->CopyStructure(hdInput);
-    vtkSmartPointer<vtkCompositeDataIterator> iter;
-    iter.TakeReference(hdInput->NewIterator());
-    iter->SkipEmptyNodesOn();
+
     int ret = 0;
     unsigned int treeIndex = 0;
-    for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+
+    using Opts = vtk::CompositeDataSetOptions;
+    for (auto node : vtk::Range(hdInput, Opts::SkipEmptyNodes))
     {
-      vtkDataSet* hdLeafInput = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
+      vtkDataSet* hdLeafInput = vtkDataSet::SafeDownCast(node.GetDataObject());
+
       vtkNew<vtkMultiPieceDataSet> output;
       vtkSphereTree* tree = nullptr;
       if (this->BuildTree)
@@ -1767,7 +1764,7 @@ int vtkPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request),
         treeIndex++;
       }
       ret += this->ExecuteDataSet(hdLeafInput, tree, output);
-      mb->SetDataSet(iter, output);
+      node.SetDataObject(mb, output);
     }
     return ret;
   }
@@ -1931,11 +1928,12 @@ int vtkPlaneCutter::ExecuteDataSet(vtkDataSet* input, vtkSphereTree* tree, vtkMu
   // Generate normals across all points if requested
   if (this->ComputeNormals)
   {
-    vtkSmartPointer<vtkCompositeDataIterator> iter;
-    iter.TakeReference(output->NewIterator());
-    for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+    using Opts = vtk::DataObjectTreeOptions;
+    for (vtkDataObject *dObj : vtk::Range(output, Opts::SkipEmptyNodes |
+                                                  Opts::TraverseSubTree |
+                                                  Opts::VisitOnlyLeaves))
     {
-      vtkDataSet* hdLeafOutput = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
+      vtkDataSet* hdLeafOutput = vtkDataSet::SafeDownCast(dObj);
       this->AddNormalArray(planeNormal, hdLeafOutput);
     }
   }

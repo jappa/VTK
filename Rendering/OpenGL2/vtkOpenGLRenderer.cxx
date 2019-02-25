@@ -61,7 +61,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <sstream>
 #include <string>
 
-#ifdef __APPLE__
+#if defined(__APPLE__) && ! defined(VTK_OPENGL_HAS_OSMESA)
 #include <CoreFoundation/CoreFoundation.h>
 #endif
 
@@ -74,10 +74,6 @@ vtkOpenGLRenderer::vtkOpenGLRenderer()
   this->TranslucentPass = nullptr;
   this->ShadowMapPass = nullptr;
   this->DepthPeelingHigherLayer=0;
-
-  this->BackgroundTexture = nullptr;
-  this->HaveApplePrimitiveIdBugValue = false;
-  this->HaveApplePrimitiveIdBugChecked = false;
 
   this->LightingCount = -1;
   this->LightingComplexity = -1;
@@ -209,7 +205,7 @@ int vtkOpenGLRenderer::GetDepthPeelingHigherLayer()
 
 // ----------------------------------------------------------------------------
 // Concrete open gl render method.
-void vtkOpenGLRenderer::DeviceRender(void)
+void vtkOpenGLRenderer::DeviceRender()
 {
   vtkTimerLog::MarkStartEvent("OpenGL Dev Render");
 
@@ -242,7 +238,7 @@ void vtkOpenGLRenderer::DeviceRender(void)
 
 // Ask actors to render themselves. As a side effect will cause
 // visualization network to update.
-int vtkOpenGLRenderer::UpdateGeometry()
+int vtkOpenGLRenderer::UpdateGeometry(vtkFrameBufferObjectBase* fbo)
 {
   vtkRenderTimerLog *timer = this->GetRenderWindow()->GetRenderTimer();
   VTK_SCOPED_RENDER_EVENT("vtkOpenGLRenderer::UpdateGeometry", timer);
@@ -320,7 +316,7 @@ int vtkOpenGLRenderer::UpdateGeometry()
   {
     // Opaque geometry first:
     timer->MarkStartEvent("Opaque Geometry");
-    this->DeviceRenderOpaqueGeometry();
+    this->DeviceRenderOpaqueGeometry(fbo);
     timer->MarkEndEvent();
 
     // do the render library specific stuff about translucent polygonal geometry.
@@ -334,7 +330,7 @@ int vtkOpenGLRenderer::UpdateGeometry()
     if(hasTranslucentPolygonalGeometry)
     {
       timer->MarkStartEvent("Translucent Geometry");
-      this->DeviceRenderTranslucentPolygonalGeometry();
+      this->DeviceRenderTranslucentPolygonalGeometry(fbo);
       timer->MarkEndEvent();
     }
   }
@@ -359,7 +355,9 @@ int vtkOpenGLRenderer::UpdateGeometry()
 
   // loop through props and give them a chance to
   // render themselves as volumetric geometry.
-  if (hasTranslucentPolygonalGeometry == 0 || !this->UseDepthPeelingForVolumes)
+  if (hasTranslucentPolygonalGeometry == 0 ||
+      !this->UseDepthPeeling ||
+      !this->UseDepthPeelingForVolumes)
   {
     timer->MarkStartEvent("Volumes");
     for ( i = 0; i < this->PropArrayCount; i++ )
@@ -388,8 +386,29 @@ int vtkOpenGLRenderer::UpdateGeometry()
   return  this->NumberOfPropsRendered;
 }
 
+//----------------------------------------------------------------------------
+vtkTexture* vtkOpenGLRenderer::GetCurrentTexturedBackground()
+{
+  if (!this->GetRenderWindow()->GetStereoRender() && this->BackgroundTexture)
+  {
+    return this->BackgroundTexture;
+  }
+  else if (this->GetRenderWindow()->GetStereoRender() && this->GetActiveCamera()->GetLeftEye() == 1 && this->BackgroundTexture)
+  {
+    return this->BackgroundTexture;
+  }
+  else if (this->GetRenderWindow()->GetStereoRender() && this->RightBackgroundTexture)
+  {
+    return this->RightBackgroundTexture;
+  }
+  else
+  {
+    return nullptr;
+  }
+}
+
 // ----------------------------------------------------------------------------
-void vtkOpenGLRenderer::DeviceRenderOpaqueGeometry()
+void vtkOpenGLRenderer::DeviceRenderOpaqueGeometry(vtkFrameBufferObjectBase* fbo)
 {
   // Do we need hidden line removal?
   bool useHLR =
@@ -402,7 +421,7 @@ void vtkOpenGLRenderer::DeviceRenderOpaqueGeometry()
     vtkNew<vtkHiddenLineRemovalPass> hlrPass;
     vtkRenderState s(this);
     s.SetPropArrayAndCount(this->PropArray, this->PropArrayCount);
-    s.SetFrameBuffer(nullptr);
+    s.SetFrameBuffer(fbo);
     hlrPass->Render(&s);
     this->NumberOfPropsRendered += hlrPass->GetNumberOfRenderedProps();
   }
@@ -418,7 +437,7 @@ void vtkOpenGLRenderer::DeviceRenderOpaqueGeometry()
 // UpdateTranslucentPolygonalGeometry().
 // Subclasses of vtkRenderer that can deal with depth peeling must
 // override this method.
-void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
+void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry(vtkFrameBufferObjectBase* fbo)
 {
   vtkOpenGLClearErrorMacro();
 
@@ -449,14 +468,14 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
 
     vtkRenderState s(this);
     s.SetPropArrayAndCount(this->PropArray, this->PropArrayCount);
-    s.SetFrameBuffer(nullptr);
+    s.SetFrameBuffer(fbo);
     this->LastRenderingUsedDepthPeeling=0;
     this->TranslucentPass->Render(&s);
     this->NumberOfPropsRendered += this->TranslucentPass->GetNumberOfRenderedProps();
   }
   else   // depth peeling.
   {
-#if GL_ES_VERSION_3_0 == 1
+#ifdef GL_ES_VERSION_3_0
     vtkErrorMacro("Built in Dual Depth Peeling is not supported on ES3. "
       "Please see TestFramebufferPass.cxx for an example that should work "
       "on OpenGL ES 3.");
@@ -512,7 +531,7 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
     this->DepthPeelingPass->SetOcclusionRatio(this->OcclusionRatio);
     vtkRenderState s(this);
     s.SetPropArrayAndCount(this->PropArray, this->PropArrayCount);
-    s.SetFrameBuffer(nullptr);
+    s.SetFrameBuffer(fbo);
     this->LastRenderingUsedDepthPeeling=1;
     this->DepthPeelingPass->Render(&s);
     this->NumberOfPropsRendered += this->DepthPeelingPass->GetNumberOfRenderedProps();
@@ -530,7 +549,7 @@ void vtkOpenGLRenderer::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 
-void vtkOpenGLRenderer::Clear(void)
+void vtkOpenGLRenderer::Clear()
 {
   vtkOpenGLClearErrorMacro();
 
@@ -596,10 +615,10 @@ void vtkOpenGLRenderer::Clear(void)
     mapper->SetInputConnection(prod->GetOutputPort());
     actor->SetMapper(mapper);
 
-    if(this->TexturedBackground && this->BackgroundTexture)
+    if(this->TexturedBackground && this->GetCurrentTexturedBackground())
     {
-      this->BackgroundTexture->InterpolateOn();
-      actor->SetTexture(this->BackgroundTexture);
+      this->GetCurrentTexturedBackground()->InterpolateOn();
+      actor->SetTexture(this->GetCurrentTexturedBackground());
 
       vtkNew<vtkFloatArray> tcoords;
       float tmp[2];
@@ -705,100 +724,13 @@ vtkOpenGLRenderer::~vtkOpenGLRenderer()
 
 bool vtkOpenGLRenderer::HaveApplePrimitiveIdBug()
 {
-  if (this->HaveApplePrimitiveIdBugChecked)
-  {
-    return this->HaveApplePrimitiveIdBugValue;
-  }
-
-#ifdef __APPLE__
-  // Known working Apple+AMD systems:
-  // OpenGL vendor string:  ATI Technologies Inc.
-  // OpenGL version string:   4.1 ATI-1.38.3
-  // OpenGL version string:   4.1 ATI-1.40.15
-  // OpenGL renderer string:    AMD Radeon R9 M370X OpenGL Engine
-
-  // OpenGL version string:   4.1 ATI-1.40.16
-  // OpenGL renderer string:    AMD Radeon HD - FirePro D500 OpenGL Engine
-  // OpenGL renderer string:    AMD Radeon HD 5770 OpenGL Engine
-  // OpenGL renderer string:    AMD Radeon R9 M395 OpenGL Engine
-
-  // OpenGL vendor string:  ATI Technologies Inc.
-  // OpenGL renderer string:  ATI Radeon HD 5770 OpenGL Engine
-  // OpenGL version string:  4.1 ATI-1.42.6
-
-  // Known buggy Apple+AMD systems:
-  // OpenGL vendor string:  ATI Technologies Inc.
-  // OpenGL version string:   3.3 ATI-10.0.40
-  // OpenGL renderer string:    ATI Radeon HD 2600 PRO OpenGL Engine
-
-  // OpenGL vendor string:  ATI Technologies Inc.
-  // OpenGL renderer string:  AMD Radeon HD - FirePro D300 OpenGL Engine
-  // OpenGL version string:  4.1 ATI-1.24.39
-
-  std::string vendor = (const char *)glGetString(GL_VENDOR);
-  if (vendor.find("ATI") != std::string::npos ||
-      vendor.find("AMD") != std::string::npos ||
-      vendor.find("amd") != std::string::npos)
-  {
-    // assume we have the bug if we are running on <= macOS 10.10.x
-    // Apple fixed this bug in OS X 10.11 beta 15A216g.
-    // kCFCoreFoundationVersionNumber10_10_Max = 1199, we use the raw number
-    // because the constant isn't present in older SDKs.
-    if (kCFCoreFoundationVersionNumber <= 1199)
-    {
-      this->HaveApplePrimitiveIdBugValue = true;
-    }
-
-    // but exclude systems we know do not have it
-    std::string renderer = (const char *)glGetString(GL_RENDERER);
-    std::string version = (const char *)glGetString(GL_VERSION);
-    int minorVersion = 0;
-    int patchVersion = 0;
-    // try to extract some minor version numbers
-    if (version.find("4.1 ATI-1.") == 0)
-    {
-      std::string minorVer = version.substr(strlen("4.1 ATI-1."),std::string::npos);
-      if (minorVer.find('.') == 2)
-      {
-        minorVersion = atoi(minorVer.substr(0,2).c_str());
-        patchVersion = atoi(minorVer.substr(3,std::string::npos).c_str());
-      }
-    }
-    if (
-        ((version.find("4.1 ATI-1.38.3") != std::string::npos ||
-          version.find("4.1 ATI-1.40.15") != std::string::npos) &&
-          (renderer.find("AMD Radeon R9 M370X OpenGL Engine") != std::string::npos)) ||
-          // assume anything with 1.40.16 or later is good?
-          minorVersion > 40 ||
-          (minorVersion == 40 && patchVersion >= 16)
-         )
-    {
-      this->HaveApplePrimitiveIdBugValue = false;
-    }
-  }
-
-  // On all versions of macOS and with all GPUs,
-  // allow an env var to force the workaround to be used.
-  const char* forceWorkaround = std::getenv("VTK_FORCE_APPLE_PRIMITIVEID_WORKAROUND");
-  if (forceWorkaround)
-  {
-    this->HaveApplePrimitiveIdBugValue = true;
-  }
-
-#else
-  this->HaveApplePrimitiveIdBugValue = false;
-#endif
-
-  this->HaveApplePrimitiveIdBugChecked = true;
-  return this->HaveApplePrimitiveIdBugValue;
+  return false;
 }
 
 //------------------------------------------------------------------------------
 bool vtkOpenGLRenderer::HaveAppleQueryAllocationBug()
 {
-#ifndef __APPLE__ // Bug only applies to apple
-  return false;
-#else
+#if defined(__APPLE__) && ! defined(VTK_OPENGL_HAS_OSMESA)
   enum class QueryAllocStatus { NotChecked, Yes, No };
   static QueryAllocStatus hasBug = QueryAllocStatus::NotChecked;
 
@@ -813,6 +745,8 @@ bool vtkOpenGLRenderer::HaveAppleQueryAllocationBug()
   }
 
   return hasBug == QueryAllocStatus::Yes;
+#else
+  return false;
 #endif
 }
 
@@ -833,7 +767,7 @@ bool vtkOpenGLRenderer::IsDualDepthPeelingSupported()
   // - RG textures (ARB_texture_rg)
   // - MAX blending (added in ES3).
   // requires that RG textures be color renderable (they are not in ES3)
-#if GL_ES_VERSION_3_0 == 1
+#ifdef GL_ES_VERSION_3_0
   // ES3 is not supported, see TestFramebufferPass.cxx for how to do it
   bool dualDepthPeelingSupported = false;
 #else
@@ -983,10 +917,22 @@ void vtkOpenGLRenderer::UpdateLightingUniforms(vtkShaderProgram *program)
         double lightDir[3];
         vtkMath::Subtract(lfp,lp,lightDir);
         vtkMath::Normalize(lightDir);
-        double *tDir = viewTF->TransformNormal(lightDir);
-        lightDirection[0] = tDir[0];
-        lightDirection[1] = tDir[1];
-        lightDirection[2] = tDir[2];
+        double tDirView[3];
+        viewTF->TransformNormal(lightDir, tDirView);
+
+        if (!light->LightTypeIsSceneLight() && this->UserLightTransform.GetPointer() != nullptr)
+        {
+          double *tDir = this->UserLightTransform->TransformNormal(tDirView);
+          lightDirection[0] = tDir[0];
+          lightDirection[1] = tDir[1];
+          lightDirection[2] = tDir[2];
+        }
+        else
+        {
+          lightDirection[0] = tDirView[0];
+          lightDirection[1] = tDirView[1];
+          lightDirection[2] = tDirView[2];
+        }
 
         program->SetUniform3f((ldir + count).c_str(), lightDirection);
 
@@ -1000,10 +946,21 @@ void vtkOpenGLRenderer::UpdateLightingUniforms(vtkShaderProgram *program)
           lightAttenuation[0] = attn[0];
           lightAttenuation[1] = attn[1];
           lightAttenuation[2] = attn[2];
-          double *tlp = viewTF->TransformPoint(lp);
-          lightPosition[0] = tlp[0];
-          lightPosition[1] = tlp[1];
-          lightPosition[2] = tlp[2];
+          double tlpView[3];
+          viewTF->TransformPoint(lp, tlpView);
+          if (!light->LightTypeIsSceneLight() && this->UserLightTransform.GetPointer() != nullptr)
+          {
+            double *tlp = this->UserLightTransform->TransformPoint(tlpView);
+            lightPosition[0] = tlp[0];
+            lightPosition[1] = tlp[1];
+            lightPosition[2] = tlp[2];
+          }
+          else
+          {
+            lightPosition[0] = tlpView[0];
+            lightPosition[1] = tlpView[1];
+            lightPosition[2] = tlpView[2];
+          }
 
           program->SetUniform3f((latten + count).c_str(), lightAttenuation);
           program->SetUniformi((lpositional + count).c_str(), light->GetPositional());
@@ -1017,4 +974,9 @@ void vtkOpenGLRenderer::UpdateLightingUniforms(vtkShaderProgram *program)
   }
 
   program->SetUniformGroupUpdateTime(vtkShaderProgram::LightingGroup, ltime);
+}
+
+void vtkOpenGLRenderer::SetUserLightTransform(vtkTransform* transform)
+{
+  this->UserLightTransform = transform;
 }

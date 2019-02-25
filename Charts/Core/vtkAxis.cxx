@@ -1440,7 +1440,7 @@ vtkStdString vtkAxis::GenerateSimpleLabel(double val)
     if (regExp2.find(result))
     {
       vtkStdString tmp(result);
-      int num = vtkMath::Round(stof(regExp2.match(0)));
+      long num = std::lround(stof(regExp2.match(0)));
       result = std::to_string(num);
       vtkStdString::iterator it = tmp.begin();
       for (int i = 0; i < regExp2.end() - regExp2.start(); ++i)
@@ -1569,19 +1569,7 @@ vtkStdString vtkAxis::GenerateSprintfLabel(double value, const std::string & for
   const int buffSize = 1024;
   char buffer[buffSize];
 
-  // On Windows, formats with exponents have three digits by default
-  // whereas on other systems, exponents have two digits. Set to two
-  // digits on Windows for consistent behavior.
-#if defined(_MSC_VER) && _MSC_VER < 1900
-  unsigned int oldWin32ExponentFormat = _set_output_format(_TWO_DIGIT_EXPONENT);
-
-  _snprintf(buffer, buffSize-1, format.c_str(), value);
-  buffer[buffSize-1] = '\0';
-
-  _set_output_format(oldWin32ExponentFormat);
-#else
   snprintf(buffer, buffSize, format.c_str(), value);
-#endif
 
   vtkStdString result = vtkStdString(buffer);
 

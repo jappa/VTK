@@ -21,6 +21,8 @@
 // must be included after a vtkObject subclass
 #include "vtkOpenGLError.h"
 
+#include <cmath>
+
 // If you define NO_CACHE then all state->vtkgl* calls
 // will get passed down to OpenGL regardless of the current
 // state. This basically bypasses the caching mechanism
@@ -211,12 +213,17 @@ void vtkOpenGLState::CheckState()
   }
 
   GLfloat fparams[4];
+  // note people do set this to nan
   ::glGetFloatv(GL_COLOR_CLEAR_VALUE, fparams);
   if (
-      fparams[0] != this->CurrentState.ClearColor[0] ||
-      fparams[1] != this->CurrentState.ClearColor[1] ||
-      fparams[2] != this->CurrentState.ClearColor[2] ||
-      fparams[3] != this->CurrentState.ClearColor[3]
+      (!(std::isnan(fparams[0]) && std::isnan(this->CurrentState.ClearColor[0]))
+        && fparams[0] != this->CurrentState.ClearColor[0]) ||
+      (!(std::isnan(fparams[1]) && std::isnan(this->CurrentState.ClearColor[1]))
+        && fparams[1] != this->CurrentState.ClearColor[1]) ||
+      (!(std::isnan(fparams[2]) && std::isnan(this->CurrentState.ClearColor[2]))
+        && fparams[2] != this->CurrentState.ClearColor[2]) ||
+      (!(std::isnan(fparams[3]) && std::isnan(this->CurrentState.ClearColor[3]))
+        && fparams[3] != this->CurrentState.ClearColor[3])
       )
   {
     vtkGenericWarningMacro("Error in cache state for GL_COLOR_CLEAR_VALUE");
@@ -235,7 +242,7 @@ bool reportOpenGLErrors(std::string &result)
 {
   const int maxErrors = 16;
   unsigned int errCode[maxErrors] = {0};
-  const char *errDesc[maxErrors] = {NULL};
+  const char *errDesc[maxErrors] = {nullptr};
 
   int numErrors
     = vtkGetOpenGLErrors(
@@ -392,7 +399,7 @@ void vtkOpenGLState::vtkglClearDepth(double val)
 #endif
   {
     this->CurrentState.ClearDepth = val;
-#if GL_ES_VERSION_3_0 == 1
+#ifdef GL_ES_VERSION_3_0
     ::glClearDepthf(static_cast<GLclampf>(val));
 #else
     ::glClearDepth(val);
@@ -749,7 +756,7 @@ void vtkOpenGLState::vtkglGetIntegerv(GLenum pname, GLint *params)
   vtkCheckOpenGLErrorsWithStack("glGetInteger");
 }
 
-#if GL_ES_VERSION_3_0 == 1
+#ifdef GL_ES_VERSION_3_0
 void vtkOpenGLState::vtkglGetDoublev(GLenum pname, double *)
 {
   vtkGenericWarningMacro("glGetDouble not supported on OpenGL ES, requested: " << pname);
@@ -836,8 +843,7 @@ void vtkOpenGLState::Initialize(vtkOpenGLRenderWindow *)
     ? ::glEnable(GL_CULL_FACE) : ::glDisable(GL_CULL_FACE);
 
 #ifdef GL_MULTISAMPLE
-  this->CurrentState.MultiSample
-    ?  glEnable(GL_MULTISAMPLE) : glDisable(GL_MULTISAMPLE);
+  this->CurrentState.MultiSample = glIsEnabled(GL_MULTISAMPLE) == GL_TRUE;
 #endif
 
   // initialize blending for transparency
@@ -861,7 +867,7 @@ void vtkOpenGLState::Initialize(vtkOpenGLRenderWindow *)
 
   ::glDepthFunc( this->CurrentState.DepthFunc );
 
-#if GL_ES_VERSION_3_0 == 1
+#ifdef GL_ES_VERSION_3_0
   ::glClearDepthf(this->CurrentState.ClearDepth);
 #else
   ::glClearDepth(this->CurrentState.ClearDepth);

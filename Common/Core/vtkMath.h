@@ -47,6 +47,7 @@
 #include "vtkMathConfigure.h" // For <cmath> and VTK_HAS_ISNAN etc.
 
 #include <cassert> // assert() in inline implementations.
+#include <algorithm> // for std::clamp
 
 #ifndef DBL_MIN
 #  define VTK_DBL_MIN    2.2250738585072014e-308
@@ -112,10 +113,12 @@ public:
   /**
    * Rounds a float to the nearest integer.
    */
+#if 1
   static int Round(float f) {
     return static_cast<int>( f + ( f >= 0.0 ? 0.5 : -0.5 ) ); }
   static int Round(double f) {
     return static_cast<int>( f + ( f >= 0.0 ? 0.5 : -0.5 ) ); }
+#endif
 
   /**
    * Round a double to type OutT if OutT is integral, otherwise simply clamp

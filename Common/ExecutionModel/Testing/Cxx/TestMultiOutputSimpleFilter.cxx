@@ -209,24 +209,21 @@ int TestComposite(std::string& inputDataFile, bool isAMR)
     std::cout << "Per block field data for the second output port changed" << std::endl;
     retVal = VTK_FAILURE;
   }
+
+  // Exercise NewInstance for coverage.
+  auto dummy = testAlg->NewInstance();
+  dummy->Delete();
+
   return retVal;
 }
 }
 
 int TestMultiOutputSimpleFilter(int argc, char* argv[])
 {
-  char* data_dir = vtkTestUtilities::GetDataRoot(argc, argv);
-  if (!data_dir)
-  {
-    cerr << "Could not determine data directory." << endl;
-    return VTK_FAILURE;
-  }
-
-  std::string inputAMR = data_dir;
-  std::string inputMultiblock = data_dir;
-  inputAMR += "/Data/AMR/HierarchicalBoxDataset.v1.1.vthb";
-  inputMultiblock += "/Data/many_blocks/many_blocks.vtm";
-  delete[] data_dir;
+  std::string inputAMR = vtkTestUtilities::ExpandDataFileName(
+    argc, argv, "Data/AMR/HierarchicalBoxDataset.v1.1.vthb");
+  std::string inputMultiblock = vtkTestUtilities::ExpandDataFileName(
+    argc, argv, "Data/many_blocks/many_blocks.vtm");
 
   int retVal = TestComposite(inputAMR, true);
 

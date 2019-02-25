@@ -16,7 +16,6 @@
 
 #ifndef vtkmlib_Portals_h
 #define vtkmlib_Portals_h
-#ifndef __VTK_WRAP__
 
 #include "vtkAcceleratorsVTKmModule.h"
 #include "vtkmConfig.h" //required for general vtkm setup
@@ -44,15 +43,19 @@ public:
 
   vtkArrayPortal(VTKDataArrayType* array, vtkm::Id size);
 
+  VTKM_SUPPRESS_EXEC_WARNINGS
+  VTKM_EXEC_CONT
   vtkm::Id GetNumberOfValues() const
   {
     return this->Size;
   }
 
   VTKM_SUPPRESS_EXEC_WARNINGS
-  VTKM_EXEC
+  VTKM_EXEC_CONT
   inline ValueType Get(vtkm::Id index) const;
 
+  VTKM_SUPPRESS_EXEC_WARNINGS
+  VTKM_EXEC_CONT
   inline void Set(vtkm::Id index, const ValueType& value) const;
 
   typedef vtkm::cont::internal::IteratorFromArrayPortal<vtkArrayPortal>
@@ -90,15 +93,19 @@ public:
 
   vtkPointsPortal(vtkPoints* points, vtkm::Id size);
 
+  VTKM_SUPPRESS_EXEC_WARNINGS
+  VTKM_EXEC_CONT
   vtkm::Id GetNumberOfValues() const
   {
     return this->Size;
   }
 
   VTKM_SUPPRESS_EXEC_WARNINGS
-  VTKM_EXEC
+  VTKM_EXEC_CONT
   inline ValueType Get(vtkm::Id index) const;
 
+  VTKM_SUPPRESS_EXEC_WARNINGS
+  VTKM_EXEC_CONT
   inline void Set(vtkm::Id index, const ValueType& value) const;
 
   typedef vtkm::cont::internal::IteratorFromArrayPortal<vtkPointsPortal>
@@ -208,5 +215,4 @@ extern template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT
 #endif // defined vtkmlib_Portals_cxx
 
 #include "Portals.hxx"
-#endif
 #endif // vtkmlib_Portals_h

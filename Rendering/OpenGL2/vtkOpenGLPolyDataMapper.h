@@ -36,6 +36,7 @@ class vtkCellArray;
 class vtkGenericOpenGLResourceFreeCallback;
 class vtkMatrix4x4;
 class vtkMatrix3x3;
+class vtkOpenGLCellToVTKCellMap;
 class vtkOpenGLRenderTimer;
 class vtkOpenGLTexture;
 class vtkOpenGLBufferObject;
@@ -178,39 +179,10 @@ public:
   vtkGetStringMacro(GeometryShaderCode);
   //@}
 
-  // the following is all extra stuff to work around the
-  // fact that gl_PrimitiveID does not work correctly on
-  // Apple Macs with AMD graphics hardware (before macOS 10.11).
-  // See <rdar://20747550>.
-  static vtkPolyData *HandleAppleBug(
-    vtkPolyData *poly,
-    std::vector<float> &buffData);
-
   /**
    * Make a shallow copy of this mapper.
    */
-  void ShallowCopy(vtkAbstractMapper *m);
-
-  //@{
-  /**
-   * Override the normal test for the apple bug
-   */
-  void ForceHaveAppleBugOff()
-  {
-    this->HaveAppleBugForce = 1;
-    this->Modified();
-  }
-  void ForceHaveAppleBugOn()
-  {
-    this->HaveAppleBugForce = 2;
-    this->Modified();
-  }
-  //@}
-
-  /**
-   * Get the value of HaveAppleBug
-   */
-  bool GetHaveAppleBug() { return this->HaveAppleBug; }
+  void ShallowCopy(vtkAbstractMapper *m) override;
 
   /// Return the mapper's vertex buffer objects.
   vtkGetObjectMacro(VBOs, vtkOpenGLVertexBufferObjectGroup);
@@ -231,22 +203,6 @@ public:
     PrimitiveVertices,
     PrimitiveEnd
   };
-
-  void UpdateCellMaps(
-    bool HaveAppleBug,
-    vtkPolyData *poly,
-    vtkCellArray **prims, int representation,
-    vtkPoints *points);
-
-  /**
-   * Get access to the map of glprim to vtkcell ids
-   */
-  static void MakeCellCellMap(
-    std::vector<vtkIdType> &cellCellMap,
-    bool HaveAppleBug,
-    vtkPolyData *poly,
-    vtkCellArray **prims, int representation,
-    vtkPoints *points);
 
   /**
    * Select a data array from the point/cell data
@@ -307,15 +263,6 @@ protected:
 
   // what coordinate should be used for this texture
   std::string GetTextureCoordinateName(const char *tname);
-
-  // the following is all extra stuff to work around the
-  // fact that gl_PrimitiveID does not work correctly on
-  // Apple Macs with AMD graphics hardware (before macOS 10.11).
-  // See <rdar://20747550>.
-  bool HaveAppleBug;
-  int HaveAppleBugForce; // 0 = default 1 = 0ff 2 = on
-  std::vector<float> AppleBugPrimIDs;
-  vtkOpenGLBufferObject *AppleBugPrimIDBuffer;
 
   /**
    * helper function to get the appropriate coincident params
@@ -524,7 +471,8 @@ protected:
     int representation,
     std::vector<unsigned char> &colors,
     std::vector<float> &normals,
-    vtkPolyData *pd);
+    vtkPolyData *pd,
+    vtkOpenGLCellToVTKCellMap *ccmap);
 
   vtkTextureObject *CellScalarTexture;
   vtkOpenGLBufferObject *CellScalarBuffer;
@@ -573,9 +521,7 @@ protected:
   unsigned int TimerQueryCounter;
 
   // stores the mapping from vtk cells to gl_PrimitiveId
-  std::vector<vtkIdType> CellCellMap;
-  std::vector<vtkIdType> PointCellMap;
-  std::string CellMapsBuildString;
+  vtkNew<vtkOpenGLCellToVTKCellMap> CellCellMap;
 
   // compute and set the maximum point and cell ID used in selection
   virtual void UpdateMaximumPointCellIds(vtkRenderer* ren, vtkActor *actor);

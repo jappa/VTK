@@ -178,6 +178,11 @@ public:
    */
   void setQVTKCursor(const QCursor &cursor);
 
+  /**
+   * Set the default cursor.
+   */
+  void setDefaultQVTKCursor(const QCursor &cursor);
+
 signals:
   /**
    * This signal will be emitted whenever a mouse event occurs within the QVTK window.
@@ -203,6 +208,13 @@ private slots:
    * is bound and ready to use.
    */
   void startEventCallback();
+
+  /**
+   * callback for changing the cursor. Called when vtkGenericOpenGLRenderWindow
+   * fires the CursorChangedEvent.
+   */
+  void cursorChangedCallback(vtkObject* caller, unsigned long vtk_event,
+    void* client_data, void* call_data);
 
 protected:
   bool event(QEvent* evt) Q_DECL_OVERRIDE;
@@ -252,6 +264,8 @@ protected:
   bool EnableHiDPI;
   int OriginalDPI;
 
+  static const double DevicePixelRatioTolerance;
+
 private:
   Q_DISABLE_COPY(QVTKOpenGLNativeWidget);
 
@@ -267,6 +281,7 @@ private:
   vtkNew<QVTKOpenGLNativeWidgetObserver> Observer;
   friend class QVTKOpenGLNativeWidgetObserver;
   QOpenGLDebugLogger* Logger;
+  QCursor DefaultQVTKCursor;
 };
 
 #endif

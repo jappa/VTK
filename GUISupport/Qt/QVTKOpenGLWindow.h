@@ -188,6 +188,17 @@ public slots:
   virtual void UpdateStereoType(vtkObject* caller, unsigned long vtk_event,
     void* client_data, void* call_data);
 
+  /*
+   * slot to change the cursor
+   */
+  virtual void ChangeCursor(vtkObject* caller, unsigned long vtk_event,
+    void* client_data, void* call_data);
+
+  /**
+   * Set the default cursor.
+   */
+  void setDefaultQVTKCursor(const QCursor &cursor);
+
   /**
    * slot to process events coming from the widget containing this window
    */
@@ -245,6 +256,8 @@ private:
   vtkSmartPointer<vtkEventQtSlotConnect> EventSlotConnector;
 
   QOffscreenSurface* OffscreenSurface;
+
+  QCursor DefaultQVTKCursor;
 };
 
 #endif // QVTKOpenGLWindow_H

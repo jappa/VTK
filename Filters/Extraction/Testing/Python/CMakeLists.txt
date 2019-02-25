@@ -7,4 +7,6 @@ vtk_add_test_python(
   ExtractTensors.py
   extractUGrid.py
   extractVectors.py
+  TestExtractCells.py
+  TestExtractCellsByType.py,NO_RT,NO_VALID
   )

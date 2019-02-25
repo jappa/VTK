@@ -388,8 +388,8 @@ vtkSmartPointer<vtkSelector> vtkExtractSelection::NewSelectionOperator(
       return vtkSmartPointer<vtkBlockSelector>::New();
 
     case vtkSelectionNode::USER:
-      return nullptr;
-
+    case vtkSelectionNode::SELECTIONS:
+    case vtkSelectionNode::QUERY:
     default:
       return nullptr;
   }
@@ -465,7 +465,14 @@ void vtkExtractSelection::ExtractSelectedCells(
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
 
+  // To copy points in a type agnostic way later
+  auto pointSet = vtkPointSet::SafeDownCast(input);
+
   vtkNew<vtkPoints> newPts;
+  if (pointSet)
+  {
+    newPts->SetDataType(pointSet->GetPoints()->GetDataType());
+  }
   newPts->Allocate(numPts/4,numPts);
 
   outputPD->SetCopyGlobalIds(1);
@@ -514,8 +521,16 @@ void vtkExtractSelection::ExtractSelectedCells(
           vtkIdType newPointId = pointMap[ptId];
           if (newPointId < 0)
           {
-            input->GetPoint(ptId, x);
-            newPointId = newPts->InsertNextPoint(x);
+            if (pointSet)
+            {
+              newPointId = newPts->GetNumberOfPoints();
+              newPts->InsertPoints(newPointId, 1, ptId, pointSet->GetPoints());
+            }
+            else
+            {
+              input->GetPoint(ptId, x);
+              newPointId = newPts->InsertNextPoint(x);
+            }
             outputPD->CopyData(pd,ptId,newPointId);
             originalPointIds->InsertNextValue(ptId);
             pointMap[ptId] = newPointId;
@@ -555,7 +570,14 @@ void vtkExtractSelection::ExtractSelectedPoints(
   vtkPointData *pd = input->GetPointData();
   vtkPointData *outputPD = output->GetPointData();
 
+  // To copy points in a type agnostic way later
+  auto pointSet = vtkPointSet::SafeDownCast(input);
+
   vtkNew<vtkPoints> newPts;
+  if (pointSet)
+  {
+    newPts->SetDataType(pointSet->GetPoints()->GetDataType());
+  }
   newPts->Allocate(numPts/4,numPts);
 
   vtkNew<vtkIdList> newCellPts;
@@ -579,8 +601,18 @@ void vtkExtractSelection::ExtractSelectedPoints(
     pointInside->GetTypedTuple(ptId, &isInside);
     if (isInside)
     {
-      input->GetPoint(ptId, x);
-      vtkIdType newPointId = newPts->InsertNextPoint(x);
+      vtkIdType newPointId = -1;
+      if (pointSet)
+      {
+        newPointId = newPts->GetNumberOfPoints();
+        newPts->InsertPoints(newPointId, 1, ptId, pointSet->GetPoints());
+      }
+      else
+      {
+        input->GetPoint(ptId, x);
+        newPointId = newPts->InsertNextPoint(x);
+      }
+      assert(newPointId >= 0);
       outputPD->CopyData(pd,ptId,newPointId);
       originalPointIds->InsertNextValue(ptId);
     }
@@ -630,49 +662,49 @@ void vtkExtractSelection::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 void vtkExtractSelection::SetShowBounds(bool)
 {
-  VTK_LEGACY_BODY(vtkExtractSelection::SetShowBounds, "VTK 9.0");
+  VTK_LEGACY_BODY(vtkExtractSelection::SetShowBounds, "VTK 8.2");
 }
 //----------------------------------------------------------------------------
 bool vtkExtractSelection::GetShowBounds()
 {
-  VTK_LEGACY_BODY(vtkExtractSelection::GetShowBounds, "VTK 9.0");
+  VTK_LEGACY_BODY(vtkExtractSelection::GetShowBounds, "VTK 8.2");
   return false;
 }
 
 //----------------------------------------------------------------------------
 void vtkExtractSelection::ShowBoundsOn()
 {
-  VTK_LEGACY_BODY(vtkExtractSelection::ShowBoundsOn, "VTK 9.0");
+  VTK_LEGACY_BODY(vtkExtractSelection::ShowBoundsOn, "VTK 8.2");
 }
 
 //----------------------------------------------------------------------------
 void vtkExtractSelection::ShowBoundsOff()
 {
-  VTK_LEGACY_BODY(vtkExtractSelection::ShowBoundsOff, "VTK 9.0");
+  VTK_LEGACY_BODY(vtkExtractSelection::ShowBoundsOff, "VTK 8.2");
 }
 
 //----------------------------------------------------------------------------
 void vtkExtractSelection::SetUseProbeForLocations(bool)
 {
-  VTK_LEGACY_BODY(vtkExtractSelection::SetUseProbeForLocations, "VTK 9.0");
+  VTK_LEGACY_BODY(vtkExtractSelection::SetUseProbeForLocations, "VTK 8.2");
 }
 
 //----------------------------------------------------------------------------
 bool vtkExtractSelection::GetUseProbeForLocations()
 {
-  VTK_LEGACY_BODY(vtkExtractSelection::GetUseProbeForLocations, "VTK 9.0");
+  VTK_LEGACY_BODY(vtkExtractSelection::GetUseProbeForLocations, "VTK 8.2");
   return false;
 }
 
 //----------------------------------------------------------------------------
 void vtkExtractSelection::UseProbeForLocationsOn()
 {
-  VTK_LEGACY_BODY(vtkExtractSelection::UseProbeForLocationsOn, "VTK 9.0");
+  VTK_LEGACY_BODY(vtkExtractSelection::UseProbeForLocationsOn, "VTK 8.2");
 }
 
 //----------------------------------------------------------------------------
 void vtkExtractSelection::UseProbeForLocationsOff()
 {
-  VTK_LEGACY_BODY(vtkExtractSelection::UseProbeForLocationsOff, "VTK 9.0");
+  VTK_LEGACY_BODY(vtkExtractSelection::UseProbeForLocationsOff, "VTK 8.2");
 }
 #endif

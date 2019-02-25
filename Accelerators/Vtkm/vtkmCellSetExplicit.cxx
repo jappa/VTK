@@ -46,7 +46,8 @@ struct ExplicitRConnToConn
   {
     OffsetsPortal Offsets;
 
-    VTKM_CONT
+    VTKM_SUPPRESS_EXEC_WARNINGS
+    VTKM_EXEC_CONT
     OffsetsModifier(const OffsetsPortal& offsets = OffsetsPortal{})
       : Offsets(offsets)
     {
@@ -338,5 +339,16 @@ template VTKACCELERATORSVTKM_EXPORT
       vtkm::TopologyElementTagCell, vtkm::TopologyElementTagPoint) const;
 #endif
 
+#ifdef VTKM_ENABLE_CUDA
+template VTKACCELERATORSVTKM_EXPORT
+  vtkm::exec::ConnectivityVTKAOS<vtkm::cont::DeviceAdapterTagCuda>
+    vtkmCellSetExplicitAOS::PrepareForInput(vtkm::cont::DeviceAdapterTagCuda,
+      vtkm::TopologyElementTagPoint, vtkm::TopologyElementTagCell) const;
+
+template VTKACCELERATORSVTKM_EXPORT
+  vtkm::exec::ReverseConnectivityVTK<vtkm::cont::DeviceAdapterTagCuda>
+    vtkmCellSetExplicitAOS::PrepareForInput(vtkm::cont::DeviceAdapterTagCuda,
+      vtkm::TopologyElementTagCell, vtkm::TopologyElementTagPoint) const;
+#endif
 }
 }

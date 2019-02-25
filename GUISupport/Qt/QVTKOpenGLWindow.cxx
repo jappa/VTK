@@ -37,6 +37,7 @@ QVTKOpenGLWindow::QVTKOpenGLWindow(vtkGenericOpenGLRenderWindow* w,
   , EnableHiDPI(false)
   , OriginalDPI(0)
   , OffscreenSurface(nullptr)
+  , DefaultQVTKCursor(QCursor(Qt::ArrowCursor))
 {
   this->IrenAdapter = new QVTKInteractorAdapter(this);
   this->IrenAdapter->SetDevicePixelRatio(this->devicePixelRatio());
@@ -87,7 +88,6 @@ void QVTKOpenGLWindow::SetRenderWindow(vtkGenericOpenGLRenderWindow* w)
   {
     this->RenderWindow->Finalize();
     this->RenderWindow->SetReadyForRendering(false);
-    this->RenderWindow->SetMapped(0);
     this->EventSlotConnector->Disconnect(this->RenderWindow, vtkCommand::WindowMakeCurrentEvent,this, SLOT(MakeCurrent()));
     this->EventSlotConnector->Disconnect(this->RenderWindow, vtkCommand::WindowIsCurrentEvent, this, SLOT(IsCurrent(vtkObject*, unsigned long, void*, void*)));
     this->EventSlotConnector->Disconnect(this->RenderWindow, vtkCommand::WindowFrameEvent, this, SLOT(Frame()));
@@ -113,7 +113,6 @@ void QVTKOpenGLWindow::SetRenderWindow(vtkGenericOpenGLRenderWindow* w)
   this->RenderWindow->SetForceMaximumHardwareLineWidth(1);
   // if it is mapped somewhere else, unmap it
   this->RenderWindow->Finalize();
-  this->RenderWindow->SetMapped(1);
 
   // tell the vtk window what the size of this window is
   const qreal devicePixelRatio_ = this->devicePixelRatio();
@@ -156,6 +155,7 @@ void QVTKOpenGLWindow::SetRenderWindow(vtkGenericOpenGLRenderWindow* w)
   this->EventSlotConnector->Connect(this->RenderWindow, vtkCommand::WindowSupportsOpenGLEvent, this, SLOT(SupportsOpenGL(vtkObject*, unsigned long, void*, void*)));
   this->EventSlotConnector->Connect(this->RenderWindow, vtkCommand::WindowStereoTypeChangedEvent, this, SLOT(UpdateStereoType(vtkObject*, unsigned long, void*, void*)));
   this->EventSlotConnector->Connect(this->RenderWindow, vtkCommand::WindowResizeEvent, this, SLOT(ResizeToVTKWindow()));
+  this->EventSlotConnector->Connect(this->RenderWindow, vtkCommand::CursorChangedEvent, this, SLOT(ChangeCursor(vtkObject*, unsigned long, void*, void*)));
 }
 
 //-----------------------------------------------------------------------------
@@ -231,7 +231,7 @@ void QVTKOpenGLWindow::MakeCurrent()
   // importers instantiate renderwindows which in turn can change the
   // current context without Qt knowing about it
   //
-  // The end result is that MakeCurrent shoudl not rely on
+  // The end result is that MakeCurrent should not rely on
   // Qt's version of isCurrent to short circuit as it cannot be trusted.
   //
   if (!this->context())
@@ -570,4 +570,63 @@ bool QVTKOpenGLWindow::isCurrent()
   }
 
   return QOpenGLContext::currentContext() == this->context();
+}
+
+//-----------------------------------------------------------------------------
+void QVTKOpenGLWindow::ChangeCursor(vtkObject*, unsigned long, void*,
+  void* call_data)
+{
+  if (!this->RenderWindow)
+  {
+    return;
+  }
+
+  int* cShape = reinterpret_cast<int*> (call_data);
+  if (!cShape)
+  {
+    return;
+  }
+
+  switch (*cShape)
+  {
+    case VTK_CURSOR_CROSSHAIR:
+      this->setCursor(QCursor(Qt::CrossCursor));
+      break;
+    case VTK_CURSOR_SIZEALL:
+      this->setCursor(QCursor(Qt::SizeAllCursor));
+      break;
+    case VTK_CURSOR_SIZENS:
+      this->setCursor(QCursor(Qt::SizeVerCursor));
+      break;
+    case VTK_CURSOR_SIZEWE:
+      this->setCursor(QCursor(Qt::SizeHorCursor));
+      break;
+    case VTK_CURSOR_SIZENE:
+      this->setCursor(QCursor(Qt::SizeBDiagCursor));
+      break;
+    case VTK_CURSOR_SIZENW:
+      this->setCursor(QCursor(Qt::SizeFDiagCursor));
+      break;
+    case VTK_CURSOR_SIZESE:
+      this->setCursor(QCursor(Qt::SizeFDiagCursor));
+      break;
+    case VTK_CURSOR_SIZESW:
+      this->setCursor(QCursor(Qt::SizeBDiagCursor));
+      break;
+    case VTK_CURSOR_HAND:
+      this->setCursor(QCursor(Qt::PointingHandCursor));
+      break;
+    case VTK_CURSOR_ARROW:
+      this->setCursor(QCursor(Qt::ArrowCursor));
+      break;
+    default:
+      this->setCursor(this->DefaultQVTKCursor);
+      break;
+  }
+}
+
+//-----------------------------------------------------------------------------
+void QVTKOpenGLWindow::setDefaultQVTKCursor(const QCursor &cursor)
+{
+  this->DefaultQVTKCursor = cursor;
 }
